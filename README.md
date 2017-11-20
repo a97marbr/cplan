@@ -1,0 +1,2 @@
+# cplan
+Simple Course Planner
