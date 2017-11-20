@@ -1,0 +1,43 @@
+tbody tr:nth-child(odd) {
+    background-color: #ddd;
+}
+.confirmed{
+  
+}
+.unconfirmed{
+    background-color: #eea;
+}
+.mustchange{
+    background-color: #faa;
+}
+.error {
+    background-color: #aaf;
+}
+
+.menu {
+    background-color: #808;
+    color:#FFF;
+    padding: 20px;    
+    display:flex;
+    justify-content: space-between;
+}
+
+.user {
+    display: flex;
+    background-color: #606;
+    justify-content: flex-start;
+}
+
+.admin {
+    display: flex;
+    justify-content: flex-end;
+    background-color: #606;
+}
+
+.menu-item {
+    padding: 10px;
+}
+
+.menu a, .menu a:visited, .menu a:hover, .menu a:link {
+    color:#FFF;
+}
