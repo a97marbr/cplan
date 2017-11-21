@@ -2,7 +2,7 @@
 
     echo "<div class='menu'>";
     echo "<div class='user'>";
-    echo "<a class='menu-item' href='course_service.php'>Teaching Overview</a>";
+    echo "<a class='menu-item' href='course.php'>Teaching Overview</a>";
     echo "<a class='menu-item' href='teacher_service.php'>Teacher View</a>";
     echo "<a class='menu-item' href='planner_service.php'>Course Planner</a>";
     echo "</div>";
