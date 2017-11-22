@@ -80,3 +80,9 @@ tbody tr:nth-child(odd) {
 .dropdown a:hover {background-color: #f1f1f1}
 
 .show {display:block;}
+
+.ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

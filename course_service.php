@@ -107,15 +107,15 @@
         }
         
     }
-    
+/*    
     ksort($teachers);
     $max_teachers = count($teachers);
-    
+  */  
     foreach($teachers as $key => $teacher){
         if ($sprogram=="ALL"){
-            $sql='select a.sign,sum(b.hours) as total from (select sign,tid from teacher) a left outer join (select hours,teacher from teaching,course_instance where teaching.ciid=course_instance.ciid and course_instance.year=:year) b ON a.tid=b.teacher group by sign ORDER BY sign;';
+            $sql='select a.lname,a.sign,sum(b.hours) as total from (select lname,sign,tid from teacher) a left outer join (select hours,teacher from teaching,course_instance where teaching.ciid=course_instance.ciid and course_instance.year=:year) b ON a.tid=b.teacher group by sign ORDER BY sign;';
         } else {
-            $sql='select a.sign,sum(b.hours) as total from (select sign,tid from teacher) a left outer join (select hours,teacher from teaching,course_instance where teaching.ciid=course_instance.ciid and course_instance.year=:year and study_program like :sprogram) b ON a.tid=b.teacher group by sign ORDER BY sign;';
+            $sql='select a.lname,a.sign,sum(b.hours) as total from (select lname,sign,tid from teacher) a left outer join (select hours,teacher from teaching,course_instance where teaching.ciid=course_instance.ciid and course_instance.year=:year and study_program like :sprogram) b ON a.tid=b.teacher group by sign ORDER BY sign;';
         }      
         
         $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));

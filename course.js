@@ -169,7 +169,7 @@ function render(json){
       } else {
           str+= "<tr>";              
       }
-      str+="<td>"+course.ccode+"</td><td>"+course.cname+"</td><td>"+course.class+"</td><td>"+course.credits+"</td><td>"+course.start_period+"</td><td>"+course.end_period+"</td><td style='text-align:center;'>"+course.students+"</td>";
+      str+="<td>"+course.ccode+"</td><td><div style='max-width:250px;' class='ellipsis'>"+course.cname+"</div></td><td>"+course.class+"</td><td>"+course.credits+"</td><td>"+course.start_period+"</td><td>"+course.end_period+"</td><td style='text-align:center;'>"+course.students+"</td>";
       for(let teacher in course.teachers){
           let cellid=null;
           if(course.teachers[teacher].teid){
@@ -191,7 +191,7 @@ function render(json){
 
               //str+="<td class='"+status+"' ";
               //str+="style='text-align:center'><input type='text' "+course.teachers[teacher].hours+"</td>";
-              str+="<td style='text-align:center'><input maxlength='5' size='5' class='timecell "+status+"' id='teid_"+cellid+"' value='"+course.teachers[teacher].hours+"'>";
+              str+="<td style='text-align:center'><div style='min-width:100px;'><input maxlength='5' size='5' class='timecell "+status+"' id='teid_"+cellid+"' value='"+course.teachers[teacher].hours+"'>";
               /*
               str+="<div class='dropdown'>";
               str+="<div onclick='dropdown("+json.courses[cinstance].teid+")' class='dropbtn'>*</div>";
@@ -205,7 +205,7 @@ function render(json){
               str+="</td>";
               */
           } else {
-              str+= "<td style='text-align:center'><input maxlength='5' size='5' class='newtimecell' id='"+cellid+"'>";
+              str+= "<td style='text-align:center'><div style='min-width:100px;'><input maxlength='5' size='5' class='newtimecell' id='"+cellid+"'>";
           }
           str+="<div class='dropdown'>";
           str+="<div onclick='dropdown("+cellid+")' class='dropbtn'>*</div>";
@@ -214,6 +214,7 @@ function render(json){
           str+="<div class='unconfirmed' onclick='updateStatus("+cellid+",1)'>Unconfirmed</div>";
           str+="<div class='mustchange' onclick='updateStatus("+cellid+",2)'>Must change</div>";
           str+="<div class='error' onclick='updateStatus("+cellid+",3)'>Error</div>";
+          str+="</div>";
           str+="</div>";
           str+="</div>";
           str+="</td>";                  
