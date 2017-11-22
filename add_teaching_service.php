@@ -33,6 +33,11 @@
     ?>
     </select>    
     Hours:<input type="text" name="hours">
+    <select size='1' name='status'>
+        <option value='0'><span>Confirmed</span></option>
+        <option value='1'><span class='unconfirmed'>Unconfirmed</span></option>
+        <option value='2'><span class='mustchange'>Must change</span></option>
+    </select>
     <input type="submit" value="Send">
 </form>
  
@@ -50,13 +55,19 @@
         } else {
             $hours=null;
         }
+        if(isset($_POST['status'])){
+            $status=intval($_POST['status']);
+        } else {
+            $status=0;
+        }
         
-        $sql = 'INSERT INTO teaching (teacher,ciid,hours) VALUES(:tid,:ciid,:hours);';
+        $sql = 'INSERT INTO teaching (teacher,ciid,hours,status) VALUES(:tid,:ciid,:hours,:status);';
         
         $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
         $stmt->bindParam(':tid', $tid);
         $stmt->bindParam(':ciid', $ciid);
         $stmt->bindParam(':hours', $hours);
+        $stmt->bindParam(':status', $status);
         $stmt->execute();        
     }
  
