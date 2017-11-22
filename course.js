@@ -29,7 +29,7 @@ function getData(){
     if($('#sprogram').val()){
         sprogram=$('#sprogram').val();
     } else {
-        sprogram='WEBUG';
+        sprogram='ALL';
     }
   
     //alert(y + " " + sp);
