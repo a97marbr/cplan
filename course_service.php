@@ -15,9 +15,61 @@
     } else {
         $sprogram="ALL";
     }
+    if(isset($_POST['op'])){
+        $op=$_POST['op'];
+    } else {
+        $op="UNK";
+    }    
+    if(isset($_POST['teid'])){
+        $teid=intval($_POST['teid']);
+    } else {
+        $teid="UNK";
+    }
+    if(isset($_POST['hours'])){
+        $hours=intval($_POST['hours']);
+    } else {
+        $hours="UNK";
+    }
+    if(isset($_POST['status'])){
+        $status=intval($_POST['status']);
+    } else {
+        $status="UNK";
+    }
+    if(isset($_POST['ciid'])){
+        $ciid=intval($_POST['ciid']);
+    } else {
+        $ciid="UNK";
+    }
+    if(isset($_POST['tid'])){
+        $tid=intval($_POST['tid']);
+    } else {
+        $tid="UNK";
+    }
+    
     $courses = array();
     $teachers = array();
     $max_teachers=0;
+    
+    if ($op=="UPDATE" && $isUnlocked){
+      if ($teid!=="UNK" && $hours!=="UNK" && $status!=="UNK"){
+          $sql = 'UPDATE teaching SET hours=:hours,status=:status WHERE teid=:teid;';
+          
+          $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+          $stmt->bindParam(':teid', $teid);
+          $stmt->bindParam(':hours', $hours);
+          $stmt->bindParam(':status', $status);
+          $stmt->execute();
+      } else if ($teid=="UNK" && $hours!=="UNK" && $status!=="UNK" && $ciid!=="UNK" && $tid!=="UNK"){
+          $sql = 'INSERT INTO teaching (hours,status,ciid,teacher) VALUES(:hours,:status,:ciid,:tid);';
+          
+          $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+          $stmt->bindParam(':hours', $hours);
+          $stmt->bindParam(':status', $status);          
+          $stmt->bindParam(':ciid', $ciid);
+          $stmt->bindParam(':tid', $tid);
+          $stmt->execute();
+      }
+    }    
 
     if ($sprogram=="ALL"){
         $sql = 'SELECT * FROM course,course_instance where course.cid=course_instance.cid and course_instance.year=:year ORDER BY start_period,cname;';  
@@ -37,13 +89,13 @@
             
     foreach($courses as $ciid => $row){
         $no_teachers = 0;
-        $sql = 'select a.lname,a.fname,a.sign,b.hours from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
+        $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
         
         $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
         $stmt->bindParam(':ciid', $ciid);
         $stmt->execute();
         foreach($stmt as $key => $row){
-            $teacher = array('sign'=>$row['sign'],'hours'=>$row['hours']);
+            $teacher = array('sign'=>$row['sign'],'hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid'],'tid'=>$row['tid']);
             array_push($courses[$ciid]['teachers'], $teacher);
             $tmp = array('sign'=>$row['sign'],'name'=>$row['fname']." ".$row['lname']);
             /*

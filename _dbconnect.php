@@ -7,4 +7,5 @@
     $pdo = new PDO('mysql:dbname='.constant("DB_NAME").';host='.constant("DB_HOST"), constant("DB_USER"), constant("DB_PASSWORD"));
     // Uncomment if on development server
     //$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
+    $isUnlocked=false;
 ?>

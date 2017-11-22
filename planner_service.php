@@ -67,7 +67,7 @@
         $stmt->bindParam(':ciid', $ciid);
         $stmt->execute();
         foreach($stmt as $key => $row){
-            $teacher = array('sign'=>$row['sign'],'hours'=>$row['hours']);
+            $teacher = array('sign'=>$row['sign'],'hours'=>$row['hours'],'status'=>$row['status']);
             array_push($courses[$ciid]['teachers'], $teacher);
             $tmp = array('sign'=>$row['sign'],'name'=>$row['fname']." ".$row['lname']);
             /*
@@ -116,7 +116,19 @@
                 echo "<td></td>";
                 $idx++;
             }
-            echo "<td style='text-align:center'>".$teacher['hours']."</td>";
+            
+            $status="confirmed";
+            if ($teacher['status']==0){
+                $status="confirmed";
+            } else if ($teacher['status']==1){
+                $status="unconfirmed";
+            } else if ($teacher['status']==2){
+                $status="mustchange";
+            }else {
+                $status="error";
+            }
+            
+            echo "<td style='text-align:center' class='".$status."'>".$teacher['hours']."</td>";
             $idx++;
         }
         while($idx <= $max_teachers){
@@ -146,6 +158,7 @@
     echo "</tfoot></table>";
     
     echo "</table>";
+    echo "<div><span class='unconfirmed'>Unconfirmed</span><span class='mustchange'>Must change</span><span class='error'>Error</span></div>"
     /*
     echo "<pre>";
     var_dump($courses);
