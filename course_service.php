@@ -72,68 +72,70 @@
     }    
 
     if ($sprogram=="ALL"){
-        $sql = 'SELECT * FROM course,course_instance where course.cid=course_instance.cid and course_instance.year=:year ORDER BY start_period,cname;';  
+        $csql = 'SELECT * FROM course,course_instance where course.cid=course_instance.cid and course_instance.year=:year ORDER BY start_period,cname;';  
     } else {
-        $sql = 'SELECT * FROM course,course_instance where course.cid=course_instance.cid and course_instance.year=:year and course_instance.study_program like :sprogram ORDER BY study_program,start_period,cname;';  
+        $csql = 'SELECT * FROM course,course_instance where course.cid=course_instance.cid and course_instance.year=:year and course_instance.study_program like :sprogram ORDER BY study_program,start_period,cname;';  
     }
-    $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));    
-    $stmt->bindParam(':year', $year);
+    $cstmt = $pdo->prepare($csql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));    
+    $cstmt->bindParam(':year', $year);
     if ($sprogram!="ALL"){
-        $stmt->bindParam(':sprogram', $sprogram);
+        $cstmt->bindParam(':sprogram', $sprogram);
     }
-    $stmt->execute();
-    foreach($stmt as $key => $row){
-        //$courses[]=array('ccode'=>$row['ccode'],'cname'=>$row['cname'],'class'=>$row['class'],'credits'=>$row['credits'],'start_period'=>$row['start_period'],'end_period'=>$row['end_period'], 'students'=>$row['students'],'study_program'=>$row['study_program'], 'teachers'=>array());
-        $courses[$row['ciid']]=array('ccode'=>$row['ccode'],'cname'=>$row['cname'],'class'=>$row['class'],'credits'=>$row['credits'],'start_period'=>$row['start_period'],'end_period'=>$row['end_period'], 'students'=>$row['students'],'study_program'=>$row['study_program'], 'teachers'=>array());
-    }
-            
-    foreach($courses as $ciid => $row){
-        $no_teachers = 0;
+    $cstmt->execute();
+    
+    $tblhead=array();
+    $tblbody=array();
+    $tblfoot=array();
+    
+    $tblhead[]='Course Code';
+    $tblhead[]='Course Name';
+    $tblhead[]='Class';
+    $tblhead[]='Credits';
+    $tblhead[]='Start';
+    $tblhead[]='End';
+    $tblhead[]='Students';
+    $tblhead[]='SProgram';    
+
+    $hasHeading=false;
+    $hasFooter=false;
+    foreach($cstmt as $ckey => $crow){
+        $course = array();
+        //$courses[]=array('ccode'=>$row['ccode'],'cname'=>$row['cname'],'class'=>$row['class'],'credits'=>$row['credits'],'start_period'=>$row['start_period'],'end_period'=>$row['end_period'], 'students'=>$row['students'],'study_program'=>$row['study_program'], 'teachers'=>array());    
+        //$course = array('ccode'=>$row['ccode'],'cname'=>$row['cname'],'class'=>$row['class'],'credits'=>$row['credits'],'start_period'=>$row['start_period'],'end_period'=>$row['end_period'], 'students'=>$row['students'],'study_program'=>$row['study_program'], 'teachers'=>array());
+        array_push($course,$crow['ccode']);
+        array_push($course,$crow['cname']);
+        array_push($course,$crow['class']);
+        array_push($course,$crow['credits']);
+        array_push($course,$crow['start_period']);
+        array_push($course,$crow['end_period']);
+        array_push($course,$crow['students']);
+        array_push($course,$crow['study_program']);
+        
         $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
         
         $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
-        $stmt->bindParam(':ciid', $ciid);
+        $stmt->bindParam(':ciid', $crow['ciid']);
         $stmt->execute();
         foreach($stmt as $key => $row){
-            $teacher = array('sign'=>$row['sign'],'hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid'],'tid'=>$row['tid']);
-            array_push($courses[$ciid]['teachers'], $teacher);
-            $tmp = array('sign'=>$row['sign'],'name'=>$row['fname']." ".$row['lname']);
-            /*
-            if (!in_array($tmp,$teachers)){
-                array_push($teachers,$tmp);
+            if(!$hasHeading){
+              array_push($tblhead,$row['sign']);
             }
-            */
-            $teachers[$row['sign']]=array('name'=>$row['fname']." ".$row['lname']);
+            if ($row['hours']){
+                array_push($course,$row['hours']);
+            } else {
+                array_push($course,"UNK");
+            }
         }
-        
+        $hasHeading=true;
+
+        if($hasFooter){
+            $hasFooter=true;
+        }
+        $tblbody[]=$course;
     }
-/*    
-    ksort($teachers);
-    $max_teachers = count($teachers);
-  */  
-    foreach($teachers as $key => $teacher){
-        if ($sprogram=="ALL"){
-            $sql='select a.lname,a.sign,sum(b.hours) as total from (select lname,sign,tid from teacher) a left outer join (select hours,teacher from teaching,course_instance where teaching.ciid=course_instance.ciid and course_instance.year=:year) b ON a.tid=b.teacher group by sign ORDER BY sign;';
-        } else {
-            $sql='select a.lname,a.sign,sum(b.hours) as total from (select lname,sign,tid from teacher) a left outer join (select hours,teacher from teaching,course_instance where teaching.ciid=course_instance.ciid and course_instance.year=:year and study_program like :sprogram) b ON a.tid=b.teacher group by sign ORDER BY sign;';
-        }      
-        
-        $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
-        //$stmt->bindParam(':sign', $key);
-        $stmt->bindParam(':year', $year);
-        if ($sprogram!="ALL"){
-            $stmt->bindParam(':sprogram', $sprogram);
-        }
-        $stmt->execute();
-        
-        foreach($stmt as $key => $row){
-            $teachers[$row['sign']]['total']=$row['total'];
-            //echo "<td style='text-align:center'>".$row['total']."</td>";
-        }
-    }
+
     $data=array(
-      "courses" => $courses,
-      "teachers" => $teachers
+      "tbldata" => array("tblhead" => $tblhead,"tblbody" => $tblbody,"tblfoot" => $tblfoot)
     );
     echo json_encode($data);
 ?>
