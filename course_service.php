@@ -87,7 +87,7 @@
     $tblbody=array();
     $tblfoot=array();
     
-    $tblhead[]='Course Code';
+    $tblhead[]='CCode';
     $tblhead[]='Course Name';
     $tblhead[]='Class';
     $tblhead[]='Credits';
@@ -109,7 +109,12 @@
         array_push($course,$crow['start_period']);
         array_push($course,$crow['end_period']);
         array_push($course,$crow['students']);
-        array_push($course,$crow['study_program']);
+        if ($crow['study_program']){
+            array_push($course,$crow['study_program']);
+        } else {
+            array_push($course,"UNK");
+        }
+
         
         $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
         
@@ -118,7 +123,7 @@
         $stmt->execute();
         foreach($stmt as $key => $row){
             if(!$hasHeading){
-              array_push($tblhead,$row['fname'].' '.$row['lname'].'('.$row['sign'].')');
+              array_push($tblhead,$row['fname'].' '.$row['lname'].' ('.$row['sign'].')');
             }
             if ($row['hours']){
                 array_push($course,array('hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid']));
@@ -127,13 +132,19 @@
             }
         }
         $hasHeading=true;
+        if ($crow['comment']){
+            array_push($course,$crow['comment']);          
+        } else {
+            array_push($course,"UNK");
+        }
 
         if($hasFooter){
             $hasFooter=true;
         }
         $tblbody[]=$course;
     }
-
+    $tblhead[]='Comment';
+    
     $data=array(
       "tbldata" => array("tblhead" => $tblhead,"tblbody" => $tblbody,"tblfoot" => $tblfoot)
     );

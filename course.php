@@ -28,6 +28,7 @@
     </select>
     <button onclick="getData()">Get Data</button>
 </div> 
+<h2>Column filter for Course Table</h2>
 <div id="columnFilter"></div>
 <table id="c"  style='border-collapse: collapse;'></table>
 

@@ -86,3 +86,7 @@ tbody tr:nth-child(odd) {
   white-space: nowrap;
   overflow: hidden;
 }
+
+table {
+    margin-top:30px;
+}

@@ -44,7 +44,7 @@ function getData(){
           //alert( "success"+data );
           var json = JSON.parse(data);
           //render(json);
-          myTable = new sortableTable(json.tbldata,"c","columnFilter","Teaching allocation for WEBUG courses in year"+year,
+          myTable = new sortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+y,
               function(celldata, col){return renderCell(celldata,col)},
               function(col, status){return renderSortOptions(col,status)},
               function(col, status){return renderColumnFilter(col,status)},
@@ -386,14 +386,11 @@ function insertTeaching(param,ciid,tid){
 		
 function renderColumnFilter(col,status){
 		
-		str="";
-
     if(status){
 				str="<span style='margin: 0 15px'><label>"+col+"</label>:<input type='checkbox' checked onclick='myTable.toggleColumn(\""+col+"\")'><span>";
 		}else{
 				str="<span style='margin: 0 15px'><label>"+col+"</label>:<input type='checkbox' onclick='myTable.toggleColumn(\""+col+"\")'></span>";
 		}
-
 		return str;
 }
 
@@ -407,48 +404,44 @@ function renderSortOptions(col,status){
 		str="";
 		
 		if(status==-1){
-				if(col=="First/Last"){
-						str+="<span onclick='myTable.toggleSortStatus(\"First/Last\",1)'>First</span>/";								
-						str+="<span onclick='myTable.toggleSortStatus(\"First/Last\",3)'>Last</span>";								
-				}else{
-						str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";				
+
+				if(col=="CCode" || col=="Course Name" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram" || col=="Comment"){
+            str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
+        }else{
+            let sign=col.substring(col.lastIndexOf(" "),col.length);
+            let fname=col.substring(0,col.indexOf(" "));
+            let lname=col.substring(col.indexOf(" ")+1,col.lastIndexOf(" "));
+            str+="<div style='display:inline-block;margin:0 15px;'>";
+            str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+fname+" "+lname+"</span> ";				
+            str+="</div><div>";
+            str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+sign+"</span>";				
+            str+="</div>";
 				}
 		}else{
-				if(col=="First/Last"){
-						// First up/down vs Last up/down
-						if(status==0||status==1){
-								if(status==0){
-										str+="<span onclick='myTable.toggleSortStatus(\"First/Last\",1)'>First&#x25b4;</span>/";								
-								}else{
-										str+="<span onclick='myTable.toggleSortStatus(\"First/Last\",0)'>First&#x25be;</span>/";								
-								}
-								str+="<span onclick='myTable.toggleSortStatus(\"First/Last\",2)'>Last</span>";								
-						}
-						else if(status==2||status==3){
-								str+="<span onclick='myTable.toggleSortStatus(\"First/Last\",1)'>First</span>/";								
-								if(status==2){
-										str+="<span onclick='myTable.toggleSortStatus(\"First/Last\",3)'>Last&#x25b4;</span>";								
-								}else{
-										str+="<span onclick='myTable.toggleSortStatus(\"First/Last\",2)'>Last&#x25be;</span>";								
-								}
-						}		            
-				} else if(col=="Trumma"){
-						// Special sort for Trumma (JSON structure)
-            str+="<span>"+col+"</span>";
-            str+="<select onchange='myTable.toggleSortStatus(\""+col+"\",this.value)'>";
-            str+="<option hidden disabled selected value>Select Sort</option>"
-            str+="<option value='0'>x&#x25be;/y</option>";
-            str+="<option value='1'>x&#x25b4;/y</option>";
-            str+="<option value='2'>x/y&#x25be;</option>";
-            str+="<option value='3'>x/y&#x25b4;</option>";
-            str+="</select>";
-				} else{
-						if(status){
-								str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b4;</span>";
-						}else{
-								str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25be;</span>";
-						}
-				}
+        if(col=="Course Code" || col=="Course Name" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram"){
+            if(status){
+                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b4;</span>";
+            }else{
+                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25be;</span>";
+            }
+        }else{
+            let sign=col.substr(col.lastIndexOf(" "),col.length);
+            let fname=col.substr(0,col.indexOf(" "));
+            let lname=col.substring(col.indexOf(" ")+1,col.lastIndexOf(" "));         
+            if(status==0){
+              str+="<div style='display:inline-block;margin:0 15px;'>";
+              str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+fname+" "+lname+" &#x25b4;</span> ";				
+              str+="</div><div>";
+              str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+sign+"</span>";				
+              str+="</div>";
+            }else{
+              str+="<div style='display:inline-block;margin:0 15px;'>";
+              str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+fname+" "+lname+" &#x25be;</span> ";				
+              str+="</div><div>";
+              str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+sign+"</span>";				
+              str+="</div>";
+            }
+        }      
 		}
 
 		return str;
@@ -462,27 +455,39 @@ function renderSortOptions(col,status){
 		
 function renderCell(celldata,col){
     let t="";
-    if(col=="Course Code"){
-        t=celldata;
-    } else if (col=="Course Name") {
-        t=celldata;      
-    } else if (col=="Class") {
-        t=celldata;      
-    } else if (col=="Credits") {
-        t=celldata;      
-    } else if (col=="Start") {
-        t=celldata;      
-    } else if (col=="End") {
+    if(col=="CCode"){
+        t="<span style='font-family:monospace'>"+celldata+"</span>";
+    } else if (col=="Course Name" || col=="Class" || col=="Credits" || col=="Start" || col=="End") {
         t=celldata;      
     } else if (col=="Students") {
         t="<span style='text-align:right'>"+celldata+"</span>";
     } else if (col=="SProgram") {
-        t=celldata;      
+        if (celldata==="UNK"){
+            t="<span> </span>";
+        } else {
+            t=celldata;        
+        }      
+    } else if (col=="Comment") {
+        if (celldata==="UNK"){
+            t="<span style='border-left:1px solid #000'> </span>";
+        } else {
+            t="<span style='border-left:1px solid #000'>"+celldata+"</span>";        
+        }      
     } else {
         if (celldata.hours==="UNK"){
             t="<span> </span>";
         } else {
-            t="<span style='text-align:right'>"+celldata.hours+"</span>";
+            let sclass="";
+            if (celldata.status==0){
+                sclass="confirmed";
+            } else if (celldata.status==1){
+                sclass="unconfirmed";
+            } else if (celldata.status==2){
+                sclass="mustchange";
+            }else {
+                sclass="error";
+            }
+            t="<div style='text-align:center' class='"+sclass+"'>"+celldata.hours+"</div>";
         }        
     }
 		return t;
@@ -504,60 +509,31 @@ function rowFilter(row){
 //  Callback function with different compare alternatives for the column sort
 //--------------------------------------------------------------------------
 function compare(colno,status){
-    if (colno==0){
-        // Sort Fname / Lname
-        if(status==0){
+    if (colno>7){
+        // Sort on hours
+        if(status==0){          
             return function(a,b){
-                if (a[colno].substr(0,a[colno].indexOf(' ')) < b[colno].substr(0,b[colno].indexOf(' '))) return 1;
-                if (a[colno].substr(0,a[colno].indexOf(' ')) > b[colno].substr(0,b[colno].indexOf(' '))) return -1;
-                return 0;
-            }    
-        } else if(status==1){
-            return function(a,b){
-                if (a[colno].substr(0,a[colno].indexOf(' ')) < b[colno].substr(0,b[colno].indexOf(' '))) return -1;
-                if (a[colno].substr(0,a[colno].indexOf(' ')) > b[colno].substr(0,b[colno].indexOf(' '))) return 1;
-                return 0;
-            }    
-        } else if(status==2){
-            return function(a,b){
-                if (a[colno].substr(a[colno].indexOf(' ')+1) < b[colno].substr(b[colno].indexOf(' ')+1)) return 1;
-                if (a[colno].substr(a[colno].indexOf(' ')+1) > b[colno].substr(b[colno].indexOf(' ')+1)) return -1;
+                var left = (isNaN(a[colno].hours)) ? 0 : parseInt(a[colno].hours);
+                var right = (isNaN(b[colno].hours)) ? 0 : parseInt(b[colno].hours);
+                
+                if (left < right)
+                    return -1;
+                if (left > right) 
+                    return 1;
                 return 0;
             }    
         } else {
             return function(a,b){
-                if (a[colno].substr(a[colno].indexOf(' ')+1) < b[colno].substr(b[colno].indexOf(' ')+1)) return -1;
-                if (a[colno].substr(a[colno].indexOf(' ')+1) > b[colno].substr(b[colno].indexOf(' ')+1)) return 1;
+                var left = (isNaN(a[colno].hours)) ? 0 : parseInt(a[colno].hours);
+                var right = (isNaN(b[colno].hours)) ? 0 : parseInt(b[colno].hours);
+                
+                if (left < right)
+                    return 1;
+                if (left > right) 
+                    return -1;
                 return 0;
             }    
         }      
-    } else if (colno==4){
-        // Sort "Trumma"
-        if(status==0){
-            return function(a,b){
-                if (a[colno].xk < b[colno].xk) return 1;
-                if (a[colno].xk > b[colno].xk) return -1;
-                return 0;
-            }    
-        } else if(status==1){
-            return function(a,b){
-                if (a[colno].xk < b[colno].xk) return -1;
-                if (a[colno].xk > b[colno].xk) return 1;
-                return 0;
-            }    
-        } else if(status==2){
-            return function(a,b){
-                if (a[colno].yk < b[colno].yk) return 1;
-                if (a[colno].yk > b[colno].yk) return -1;
-                return 0;
-            }    
-        } else {
-            return function(a,b){
-              if (a[colno].yk < b[colno].yk) return -1;
-              if (a[colno].yk > b[colno].yk) return 1;
-                return 0;
-            }    
-        }              
     } else {
         // Sorts as number if numeric and as string otherwise
         if(status==0){
