@@ -118,12 +118,12 @@
         $stmt->execute();
         foreach($stmt as $key => $row){
             if(!$hasHeading){
-              array_push($tblhead,$row['sign']);
+              array_push($tblhead,$row['fname'].' '.$row['lname'].'('.$row['sign'].')');
             }
             if ($row['hours']){
-                array_push($course,$row['hours']);
+                array_push($course,array('hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid']));
             } else {
-                array_push($course,"UNK");
+                array_push($course,array('hours'=>"UNK",'status'=>"UNK",'teid'=>"UNK"));
             }
         }
         $hasHeading=true;
