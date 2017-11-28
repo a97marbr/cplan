@@ -174,7 +174,7 @@ function insertComment(ciid,comment){
     var jqxhr = $.ajax({
             type: 'POST',
             url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment
+            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment+'&students=UNK'
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
@@ -210,7 +210,7 @@ function updateComment(ciid,comment){
     var jqxhr = $.ajax({
             type: 'POST',
             url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment+'&students='
+            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment+'&students=UNK'
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
@@ -245,7 +245,7 @@ function updateStudents(ciid,students){
     var jqxhr = $.ajax({
             type: 'POST',
             url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment=&students='+students
+            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment=UNK&students='+students
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
@@ -307,8 +307,8 @@ function renderSortOptions(col,status){
             str+="</div>";
 				}
 		}else{
-        if(col=="Course Code" || col=="Course Name" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram"){
-            if(status){
+        if(col=="CCode" || col=="Course Name" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram"){
+            if(status==0){
                 str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b4;</span>";
             }else{
                 str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25be;</span>";
@@ -369,7 +369,7 @@ function renderCell(celldata,col,cellid){
         if (celldata==="UNK"){
             t="<div class='ellipsis' style='max-width:300px;'> </div>";
         } else {
-            t="<div class='ellipsis' style='max-width:300px;'>"+celldata+"</div>";        
+            t="<div class='ellipsis' style='max-width:300px;' title='"+celldata+"'>"+celldata+"</div>";        
         }      
     } else {
         if (celldata.teid==="UNK"){
@@ -415,15 +415,21 @@ function compare(a,b){
         if ( a < b ) return -1; 
         if ( a > b ) return 1; 
         return 0; 
-    } else if (col == "Credits" || col == "Students"){
+    } else if (col == "Credits"){
         // We allways sort none numbers below 
         let tmp=(currentTable.ascending) ? -1000000 : 1000000;
         
         let left = (isNaN(a)) ? tmp : +a; 
         let right = (isNaN(b)) ? tmp : +b; 
-        
         return right-left;     
-    }  else if (col == "SProgram"){
+    }  else if (col == "Students"){
+        // We allways sort none numbers below 
+        let tmp=(currentTable.ascending) ? -1000000 : 1000000;
+        
+        let left = (isNaN(a.students)) ? tmp : +a.students; 
+        let right = (isNaN(b.students)) ? tmp : +b.students; 
+        return right-left;     
+    } else if (col == "SProgram"){
         // We allways sort empty cells below 
         let tmp=(currentTable.ascending) ? -1 : 1;
         if ( a=="UNK" ) return -tmp;

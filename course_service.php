@@ -46,12 +46,20 @@
         $tid="UNK";
     }
     if(isset($_POST['comment'])){
-        $comment=$_POST['comment'];
+        if($_POST['comment']!=="UNK"){
+            $comment=$_POST['comment'];
+        } else {
+            $comment="UNK";
+        }
     } else {
         $comment="UNK";
     }   
     if(isset($_POST['students'])){
-        $students=intval($_POST['students']);
+        if($_POST['students']!=="UNK"){
+            $students=intval($_POST['students']);
+        } else {
+            $students="UNK";
+        }        
     } else {
         $students="UNK";
     } 
