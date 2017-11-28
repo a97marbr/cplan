@@ -1,9 +1,28 @@
+// Keep track of Currently active Table
+var currentTable=null;
 
-function sortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions,renderColumnFilter,rowFilter,compare) {
+// Global sorting function global
+function sortableInternalSort(a,b)
+{
+		let ret=0;		
+		let colno=currentTable.tbl.tblhead.indexOf(currentTable.sortcolumn);
+		
+		if(currentTable.ascending){
+				//alert("Compare: "+a+" "+b);			
+				ret=compare(a[colno],b[colno]);
+		} else {
+				//alert("Compare: "+b+" "+a);
+				ret=compare(b[colno],a[colno]);
+		}		
+		return ret;
+}
+
+function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions,renderColumnFilter,rowFilter) {
 
 		this.columnfilter=[];
 		this.sortcolumn="UNK";
-		this.sortstatus=true;
+		this.sortkind=-1;
+		this.ascending=false;
 		this.tbl=tbl;
 		this.tableid=tableid;
 		this.filterid=filterid;
@@ -12,7 +31,6 @@ function sortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 		this.renderSortOptions=renderSortOptions;
 		this.renderColumnFilter=renderColumnFilter;
 		this.rowFilter=rowFilter;
-		this.compare=compare;
 								
 		this.renderTable = function ()
 		{
@@ -21,15 +39,26 @@ function sortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 		
 		this.reRender = function ()
 		{
+				// Assign currently active table
+				currentTable=this;
+
 				// Global that contains rendered html for column filter div
 				this.columnfilter = JSON.parse(localStorage.getItem(this.tableid+"_filtercolnames"));
 
-				if(this.columnfilter == null) this.columnfilter=[];
+				let isFirstVisit=false;
+				if(this.columnfilter == null) {
+						isFirstVisit=true;
+						this.columnfilter=[];
+				} 
 
 				var filterstr="";
 				for(let colno in this.tbl.tblhead){
 						var col=this.tbl.tblhead[colno];
-						filterstr+=this.renderColumnFilter(col,this.columnfilter.indexOf(col)>-1);
+						if(isFirstVisit){
+								this.columnfilter.push(col);
+						} 
+						filterstr+=this.renderColumnFilter(col,this.columnfilter.indexOf(col)>-1);							
+						
 				}
 				document.getElementById(this.filterid).innerHTML=filterstr;
 
@@ -44,7 +73,7 @@ function sortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 							var col=this.tbl.tblhead[colno];
 							if(this.columnfilter.indexOf(col)>-1){
 									if(col==this.sortcolumn){
-											str+= "<th>"+this.renderSortOptions(col,this.sortstatus)+"</th>";
+											str+= "<th>"+this.renderSortOptions(col,this.sortkind)+"</th>";
 									}else{
 											str+= "<th>"+this.renderSortOptions(col,-1)+"</th>";
 									}
@@ -62,8 +91,9 @@ function sortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 								for(let colno in row){
 									col=row[colno];
 									if(this.columnfilter.indexOf(this.tbl.tblhead[colno])>-1){
-											str+="<td>";
-											str+=this.renderCell(col,this.tbl.tblhead[colno]);
+											let cellid="r"+rowno+"c"+colno;
+											str+="<td id='"+cellid+"'>";
+											str+=this.renderCell(col,this.tbl.tblhead[colno],cellid);
 											str+="</td>";						
 									}
 								}
@@ -90,6 +120,9 @@ function sortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 
 		this.toggleColumn = function(col)
 		{
+				// Assign currently active table
+				currentTable=this;
+
 				if(this.columnfilter.indexOf(col)==-1){
 						this.columnfilter.push(col);
 				}else{
@@ -101,13 +134,19 @@ function sortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 				this.reRender();
 		}
 
-		this.toggleSortStatus = function(col,status)
+		this.toggleSortStatus = function(col,kind)
 		{
+				// Assign currently active table
+				currentTable=this;
+				
 				this.sortcolumn=col;
-				this.sortstatus=status;		
+				this.sortkind=kind;		
 				
-				this.tbl.tblbody.sort(this.compare(this.tbl.tblhead.indexOf(col),this.sortstatus));
+				this.ascending=!this.ascending;
 				
+				// Sort the body of the table again
+				this.tbl.tblbody.sort(sortableInternalSort);
+								
 				this.reRender();
 		}
 		

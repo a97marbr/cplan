@@ -45,31 +45,58 @@
     } else {
         $tid="UNK";
     }
+    if(isset($_POST['comment'])){
+        $comment=$_POST['comment'];
+    } else {
+        $comment="UNK";
+    }    
     
+    $error="UNK";
     $courses = array();
     $teachers = array();
     $max_teachers=0;
     
     if ($op=="UPDATE" && $isUnlocked){
-      if ($teid!=="UNK" && $hours!=="UNK" && $status!=="UNK"){
-          $sql = 'UPDATE teaching SET hours=:hours,status=:status WHERE teid=:teid;';
-          
-          $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
-          $stmt->bindParam(':teid', $teid);
-          $stmt->bindParam(':hours', $hours);
-          $stmt->bindParam(':status', $status);
-          $stmt->execute();
-      } else if ($teid=="UNK" && $hours!=="UNK" && $status!=="UNK" && $ciid!=="UNK" && $tid!=="UNK"){
-          $sql = 'INSERT INTO teaching (hours,status,ciid,teacher) VALUES(:hours,:status,:ciid,:tid);';
-          
-          $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
-          $stmt->bindParam(':hours', $hours);
-          $stmt->bindParam(':status', $status);          
-          $stmt->bindParam(':ciid', $ciid);
-          $stmt->bindParam(':tid', $tid);
-          $stmt->execute();
-      }
-    }    
+        if ($teid!=="UNK" && $hours!=="UNK" && $status!=="UNK"){
+            $sql = 'UPDATE teaching SET hours=:hours,status=:status,changed_ts=NOW() WHERE teid=:teid;';
+            
+            $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $stmt->bindParam(':teid', $teid);
+            $stmt->bindParam(':hours', $hours);
+            $stmt->bindParam(':status', $status);
+            if(!$stmt->execute()){
+                $error=$stmt->errorInfo();
+            }
+        } 
+    } else if ($op=="INSERT" && $isUnlocked){
+        if ($teid=="UNK" && $hours!=="UNK" && $status!=="UNK" && $ciid!=="UNK" && $tid!=="UNK"){
+            $sql = 'INSERT INTO teaching (hours,status,ciid,teacher,create_ts) VALUES(:hours,:status,:ciid,:tid,NOW());';
+            
+            $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $stmt->bindParam(':hours', $hours);
+            $stmt->bindParam(':status', $status);          
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->bindParam(':tid', $tid);
+            if(!$stmt->execute()){
+                $error=$stmt->errorInfo();
+            }
+							
+        }
+    } else if ($op=="COMMENT" && $isUnlocked){
+        if ($ciid!=="UNK" && $comment!=="UNK"){
+            $sql = 'UPDATE course_instance SET comment=:comment,changed_ts=NOW() WHERE ciid=:ciid;';
+            
+            $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $stmt->bindParam(':comment', $comment);
+            $stmt->bindParam(':ciid', $ciid);
+            if(!$stmt->execute()){
+                $error=$stmt->errorInfo();
+            }							
+        }
+    } 
+    
+    // Get the Data
+    // -------------------------------------------------------------------------
 
     if ($sprogram=="ALL"){
         $csql = 'SELECT * FROM course,course_instance where course.cid=course_instance.cid and course_instance.year=:year ORDER BY start_period,cname;';  
@@ -116,8 +143,8 @@
         }
 
         
-        $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
-        
+        $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid,ciid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,ciid from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
+        //$sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid,ciid,comment from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,course_instance.ciid,course_instance.comment from teaching left outer join course_instance on teaching.ciid=course_instance.ciid where teaching.ciid=:ciid ) b ON a.tid=b.teacher ORDER BY sign;';
         $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
         $stmt->bindParam(':ciid', $crow['ciid']);
         $stmt->execute();
@@ -125,17 +152,17 @@
             if(!$hasHeading){
               array_push($tblhead,$row['fname'].' '.$row['lname'].' ('.$row['sign'].')');
             }
-            if ($row['hours']){
-                array_push($course,array('hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid']));
+            if ($row['hours']!=null){
+                array_push($course,array('hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid'],'tid'=>$row['tid'],'ciid'=>$row['ciid']));
             } else {
-                array_push($course,array('hours'=>"UNK",'status'=>"UNK",'teid'=>"UNK"));
+                array_push($course,array('hours'=>"UNK",'status'=>"UNK",'teid'=>"UNK",'tid'=>$row['tid'],'ciid'=>$crow['ciid']));
             }
         }
         $hasHeading=true;
         if ($crow['comment']){
-            array_push($course,$crow['comment']);          
+            array_push($course,array('ciid'=>$crow['ciid'],'comment'=>$crow['comment']));          
         } else {
-            array_push($course,"UNK");
+            array_push($course,array('ciid'=>$crow['ciid'],'comment'=>"UNK"));
         }
 
         if($hasFooter){
@@ -146,7 +173,8 @@
     $tblhead[]='Comment';
     
     $data=array(
-      "tbldata" => array("tblhead" => $tblhead,"tblbody" => $tblbody,"tblfoot" => $tblfoot)
+      "tbldata" => array("tblhead" => $tblhead,"tblbody" => $tblbody,"tblfoot" => $tblfoot),
+      "error" => $error
     );
     echo json_encode($data);
 ?>
