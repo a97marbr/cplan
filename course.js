@@ -288,10 +288,10 @@ function renderCell(celldata,col,cellid){
     } else if (col=="Comment") {
         if (celldata.comment==="UNK"){
             //t="<span  style='border-left:1px solid #000'> </span>";
-            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\")' style='text-align:center' placeholder='Enter comment'>&nbsp;</div>"; 
+            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>&nbsp;</div>"; 
         } else {
             //t="<span class='ellipsis' style='border-left:1px solid #000'>"+celldata+"</span>";        
-            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\")' style='text-align:center' placeholder='Enter comment'>"+celldata.comment+"</div>"; 
+            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>"+celldata.comment+"</div>"; 
         }      
     } else if (col=="Course Name") {
         if (celldata==="UNK"){
