@@ -174,7 +174,78 @@ function insertComment(ciid,comment){
     var jqxhr = $.ajax({
             type: 'POST',
             url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=COMMENT&ciid='+ciid+'&comment='+comment
+            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment
+        }) 
+        .done(function(data) {
+          let json = JSON.parse(data);
+          myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
+              function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
+              function(col,status){return renderSortOptions(col,status)},
+              function(col,status){return renderColumnFilter(col,status)},
+              function(row){ return rowFilter(row)}
+          );
+          myTable.renderTable();
+        })
+        .fail(function() {
+          alert( "error" );
+        })
+        .always(function() {
+        });    
+}
+
+function updateComment(ciid,comment){
+    if ($('#year').val()){
+        year=$('#year').val();
+    } else {
+        year=2018;
+    }
+    if($('#sign').val()){
+        sign=$('#sign').val();
+    } else {
+        sign='BROM';
+    }    
+
+    //alert(tid + " "+ ciid + " " + hours + " " + status);
+    
+    var jqxhr = $.ajax({
+            type: 'POST',
+            url: 'course_service.php',
+            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment+'&students='
+        }) 
+        .done(function(data) {
+          let json = JSON.parse(data);
+          myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
+              function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
+              function(col,status){return renderSortOptions(col,status)},
+              function(col,status){return renderColumnFilter(col,status)},
+              function(row){ return rowFilter(row)}
+          );
+          myTable.renderTable();
+        })
+        .fail(function() {
+          alert( "error" );
+        })
+        .always(function() {
+        });    
+}
+function updateStudents(ciid,students){
+    if ($('#year').val()){
+        year=$('#year').val();
+    } else {
+        year=2018;
+    }
+    if($('#sign').val()){
+        sign=$('#sign').val();
+    } else {
+        sign='BROM';
+    }    
+
+    //alert(tid + " "+ ciid + " " + hours + " " + status);
+    
+    var jqxhr = $.ajax({
+            type: 'POST',
+            url: 'course_service.php',
+            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment=&students='+students
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
@@ -278,7 +349,8 @@ function renderCell(celldata,col,cellid){
     } else if (col=="Class" || col=="Credits" || col=="Start" || col=="End") {
         t=celldata;      
     } else if (col=="Students") {
-        t="<span style='text-align:right'>"+celldata+"</span>";
+        //t="<span style='text-align:right'>"+celldata.students+"</span>";
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_STUDENTS\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.students+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.students+"</div>"; 
     } else if (col=="SProgram") {
         if (celldata==="UNK"){
             t="<span> </span>";
@@ -288,10 +360,10 @@ function renderCell(celldata,col,cellid){
     } else if (col=="Comment") {
         if (celldata.comment==="UNK"){
             //t="<span  style='border-left:1px solid #000'> </span>";
-            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>&nbsp;</div>"; 
+            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"INSERT_COMMENT\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>&nbsp;</div>"; 
         } else {
             //t="<span class='ellipsis' style='border-left:1px solid #000'>"+celldata+"</span>";        
-            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>"+celldata.comment+"</div>"; 
+            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COMMENT\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>"+celldata.comment+"</div>"; 
         }      
     } else if (col=="Course Name") {
         if (celldata==="UNK"){
@@ -301,7 +373,7 @@ function renderCell(celldata,col,cellid){
         }      
     } else {
         if (celldata.teid==="UNK"){
-            t="<div id='datacell_"+cellid+"' ondblclick='makeEditbox(\""+cellid+"\","+celldata.tid+","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\")' style='text-align:center'>&nbsp;</div>";
+            t="<div id='datacell_"+cellid+"' ondblclick='makeEditbox(\"INSERT_TEACHING\",\""+cellid+"\","+celldata.tid+","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:center'>&nbsp;</div>";
         } else {
             let sclass="";
             if (celldata.status==0){
@@ -313,7 +385,7 @@ function renderCell(celldata,col,cellid){
             }else {
                 sclass="error";
             }
-            t="<div id='datacell_"+cellid+"' ondblclick='makeEditbox(\""+cellid+"\","+celldata.tid+","+celldata.ciid+","+celldata.teid+","+celldata.hours+","+celldata.status+",\"UNK\")' style='text-align:center' class='"+sclass+"'>"+celldata.hours+"</div>";            
+            t="<div id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_TEACHING\",\""+cellid+"\","+celldata.tid+","+celldata.ciid+","+celldata.teid+","+celldata.hours+","+celldata.status+",\"UNK\",\"UNK\")' style='text-align:center' class='"+sclass+"'>"+celldata.hours+"</div>";            
         }        
     }
 		return t;
@@ -371,37 +443,51 @@ function compare(a,b){
     }  
 }
 
-function makeEditbox(cellid,tid,ciid,teid,hours,status,comment){
+function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students){
     myTable.renderTable();
     let str="";
-    if(teid==="UNK"&&hours==="UNK"&&status==="UNK"&&tid!=="UNK"){
-          str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-            str+="<input maxlength='5' size='5' class='newtimecell' id='input_"+cellid+"' placeholder='hours' onchange='insertTeaching("+tid+","+ciid+",this.value,0)' >";
+    if(type==="INSERT_TEACHING"){
+        if(tid!=="UNK"&&ciid!=="UNK"){
+              str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
+                str+="<input maxlength='5' size='5' class='newtimecell' id='input_"+cellid+"' placeholder='hours' onchange='insertTeaching("+tid+","+ciid+",this.value,0)' >";
+                str+="</div>";
+        }      
+    } else if (type==="UPDATE_TEACHING"){
+        str+="<div id='datacell_"+cellid+"' style='min-width:100px;' >";
+            str+="<input maxlength='5' size='5' onchange='updateTeaching("+teid+",this.value,"+status+")' class='newtimecell' id='input_"+cellid+"' value='"+hours+"' onfocus='this.value = this.value;'>";
+            str+="<div class='dropdown'>";
+                str+="<div onclick='dropdown("+teid+")' class='dropbtn'>*</div>";
+                str+="<div id='dropdown_"+teid+"' class='dropdown-content'>";
+                    str+="<div class='confirmed' onclick='updateStatus(\""+cellid+"\","+teid+",0)'>Confirmed</div>";
+                    str+="<div class='unconfirmed' onclick='updateStatus(\""+cellid+"\","+teid+",1)'>Unconfirmed</div>";
+                    str+="<div class='mustchange' onclick='updateStatus(\""+cellid+"\","+teid+",2)'>Must change</div>";
+                    str+="<div class='error' onclick='updateStatus(\""+cellid+"\","+teid+",3)'>Error</div>";
+                str+="</div>";
             str+="</div>";
-    } else if(teid==="UNK"&&hours==="UNK"&&tid==="UNK"&&status==="UNK"){
-          str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-            if(comment==="UNK"){
+        str+="</div>";      
+    } else if (type==="INSERT_COMMENT"){
+        if(ciid!=="UNK"){
+            str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
                 str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='insertComment("+ciid+",this.value)' placeholder='Enter comment'>";
-            }else{
-                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='insertComment("+ciid+",this.value)' value='"+comment+"'>";            
-            }
-          str+="</div>";
+            str+="</div>";
+         }      
+    } else if (type==="UPDATE_COMMENT"){
+        if(ciid!=="UNK"&&comment!=="UNK"){
+            str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
+                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateComment("+ciid+",this.value)' value='"+comment+"'>";            
+            str+="</div>";
+         }      
+    } else if (type==="UPDATE_STUDENTS"){
+        if(ciid!=="UNK"&&students!=="UNK"){
+            str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
+                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateStudents("+ciid+",this.value)' value='"+students+"'>";            
+            str+="</div>";
+         }            
     } else {
         //str+="<input  >";
-          str+="<div id='datacell_"+cellid+"'  style='min-width:100px;' >";
-            str+="<input maxlength='5' size='5' onchange='updateTeaching("+teid+",this.value,"+status+")' class='newtimecell' id='input_"+cellid+"' value='"+hours+"' onfocus='this.value = this.value;'>";
-          str+="<div class='dropdown'>";
-            str+="<div onclick='dropdown("+teid+")' class='dropbtn'>*</div>";
-            str+="<div id='dropdown_"+teid+"' class='dropdown-content'>";
-              str+="<div class='confirmed' onclick='updateStatus(\""+cellid+"\","+teid+",0)'>Confirmed</div>";
-              str+="<div class='unconfirmed' onclick='updateStatus(\""+cellid+"\","+teid+",1)'>Unconfirmed</div>";
-              str+="<div class='mustchange' onclick='updateStatus(\""+cellid+"\","+teid+",2)'>Must change</div>";
-              str+="<div class='error' onclick='updateStatus(\""+cellid+"\","+teid+",3)'>Error</div>";
-          str+="</div>";
-        str+="</div>";
-  }
-  document.getElementById(cellid).outerHTML=str;
-  document.getElementById("input_"+cellid).focus();    
-  document.getElementById("input_"+cellid).select();
-  document.getElementById("input_"+cellid).addEventListener('keydown', function(ev) { if(ev.keyCode == 27){myTable.renderTable();}});
+    }
+    document.getElementById(cellid).outerHTML=str;
+    document.getElementById("input_"+cellid).focus();    
+    document.getElementById("input_"+cellid).select();
+    document.getElementById("input_"+cellid).addEventListener('keydown', function(ev) { if(ev.keyCode == 27){myTable.renderTable();}});
 }

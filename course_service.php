@@ -49,7 +49,12 @@
         $comment=$_POST['comment'];
     } else {
         $comment="UNK";
-    }    
+    }   
+    if(isset($_POST['students'])){
+        $students=intval($_POST['students']);
+    } else {
+        $students="UNK";
+    } 
     
     $error="UNK";
     $courses = array();
@@ -82,13 +87,26 @@
             }
 							
         }
-    } else if ($op=="COMMENT" && $isUnlocked){
-        if ($ciid!=="UNK" && $comment!=="UNK"){
-            $sql = 'UPDATE course_instance SET comment=:comment,changed_ts=NOW() WHERE ciid=:ciid;';
+    } else if ($op=="UPDATECOURSEINSTANCE" && $isUnlocked){
+      
+        if ($ciid!=="UNK"){          
+            $sql = 'UPDATE course_instance SET ';
+            if($comment!=="UNK"){
+                $sql.='comment=:comment,';
+            }
+            if($students!=="UNK"){
+                $sql.='students=:students,';
+            }
+            $sql.='changed_ts=NOW() WHERE ciid=:ciid;';
             
             $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
-            $stmt->bindParam(':comment', $comment);
             $stmt->bindParam(':ciid', $ciid);
+            if($comment!=="UNK"){
+                $stmt->bindParam(':comment', $comment);
+            }
+            if($students!=="UNK"){
+                $stmt->bindParam(':students', $students);
+            }
             if(!$stmt->execute()){
                 $error=$stmt->errorInfo();
             }							
@@ -135,7 +153,7 @@
         array_push($course,$crow['credits']);
         array_push($course,$crow['start_period']);
         array_push($course,$crow['end_period']);
-        array_push($course,$crow['students']);
+        array_push($course,array('ciid'=>$crow['ciid'],'students'=>$crow['students']));
         if ($crow['study_program']){
             array_push($course,$crow['study_program']);
         } else {
