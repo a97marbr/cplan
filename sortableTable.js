@@ -17,7 +17,7 @@ function sortableInternalSort(a,b)
 		return ret;
 }
 
-function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions,renderColumnFilter,rowFilter) {
+function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions,renderColumnFilter,rowFilter,colsumList,rowsumList,rowsumHeading,sumFunc) {
 
 		this.columnfilter=[];
 		this.sortcolumn="UNK";
@@ -31,6 +31,10 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 		this.renderSortOptions=renderSortOptions;
 		this.renderColumnFilter=renderColumnFilter;
 		this.rowFilter=rowFilter;
+		this.colsumList=colsumList;
+		this.rowsumList=rowsumList;
+		this.rowsumHeading=rowsumHeading;
+		this.sumFunc=sumFunc;
 								
 		this.renderTable = function ()
 		{
@@ -44,6 +48,9 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 
 				// Global that contains rendered html for column filter div
 				this.columnfilter = JSON.parse(localStorage.getItem(this.tableid+"_filtercolnames"));
+
+				// Summing array
+				var sumContent=[];
 
 				let isFirstVisit=false;
 				if(this.columnfilter == null) {
@@ -79,6 +86,13 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 									}
 							}
 					}
+					if(this.rowsumList.length>0){
+							if(this.rowsumHeading==this.sortcolumn){
+									str+= "<th>"+this.renderSortOptions(this.rowsumHeading,this.sortkind)+"</th>";
+							}else{
+									str+= "<th>"+this.renderSortOptions(this.rowsumHeading,-1)+"</th>";
+							}
+					}
 					str+= "</tr>";
 				str+= "</thead>";
 
@@ -87,16 +101,40 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 					for(let rowno in this.tbl.tblbody){
 							var row=this.tbl.tblbody[rowno]
 							if(rowFilter(row)){
+								
+								// Keep row sum total here
+								var rowsum=0;
+								
 								str+="<tr>";
 								for(let colno in row){
 									col=row[colno];
+																		
+									// If we show this column...
 									if(this.columnfilter.indexOf(this.tbl.tblhead[colno])>-1){
+											
+											// This condition is true if column is in summing list and in that case perform the sum like a BOSS
+											if(this.colsumList.indexOf(this.tbl.tblhead[colno])>-1){
+													if(typeof(sumContent[this.tbl.tblhead[colno]]) == "undefined") sumContent[this.tbl.tblhead[colno]]=0;
+													sumContent[this.tbl.tblhead[colno]]+=this.sumFunc(this.tbl.tblhead[colno],col);		
+											}
+
+											if(this.rowsumList.indexOf(this.tbl.tblhead[colno])>-1){
+													rowsum+=this.sumFunc(this.tbl.tblhead[colno],col);
+											}
+
 											let cellid="r"+rowno+"c"+colno;
 											str+="<td id='"+cellid+"'>";
 											str+=this.renderCell(col,this.tbl.tblhead[colno],cellid);
 											str+="</td>";						
 									}
 								}
+								
+								if(this.rowsumList.length>0){
+										str+="<td>";
+										str+=rowsum;
+										str+="</td>";
+								}
+								
 								str+="</tr>";
 							}
 					}
@@ -104,11 +142,17 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 
 				str+= "<tfoot style='border-top:2px solid #000'>";
 				str+= "<tr style='font-style:italic;'>";
-				for(let col in this.tbl.tblfoot){
-						if (this.tbl.tblfoot[col]!="UNK"){
-								str+="<td>"+this.tbl.tblfoot[col]+"</td>";
-						} else {
-								str+="<td> </td>";
+				for(let colno in this.tbl.tblfoot){
+						
+						if(this.colsumList.indexOf(this.tbl.tblhead[colno])>-1){
+								// If writing sum - just write it
+								str+="<td>"+sumContent[this.tbl.tblhead[colno]]+"</td>";						
+						}else{
+								if (this.tbl.tblfoot[col]!="UNK"){
+										str+="<td>"+this.tbl.tblfoot[colno]+"</td>";
+								} else {
+										str+="<td>&nbsp;</td>";
+								}
 						}
 				}
 				str+="</tr>";

@@ -1,5 +1,7 @@
 var sprogram;
 var myTable;
+var sumColFilterList=["CCode","Course Name","Class","Credits","Start","End","Students","SProgram","Comment"];
+var sumRowFilterList=["CCode","Course Name","Class","Credits","Start","End","Students","SProgram","Comment"];
 
 function dropdown(el) {
     document.getElementById("dropdown_"+el).classList.toggle("show");
@@ -36,7 +38,7 @@ function getData(){
     var teid="UNK";
     var hours="UNK";
     var op="GETDATA";
-  
+      
     var jqxhr = $.ajax({
             type: 'POST',
             url: 'course_service.php',
@@ -45,11 +47,24 @@ function getData(){
         .done(function(data) {
           //alert( "success"+data );
           let json = JSON.parse(data);
+          
+          sumRowList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumRowFilterList.includes( el );
+          } );
+      
+          sumColList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumColFilterList.includes( el );
+          } );
+          
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
               function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
               function(col,status){return renderSortOptions(col,status)},
               function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)}
+              function(row){ return rowFilter(row)},
+              sumColList,
+              sumRowList,
+              "Course Total",
+      				function(col, val){return makeSum(col,val)}
           );
           myTable.renderTable();
         })
@@ -104,11 +119,22 @@ function updateTeaching(teid,hours,status){
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
+          sumRowList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumRowFilterList.includes( el );
+          } );
+      
+          sumColList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumColFilterList.includes( el );
+          } );
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for WEBUG courses in year"+year,
               function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
               function(col,status){return renderSortOptions(col,status)},
               function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)}
+              function(row){ return rowFilter(row)},
+              sumColList,
+              sumRowList,
+              "Course Total",
+      				function(col, val){return makeSum(col,val)}
           );
           myTable.renderTable();
         })
@@ -141,11 +167,22 @@ function insertTeaching(tid,ciid,hours,status){
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
+          sumRowList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumRowFilterList.includes( el );
+          } );
+      
+          sumColList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumColFilterList.includes( el );
+          } );
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
               function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
               function(col,status){return renderSortOptions(col,status)},
               function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)}
+              function(row){ return rowFilter(row)},
+              sumColList,
+              sumRowList,
+              "Course Total",      				
+              function(col, val){return makeSum(col,val)}
           );
           myTable.renderTable();
         })
@@ -178,11 +215,22 @@ function insertComment(ciid,comment){
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
+          sumRowList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumRowFilterList.includes( el );
+          } );
+      
+          sumColList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumColFilterList.includes( el );
+          } );
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
               function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
               function(col,status){return renderSortOptions(col,status)},
               function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)}
+              function(row){ return rowFilter(row)},
+              sumColList,
+              sumRowList,
+              "Course Total",
+      				function(col, val){return makeSum(col,val)}
           );
           myTable.renderTable();
         })
@@ -214,11 +262,22 @@ function updateComment(ciid,comment){
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
+          sumRowList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumRowFilterList.includes( el );
+          } );
+      
+          sumColList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumColFilterList.includes( el );
+          } );
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
               function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
               function(col,status){return renderSortOptions(col,status)},
               function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)}
+              function(row){ return rowFilter(row)},
+              sumColList,
+              sumRowList,
+              "Course Total",
+      				function(col, val){return makeSum(col,val)}
           );
           myTable.renderTable();
         })
@@ -249,11 +308,22 @@ function updateStudents(ciid,students){
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
+          sumRowList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumRowFilterList.includes( el );
+          } );
+      
+          sumColList = json.tbldata.tblhead.filter( function( el ) {
+            return !sumColFilterList.includes( el );
+          } );
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
               function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
               function(col,status){return renderSortOptions(col,status)},
               function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)}
+              function(row){ return rowFilter(row)},
+              sumColList,
+              sumRowList,
+              "Course Total",
+      				function(col, val){return makeSum(col,val)}
           );
           myTable.renderTable();
         })
@@ -397,8 +467,8 @@ function renderCell(celldata,col,cellid){
 //  Callback function that filters rows in the table
 //--------------------------------------------------------------------------
 		
-function rowFilter(row){
-		return true;
+function rowFilter(row){  
+    return true;
 }
 
 //--------------------------------------------------------------------------
@@ -410,14 +480,17 @@ function compare(a,b){
     // Find out which column and part of column are we sorting on from currentTable
     let col=currentTable.sortcolumn;
     let kind=currentTable.sortkind;
+    // We allways sort none numbers below 
+    let tmp=(currentTable.ascending) ? -1000000 : 1000000;
 
-    if (col == "CCode" || col == "Course Name" || col == "Start" || col == "End" || col == "Class" || col == "Comment"){
+    if (col == "CCode" || col == "Course Name" || col == "Start" || col == "End" || col == "Class" || col == "Comment" || col == "SProgram"){
+        let tmp=(currentTable.ascending) ? -1 : 1;
+        if ( a=="UNK" ) return -tmp;
+        if ( b=="UNK" ) return tmp;
         if ( a < b ) return -1; 
         if ( a > b ) return 1; 
         return 0; 
     } else if (col == "Credits"){
-        // We allways sort none numbers below 
-        let tmp=(currentTable.ascending) ? -1000000 : 1000000;
         
         let left = (isNaN(a)) ? tmp : +a; 
         let right = (isNaN(b)) ? tmp : +b; 
@@ -429,15 +502,6 @@ function compare(a,b){
         let left = (isNaN(a.students)) ? tmp : +a.students; 
         let right = (isNaN(b.students)) ? tmp : +b.students; 
         return right-left;     
-    } else if (col == "SProgram"){
-        // We allways sort empty cells below 
-        let tmp=(currentTable.ascending) ? -1 : 1;
-        if ( a=="UNK" ) return -tmp;
-        if ( b=="UNK" ) return tmp;
-        if ( a < b ) return -1;
-        if ( a > b ) return 1;
-        return 0; 
-
     } else {
         // We allways sort none numbers below 
         let tmp=(currentTable.ascending) ? -1000000 : 1000000;
@@ -447,6 +511,26 @@ function compare(a,b){
         
         return right-left;     
     }  
+}
+
+//--------------------------------------------------------------------------
+// makeSum
+// ---------------
+//	makeSum col,value  
+//--------------------------------------------------------------------------
+
+function makeSum(col,value){
+		if(col=="Students"){
+				return parseFloat(value.students);
+		} else{
+				if(value.hours=="UNK"){
+						return 0;
+				}else{
+            //alert(value.hours);
+						return parseFloat(value.hours);
+				}
+		}
+		return 0;
 }
 
 function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students){

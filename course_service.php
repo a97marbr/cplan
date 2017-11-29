@@ -140,14 +140,23 @@
     $tblbody=array();
     $tblfoot=array();
     
-    $tblhead[]='CCode';
-    $tblhead[]='Course Name';
-    $tblhead[]='Class';
-    $tblhead[]='Credits';
-    $tblhead[]='Start';
-    $tblhead[]='End';
-    $tblhead[]='Students';
-    $tblhead[]='SProgram';    
+    array_push($tblhead,'CCode');
+    array_push($tblhead,'Course Name');
+    array_push($tblhead,'Class');
+    array_push($tblhead,'Credits');
+    array_push($tblhead,'Start');
+    array_push($tblhead,'End');
+    array_push($tblhead,'Students');
+    array_push($tblhead,'SProgram');
+
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
 
     $hasHeading=false;
     $hasFooter=false;
@@ -177,6 +186,7 @@
         foreach($stmt as $key => $row){
             if(!$hasHeading){
               array_push($tblhead,$row['fname'].' '.$row['lname'].' ('.$row['sign'].')');
+              array_push($tblfoot,$row['fname'].' '.$row['lname'].' ('.$row['sign'].')');
             }
             if ($row['hours']!=null){
                 array_push($course,array('hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid'],'tid'=>$row['tid'],'ciid'=>$row['ciid']));
@@ -196,7 +206,8 @@
         }
         $tblbody[]=$course;
     }
-    $tblhead[]='Comment';
+    array_push($tblhead,'Comment');
+    array_push($tblfoot,'');
     
     $data=array(
       "tbldata" => array("tblhead" => $tblhead,"tblbody" => $tblbody,"tblfoot" => $tblfoot),
