@@ -63,6 +63,33 @@
     } else {
         $students="UNK";
     } 
+    if(isset($_POST['lectureTime'])){
+        if($_POST['lectureTime']!=="UNK"){
+            $lectureTime=intval($_POST['lectureTime']);
+        } else {
+            $lectureTime="UNK";
+        }        
+    } else {
+        $lectureTime="UNK";
+    } 
+    if(isset($_POST['superviseTime'])){
+        if($_POST['superviseTime']!=="UNK"){
+            $superviseTime=intval($_POST['superviseTime']);
+        } else {
+            $superviseTime="UNK";
+        }        
+    } else {
+        $superviseTime="UNK";
+    } 
+    if(isset($_POST['studentTime'])){
+        if($_POST['studentTime']!=="UNK"){
+            $studentTime=intval($_POST['studentTime']);
+        } else {
+            $studentTime="UNK";
+        }        
+    } else {
+        $studentTime="UNK";
+    } 
     
     $error="UNK";
     $courses = array();
@@ -105,8 +132,17 @@
             if($students!=="UNK"){
                 $sql.='students=:students,';
             }
+            if($lectureTime!=="UNK"){
+                $sql.='lecture_time=:lectureTime,';
+            }
+            if($superviseTime!=="UNK"){
+                $sql.='supervise_time=:superviseTime,';
+            }
+            if($studentTime!=="UNK"){
+                $sql.='student_time=:studentTime,';
+            }
             $sql.='changed_ts=NOW() WHERE ciid=:ciid;';
-            
+            $error=$sql;
             $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
             $stmt->bindParam(':ciid', $ciid);
             if($comment!=="UNK"){
@@ -114,6 +150,15 @@
             }
             if($students!=="UNK"){
                 $stmt->bindParam(':students', $students);
+            }
+            if($lectureTime!=="UNK"){
+                $stmt->bindParam(':lectureTime', $lectureTime);
+            }
+            if($superviseTime!=="UNK"){
+                $stmt->bindParam(':superviseTime', $superviseTime);
+            }
+            if($studentTime!=="UNK"){
+                $stmt->bindParam(':studentTime', $studentTime);
             }
             if(!$stmt->execute()){
                 $error=$stmt->errorInfo();
@@ -146,9 +191,15 @@
     array_push($tblhead,'Credits');
     array_push($tblhead,'Start');
     array_push($tblhead,'End');
-    array_push($tblhead,'Students');
     array_push($tblhead,'SProgram');
+    array_push($tblhead,'Students');
+    array_push($tblhead,'Lecture Time');
+    array_push($tblhead,'Supervise Time');
+    array_push($tblhead,'Student Time');
 
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
+    array_push($tblfoot,'');
     array_push($tblfoot,'');
     array_push($tblfoot,'');
     array_push($tblfoot,'');
@@ -170,12 +221,16 @@
         array_push($course,$crow['credits']);
         array_push($course,$crow['start_period']);
         array_push($course,$crow['end_period']);
-        array_push($course,array('ciid'=>$crow['ciid'],'students'=>$crow['students']));
         if ($crow['study_program']){
             array_push($course,$crow['study_program']);
         } else {
             array_push($course,"UNK");
         }
+        array_push($course,array('ciid'=>$crow['ciid'],'students'=>$crow['students']));
+
+        array_push($course,array('ciid'=>$crow['ciid'],'lectureTime'=>$crow['lecture_time']));
+        array_push($course,array('ciid'=>$crow['ciid'],'superviseTime'=>$crow['supervise_time']));
+        array_push($course,array('ciid'=>$crow['ciid'],'studentTime'=>$crow['student_time']));
 
         
         $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid,ciid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,ciid from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';

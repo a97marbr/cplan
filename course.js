@@ -1,7 +1,7 @@
 var sprogram;
 var myTable;
-var sumColFilterList=["CCode","Course Name","Class","Credits","Start","End","Students","SProgram","Comment"];
-var sumRowFilterList=["CCode","Course Name","Class","Credits","Start","End","Students","SProgram","Comment"];
+var sumColFilterList=["CCode","Course Name","Class","Credits","Start","End","Students","SProgram","Comment","Lecture Time","Supervise Time","Student Time"];
+var sumRowFilterList=["CCode","Course Name","Class","Credits","Start","End","Students","SProgram","Comment","Lecture Time","Supervise Time","Student Time"];
 
 function dropdown(el) {
     document.getElementById("dropdown_"+el).classList.toggle("show");
@@ -194,7 +194,7 @@ function insertTeaching(tid,ciid,hours,status){
         });    
 }
 
-function insertComment(ciid,comment){
+function updateCourseInstance(ciid,comment,students,lectureTime,superviseTime,studentTime){
     if ($('#year').val()){
         year=$('#year').val();
     } else {
@@ -206,105 +206,10 @@ function insertComment(ciid,comment){
         sign='BROM';
     }    
 
-    //alert(tid + " "+ ciid + " " + hours + " " + status);
-    
     var jqxhr = $.ajax({
             type: 'POST',
             url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment+'&students=UNK'
-        }) 
-        .done(function(data) {
-          let json = JSON.parse(data);
-          sumRowList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumRowFilterList.includes( el );
-          } );
-      
-          sumColList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumColFilterList.includes( el );
-          } );
-          myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
-              function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
-              function(col,status){return renderSortOptions(col,status)},
-              function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)},
-              sumColList,
-              sumRowList,
-              "Course Total",
-      				function(col, val){return makeSum(col,val)}
-          );
-          myTable.renderTable();
-        })
-        .fail(function() {
-          alert( "error" );
-        })
-        .always(function() {
-        });    
-}
-
-function updateComment(ciid,comment){
-    if ($('#year').val()){
-        year=$('#year').val();
-    } else {
-        year=2018;
-    }
-    if($('#sign').val()){
-        sign=$('#sign').val();
-    } else {
-        sign='BROM';
-    }    
-
-    //alert(tid + " "+ ciid + " " + hours + " " + status);
-    
-    var jqxhr = $.ajax({
-            type: 'POST',
-            url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment+'&students=UNK'
-        }) 
-        .done(function(data) {
-          let json = JSON.parse(data);
-          sumRowList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumRowFilterList.includes( el );
-          } );
-      
-          sumColList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumColFilterList.includes( el );
-          } );
-          myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
-              function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
-              function(col,status){return renderSortOptions(col,status)},
-              function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)},
-              sumColList,
-              sumRowList,
-              "Course Total",
-      				function(col, val){return makeSum(col,val)}
-          );
-          myTable.renderTable();
-        })
-        .fail(function() {
-          alert( "error" );
-        })
-        .always(function() {
-        });    
-}
-function updateStudents(ciid,students){
-    if ($('#year').val()){
-        year=$('#year').val();
-    } else {
-        year=2018;
-    }
-    if($('#sign').val()){
-        sign=$('#sign').val();
-    } else {
-        sign='BROM';
-    }    
-
-    //alert(tid + " "+ ciid + " " + hours + " " + status);
-    
-    var jqxhr = $.ajax({
-            type: 'POST',
-            url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment=UNK&students='+students
+            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment+'&students='+students+'&lectureTime='+lectureTime+'&superviseTime='+superviseTime+'&studentTime='+studentTime
         }) 
         .done(function(data) {
           let json = JSON.parse(data);
@@ -420,7 +325,16 @@ function renderCell(celldata,col,cellid){
         t=celldata;      
     } else if (col=="Students") {
         //t="<span style='text-align:right'>"+celldata.students+"</span>";
-        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_STUDENTS\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.students+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.students+"</div>"; 
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.students+"\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.students+"</div>"; 
+    } else if (col=="Lecture Time") {
+        //t="<span style='text-align:right'>"+celldata.students+"</span>";
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.lectureTime+"\",\"UNK\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.lectureTime+"</div>"; 
+    } else if (col=="Supervise Time") {
+        //t="<span style='text-align:right'>"+celldata.students+"</span>";
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.superviseTime+"\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.superviseTime+"</div>"; 
+    } else if (col=="Student Time") {
+        //t="<span style='text-align:right'>"+celldata.students+"</span>";
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.studentTime+"</div>"; 
     } else if (col=="SProgram") {
         if (celldata==="UNK"){
             t="<span> </span>";
@@ -430,10 +344,10 @@ function renderCell(celldata,col,cellid){
     } else if (col=="Comment") {
         if (celldata.comment==="UNK"){
             //t="<span  style='border-left:1px solid #000'> </span>";
-            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"INSERT_COMMENT\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>&nbsp;</div>"; 
+            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\",\"UNK\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>&nbsp;</div>"; 
         } else {
             //t="<span class='ellipsis' style='border-left:1px solid #000'>"+celldata+"</span>";        
-            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COMMENT\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>"+celldata.comment+"</div>"; 
+            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\",\"UNK\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>"+celldata.comment+"</div>"; 
         }      
     } else if (col=="Course Name") {
         if (celldata==="UNK"){
@@ -533,7 +447,7 @@ function makeSum(col,value){
 		return 0;
 }
 
-function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students){
+function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students,lectureTime,superviseTime,studentTime){
     myTable.renderTable();
     let str="";
     if(type==="INSERT_TEACHING"){
@@ -555,24 +469,30 @@ function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students){
                 str+="</div>";
             str+="</div>";
         str+="</div>";      
-    } else if (type==="INSERT_COMMENT"){
+    } else if (type==="UPDATE_COURSE_INSTANCE"){
         if(ciid!=="UNK"){
+          if(comment!=="UNK"){
+              str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
+                  str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",this.value,\"UNK\",\"UNK\",\"UNK\",\"UNK\")' value='"+comment+"'>";            
+              str+="</div>";
+          } else if(students!=="UNK"){
             str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='insertComment("+ciid+",this.value)' placeholder='Enter comment'>";
+                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",\"UNK\",this.value,\"UNK\",\"UNK\",\"UNK\")' value='"+students+"'>";            
             str+="</div>";
-         }      
-    } else if (type==="UPDATE_COMMENT"){
-        if(ciid!=="UNK"&&comment!=="UNK"){
+          } else if(lectureTime!=="UNK"){
             str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateComment("+ciid+",this.value)' value='"+comment+"'>";            
+                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",\"UNK\",\"UNK\",this.value,\"UNK\",\"UNK\")' value='"+lectureTime+"'>";            
             str+="</div>";
-         }      
-    } else if (type==="UPDATE_STUDENTS"){
-        if(ciid!=="UNK"&&students!=="UNK"){
+          } else if(superviseTime!=="UNK"){
             str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateStudents("+ciid+",this.value)' value='"+students+"'>";            
+                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",\"UNK\",\"UNK\",\"UNK\",this.value,\"UNK\")' value='"+superviseTime+"'>";            
             str+="</div>";
-         }            
+          } else if(studentTime!=="UNK"){
+            str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
+                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",this.value)' value='"+studentTime+"'>";            
+            str+="</div>";
+          }
+        }            
     } else {
         //str+="<input  >";
     }
