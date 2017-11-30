@@ -64,7 +64,7 @@ function getData(){
               sumColList,
               sumRowList,
               "Course Total",
-      				function(col, val){return makeSum(col,val)}
+      				function(col, val, rowno, row){return makeSum(col,val,rowno,row)}
           );
           myTable.renderTable();
         })
@@ -134,7 +134,7 @@ function updateTeaching(teid,hours,status){
               sumColList,
               sumRowList,
               "Course Total",
-      				function(col, val){return makeSum(col,val)}
+              function(col, val, rowno, row){return makeSum(col,val,rowno,row)}
           );
           myTable.renderTable();
         })
@@ -182,7 +182,7 @@ function insertTeaching(tid,ciid,hours,status){
               sumColList,
               sumRowList,
               "Course Total",      				
-              function(col, val){return makeSum(col,val)}
+              function(col, val, rowno, row){return makeSum(col,val,rowno,row)}
           );
           myTable.renderTable();
         })
@@ -228,7 +228,7 @@ function updateCourseInstance(ciid,comment,students,lectureTime,superviseTime,st
               sumColList,
               sumRowList,
               "Course Total",
-      				function(col, val){return makeSum(col,val)}
+              function(col, val, rowno, row){return makeSum(col,val,rowno,row)}
           );
           myTable.renderTable();
         })
@@ -268,7 +268,7 @@ function renderSortOptions(col,status){
 		
 		if(status==-1){
 
-				if(col=="CCode" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram" ){
+				if(col=="CCode" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram" || col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)"){
             str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
         } else if(col=="Course Name" || col=="Comment"){
             str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
@@ -324,17 +324,29 @@ function renderCell(celldata,col,cellid){
     } else if (col=="Class" || col=="Credits" || col=="Start" || col=="End") {
         t=celldata;      
     } else if (col=="Students") {
-        //t="<span style='text-align:right'>"+celldata.students+"</span>";
-        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.students+"\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.students+"</div>"; 
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"students\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.students+"\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.students+"</div>"; 
     } else if (col=="Lecture Time") {
-        //t="<span style='text-align:right'>"+celldata.students+"</span>";
-        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.lectureTime+"\",\"UNK\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.lectureTime+"</div>"; 
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"lectureTime\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.lectureTime+"\",\"UNK\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.lectureTime+"</div>"; 
     } else if (col=="Supervise Time") {
-        //t="<span style='text-align:right'>"+celldata.students+"</span>";
-        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.superviseTime+"\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.superviseTime+"</div>"; 
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"superviseTime\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.superviseTime+"\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.superviseTime+"</div>"; 
     } else if (col=="Student Time") {
-        //t="<span style='text-align:right'>"+celldata.students+"</span>";
-        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.studentTime+"</div>"; 
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"studentTime\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.studentTime+"</div>"; 
+    } else if (col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)") {
+        // lecture / seminar / supervision / preparation / development / grading / examination / running / other / total
+        t="<div id='datacell_"+cellid+"' style='text-align:center;' placeholder='Enter comment'>";
+            t+="<span title='"+celldata.time_budget.lecture+"h in lecture' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetLecture\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.lecture+"</span> + ";
+            t+="<span title='"+celldata.time_budget.seminar+"h in seminar' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetSeminar\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.seminar+"</span> + ";
+            t+="<span title='"+celldata.time_budget.supervision+"h in supervision' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetSupervision\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.supervision+"</span> + ";
+            t+="<span title='"+celldata.time_budget.preparation+"h in preparation' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetPreparation\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.preparation+"</span> + ";
+            t+="<span title='"+celldata.time_budget.development+"h in development' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetDevelopment\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.development+"</span> + ";
+            t+="( #students * <span title='"+celldata.time_budget.grading+"h grading per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetGrading\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.grading+"</span> ) + ";
+            t+="<span title='"+celldata.time_budget.examination+"h examination per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetExamination\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.examination+"</span> + ";
+            t+="<span title='"+celldata.time_budget.running+"h running the course' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetRunning\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.running+"</span> + ";
+            t+="<span title='"+celldata.time_budget.other+"h other time' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetOther\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.other+"</span> = ";
+            t+="<span title='"+celldata.time_budget.total+"h total time budgeted for the course' >"+celldata.time_budget.total+"</span>";
+        +"</div>"; 
+    } else if (col=="Total Time Budget") {
+        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata+"</div>"; 
     } else if (col=="SProgram") {
         if (celldata==="UNK"){
             t="<span> </span>";
@@ -344,7 +356,7 @@ function renderCell(celldata,col,cellid){
     } else if (col=="Comment") {
         if (celldata.comment==="UNK"){
             //t="<span  style='border-left:1px solid #000'> </span>";
-            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\",\"UNK\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>&nbsp;</div>"; 
+            t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNKUNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>&nbsp;</div>"; 
         } else {
             //t="<span class='ellipsis' style='border-left:1px solid #000'>"+celldata+"</span>";        
             t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\""+celldata.comment+"\",\"UNK\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:left;border-left:1px solid #000;padding-left:5px;' placeholder='Enter comment'>"+celldata.comment+"</div>"; 
@@ -433,10 +445,20 @@ function compare(a,b){
 //	makeSum col,value  
 //--------------------------------------------------------------------------
 
-function makeSum(col,value){
-		if(col=="Students"){
-				return parseFloat(value.students);
-		} else{
+function makeSum(col,value,rowno,row){
+    if(col=="Students"){
+        return parseFloat(value.students);
+    } else if(col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)"){
+        // We need to calc the value for total
+        let students=row[currentTable.tbl.tblhead.indexOf("Students")].students;
+        let ttb=value.time_budget.lecture+value.time_budget.seminar+value.time_budget.supervision+value.time_budget.preparation+value.time_budget.development+(value.time_budget.grading * students)+value.time_budget.examination+value.time_budget.running+value.time_budget.other;        
+        currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf(col)].time_budget.total=ttb;
+        return parseFloat(ttb);
+    }  else if(col=="Total Time Budget"){
+        let total=currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf("Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)")].time_budget.total;
+        currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf(col)]=total;
+        return total;
+    }else{
 				if(value.hours=="UNK"){
 						return 0;
 				}else{

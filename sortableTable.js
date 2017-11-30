@@ -107,7 +107,7 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 								
 								str+="<tr>";
 								for(let colno in row){
-									col=row[colno];
+									col=row[colno]; // this info can be updated in the sumFunc 
 																		
 									// If we show this column...
 									if(this.columnfilter.indexOf(this.tbl.tblhead[colno])>-1){
@@ -115,16 +115,16 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 											// This condition is true if column is in summing list and in that case perform the sum like a BOSS
 											if(this.colsumList.indexOf(this.tbl.tblhead[colno])>-1){
 													if(typeof(sumContent[this.tbl.tblhead[colno]]) == "undefined") sumContent[this.tbl.tblhead[colno]]=0;
-													sumContent[this.tbl.tblhead[colno]]+=this.sumFunc(this.tbl.tblhead[colno],col);		
+													sumContent[this.tbl.tblhead[colno]]+=this.sumFunc(this.tbl.tblhead[colno],row[colno],rowno,row);		
 											}
 
 											if(this.rowsumList.indexOf(this.tbl.tblhead[colno])>-1){
-													rowsum+=this.sumFunc(this.tbl.tblhead[colno],col);
+													rowsum+=this.sumFunc(this.tbl.tblhead[colno],row[colno],rowno,row);
 											}
 
 											let cellid="r"+rowno+"c"+colno;
 											str+="<td id='"+cellid+"'>";
-											str+=this.renderCell(col,this.tbl.tblhead[colno],cellid);
+											str+=this.renderCell(row[colno],this.tbl.tblhead[colno],cellid);
 											str+="</td>";						
 									}
 								}
