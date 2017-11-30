@@ -268,9 +268,9 @@ function renderSortOptions(col,status){
 		
 		if(status==-1){
 
-				if(col=="CCode" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram" || col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)"){
+				if(col=="CCode" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram" ){
             str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
-        } else if(col=="Course Name" || col=="Comment"){
+        } else if(col=="Course Name" || col=="Comment" || col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)"){
             str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
         } else{
             let sign=col.substring(col.lastIndexOf(" "),col.length);
@@ -340,7 +340,7 @@ function renderCell(celldata,col,cellid){
             t+="<span title='"+celldata.time_budget.preparation+"h in preparation' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetPreparation\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.preparation+"</span> + ";
             t+="<span title='"+celldata.time_budget.development+"h in development' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetDevelopment\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.development+"</span> + ";
             t+="( #students * <span title='"+celldata.time_budget.grading+"h grading per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetGrading\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.grading+"</span> ) + ";
-            t+="<span title='"+celldata.time_budget.examination+"h examination per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetExamination\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.examination+"</span> + ";
+            t+="( #students * <span title='"+celldata.time_budget.examination+"h examination per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetExamination\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.examination+"</span> ) + ";
             t+="<span title='"+celldata.time_budget.running+"h running the course' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetRunning\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.running+"</span> + ";
             t+="<span title='"+celldata.time_budget.other+"h other time' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetOther\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.other+"</span> = ";
             t+="<span title='"+celldata.time_budget.total+"h total time budgeted for the course' >"+celldata.time_budget.total+"</span>";
