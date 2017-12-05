@@ -49,11 +49,11 @@ function getData(){
           let json = JSON.parse(data);
           
           sumRowList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumRowFilterList.includes( el );
+            return !(sumRowFilterList.indexOf( el )>=0);
           } );
       
           sumColList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumColFilterList.includes( el );
+            return !(sumRowFilterList.indexOf( el )>=0);
           } );
           
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
@@ -168,11 +168,11 @@ function insertTeaching(tid,ciid,hours,status){
         .done(function(data) {
           let json = JSON.parse(data);
           sumRowList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumRowFilterList.includes( el );
+            return !(sumRowFilterList.indexOf( el )>=0);
           } );
       
           sumColList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumColFilterList.includes( el );
+            return !(sumRowFilterList.indexOf( el )>=0);
           } );
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
               function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
@@ -214,11 +214,11 @@ function updateCourseInstance(ciid,comment,students,lectureTime,superviseTime,st
         .done(function(data) {
           let json = JSON.parse(data);
           sumRowList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumRowFilterList.includes( el );
+            return !(sumRowFilterList.indexOf( el )>=0);
           } );
       
           sumColList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumColFilterList.includes( el );
+            return !(sumRowFilterList.indexOf( el )>=0);
           } );
           myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
               function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
@@ -333,20 +333,19 @@ function renderCell(celldata,col,cellid){
         t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"studentTime\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.studentTime+"</div>"; 
     } else if (col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)") {
         // lecture / seminar / supervision / preparation / development / grading / examination / running / other / total
-        t="<div id='datacell_"+cellid+"' style='text-align:center;' placeholder='Enter comment'>";
-            t+="<span title='"+celldata.time_budget.lecture+"h in lecture' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetLecture\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.lecture+"</span> + ";
-            t+="<span title='"+celldata.time_budget.seminar+"h in seminar' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetSeminar\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.seminar+"</span> + ";
-            t+="<span title='"+celldata.time_budget.supervision+"h in supervision' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetSupervision\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.supervision+"</span> + ";
-            t+="<span title='"+celldata.time_budget.preparation+"h in preparation' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetPreparation\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.preparation+"</span> + ";
-            t+="<span title='"+celldata.time_budget.development+"h in development' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetDevelopment\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.development+"</span> + ";
-            t+="( #students * <span title='"+celldata.time_budget.grading+"h grading per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetGrading\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.grading+"</span> ) + ";
-            t+="( #students * <span title='"+celldata.time_budget.examination+"h examination per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetExamination\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.examination+"</span> ) + ";
-            t+="<span title='"+celldata.time_budget.running+"h running the course' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetRunning\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.running+"</span> + ";
-            t+="<span title='"+celldata.time_budget.other+"h other time' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetOther\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.other+"</span> = ";
-            t+="<span title='"+celldata.time_budget.total+"h total time budgeted for the course' >"+celldata.time_budget.total+"</span>";
-        +"</div>"; 
-    } else if (col=="Total Time Budget") {
-        t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"UPDATE_COURSE_INSTANCE\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata+"</div>"; 
+        t="<div id='datacell_'"+cellid+"' style='text-align:center;position:relative' class='hoPa'>"+celldata.time_budget.total;
+        t+="<div id='datacelldropdown_"+cellid+"' style='text-align:center;position:absolute;bottom:-20pxpx;left:0px;background-color:#bbb' placeholder='Enter comment' class='hoCh'>";
+            t+="<div title='"+celldata.time_budget.lecture+"h in lecture' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetLecture\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.lecture+"</div> + ";
+            t+="<div title='"+celldata.time_budget.seminar+"h in seminar' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetSeminar\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.seminar+"</div> + ";
+            t+="<div title='"+celldata.time_budget.supervision+"h in supervision' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetSupervision\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.supervision+"</div> + ";
+            t+="<div title='"+celldata.time_budget.preparation+"h in preparation' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetPreparation\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.preparation+"</div> + ";
+            t+="<div title='"+celldata.time_budget.development+"h in development' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetDevelopment\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.development+"</div> + ";
+            t+="<div>( #students * <span title='"+celldata.time_budget.grading+"h grading per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetGrading\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.grading+"</div> ) + ";
+            t+="<div>( #students * <span title='"+celldata.time_budget.examination+"h examination per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetExamination\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.examination+"</div> ) + ";
+            t+="<div title='"+celldata.time_budget.running+"h running the course' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetRunning\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.running+"</div> + ";
+            t+="<div title='"+celldata.time_budget.other+"h other time' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetOther\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.other+"</DIVspan> = ";
+            t+="<div title='"+celldata.time_budget.total+"h total time budgeted for the course' >"+celldata.time_budget.total+"</div>";
+        +"</div></div>"; 
     } else if (col=="SProgram") {
         if (celldata==="UNK"){
             t="<span> </span>";
@@ -454,11 +453,7 @@ function makeSum(col,value,rowno,row){
         let ttb=value.time_budget.lecture+value.time_budget.seminar+value.time_budget.supervision+value.time_budget.preparation+value.time_budget.development+(value.time_budget.grading * students)+value.time_budget.examination+value.time_budget.running+value.time_budget.other;        
         currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf(col)].time_budget.total=ttb;
         return parseFloat(ttb);
-    }  else if(col=="Total Time Budget"){
-        let total=currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf("Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)")].time_budget.total;
-        currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf(col)]=total;
-        return total;
-    }else{
+    } else{
 				if(value.hours=="UNK"){
 						return 0;
 				}else{
@@ -469,7 +464,23 @@ function makeSum(col,value,rowno,row){
 		return 0;
 }
 
-function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students,lectureTime,superviseTime,studentTime){
+// 
+// makeEditbox
+// Generates an editbox that will 
+// type: INSERT_TEACHING, UPDATE_TEACHING or UPDATE_COURSE_INSTANCE
+// cellid: the id of html element that we should put the editbox
+// --- Change teaching ---
+// tid: teacher id
+// teid: teaching id
+// hours: num hours 
+// --- Change Course instance ---
+// ciid: course instance id
+// status: 0 - verified, 1 - unverified, 2 - must change, 3 - error
+// comment: comment on course instance
+// students: num of students
+// {"lecture":0,"seminar":0,"supervision":0,"preparation":0,"development":0,"grading":0,"examination":0,"running":0,"other":0,"total":0}
+// 
+function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students,timeBudget){
     myTable.renderTable();
     let str="";
     if(type==="INSERT_TEACHING"){

@@ -197,7 +197,6 @@
     array_push($tblhead,'Supervise Time');
     array_push($tblhead,'Student Time');
     array_push($tblhead,'Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)');
-    array_push($tblhead,'Total Time Budget');
 
     array_push($tblfoot,'');
     array_push($tblfoot,'');
@@ -211,7 +210,6 @@
     array_push($tblfoot,'');
     array_push($tblfoot,'');
     array_push($tblfoot,'Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)');
-    array_push($tblfoot,'Total Time Budget');
 
     $hasHeading=false;
     $hasFooter=false;
@@ -235,14 +233,7 @@
         array_push($course,array('ciid'=>$crow['ciid'],'lectureTime'=>$crow['lecture_time']));
         array_push($course,array('ciid'=>$crow['ciid'],'superviseTime'=>$crow['supervise_time']));
         array_push($course,array('ciid'=>$crow['ciid'],'studentTime'=>$crow['student_time']));
-        $tbudget=json_decode($crow['time_budget']);
-        // Calculate the total here instead of in JS
-        //$ttb=$tbudget->{'lecture'}+$tbudget->{'seminar'}+$tbudget->{'supervision'}+$tbudget->{'preparation'}+$tbudget->{'development'}+$tbudget->{'grading'}+$tbudget->{'examination'}+$tbudget->{'running'}+$tbudget->{'other'}+($tbudget->{'grading'}*$crow['students']);        
-        //$tbudget->{'total'}=$ttb;
-        array_push($course,array('ciid'=>$crow['ciid'],'time_budget'=>$tbudget));
-        $ttb=$tbudget->{'lecture'}+$tbudget->{'seminar'}+$tbudget->{'supervision'}+$tbudget->{'preparation'}+$tbudget->{'development'}+$tbudget->{'grading'}+$tbudget->{'examination'}+$tbudget->{'running'}+$tbudget->{'other'}+($tbudget->{'grading'}*$crow['students']);
-        // Use the calculated $ttb instead of UNK and do the calc in JS
-        array_push($course,"UNK");        
+        array_push($course,array('ciid'=>$crow['ciid'],'time_budget'=>json_decode($crow['time_budget'])));
         
         $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid,ciid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,ciid from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
         //$sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid,ciid,comment from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,course_instance.ciid,course_instance.comment from teaching left outer join course_instance on teaching.ciid=course_instance.ciid where teaching.ciid=:ciid ) b ON a.tid=b.teacher ORDER BY sign;';
