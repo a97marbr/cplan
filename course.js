@@ -64,7 +64,8 @@ function getData(){
               sumColList,
               sumRowList,
               "Course Total",
-      				function(col, val, rowno, row){return makeSum(col,val,rowno,row)}
+      				function(col, val, rowno, row){return makeSum(col,val,rowno,row)},
+              "Course Name"
           );
           myTable.renderTable();
         })
