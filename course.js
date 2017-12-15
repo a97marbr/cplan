@@ -265,7 +265,6 @@ function renderColumnFilter(col,status){
 		
 function renderSortOptions(col,status){
 		str="";
-		
 		if(status==-1){
 
 				if(col=="CCode" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram" ){
@@ -284,9 +283,9 @@ function renderSortOptions(col,status){
 		}else{
         if(col=="CCode" || col=="Course Name" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram"){
             if(status==0){
-                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b4;</span>";
+                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25bc;</span>";
             }else{
-                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25be;</span>";
+                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b2;</span>";
             }
         } else if(col=="Course Name" || col=="Comment"){
             str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
@@ -296,12 +295,12 @@ function renderSortOptions(col,status){
             let lname=col.substring(col.indexOf(" ")+1,col.lastIndexOf(" "));      
             if(status==0){
                 str+="<div style='display:inline-block;margin:0 15px;' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>";
-                str+="<span style='white-space:nowrap;'>"+fname+" "+lname+" &#x25b4;</span> ";				
+                str+="<span style='white-space:nowrap;'>"+fname+" "+lname+" &#x25b2;</span> ";				
                 str+="<span>"+sign+"</span>";				
                 str+="</div>";
             } else {
                 str+="<div style='display:inline-block;margin:0 15px;' onclick='myTable.toggleSortStatus(\""+col+"\",0)'>";
-                str+="<span style='white-space:nowrap;'>"+fname+" "+lname+" &#x25be;</span> ";				
+                str+="<span style='white-space:nowrap;'>"+fname+" "+lname+" &#x25bc;</span> ";				
                 str+="<span>"+sign+"</span>";				
                 str+="</div>";
             }
@@ -403,8 +402,8 @@ function rowFilter(row){
 //--------------------------------------------------------------------------
 function compare(a,b){
     // Find out which column and part of column are we sorting on from currentTable
-    let col=currentTable.sortcolumn;
-    let kind=currentTable.sortkind;
+    let col=currentTable.getSortcolumn();
+    let kind=currentTable.getSortkind();
     // We allways sort none numbers below 
     let tmp=(currentTable.ascending) ? -1000000 : 1000000;
 
@@ -444,15 +443,12 @@ function compare(a,b){
 //	makeSum col,value  
 //--------------------------------------------------------------------------
 
-function makeSum(col,value,rowno,row){
+function makeSum(col,value){
     if(col=="Students"){
         return parseFloat(value.students);
     } else if(col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)"){
-        // We need to calc the value for total
-        let students=row[currentTable.tbl.tblhead.indexOf("Students")].students;
-        let ttb=value.time_budget.lecture+value.time_budget.seminar+value.time_budget.supervision+value.time_budget.preparation+value.time_budget.development+(value.time_budget.grading * students)+value.time_budget.examination+value.time_budget.running+value.time_budget.other;        
-        currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf(col)].time_budget.total=ttb;
-        return parseFloat(ttb);
+        console.log(value);
+        return parseFloat(value.time_budget.total);
     } else{
 				if(value.hours=="UNK"){
 						return 0;

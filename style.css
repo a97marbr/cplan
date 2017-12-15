@@ -102,3 +102,32 @@ tfoot td {
 .hoPa .hoCh {
     display:none;
 }
+
+th,td {
+    padding:0 5px;
+    white-space: nowrap;            
+}
+tr,td,th {
+    background-color: inherit;
+}
+tr:nth-child(odd) {
+    background-color: #dddddd;
+}
+tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+.mytable.freeze {
+    z-index: 10;
+    position: relative;
+}
+
+.mytable.freeze_vertical {
+    z-index: 5;
+    position: relative;
+}
+
+.mytable.freeze_horizontal {
+    z-index: 1;
+    position: relative;
+}
