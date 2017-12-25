@@ -64,7 +64,8 @@ function getData(){
               sumColList,
               sumRowList,
               "Course Total",
-      				function(col, val, rowno, row){return makeSum(col,val,rowno,row)}
+      				function(col, val, rowno, row){return makeSum(col,val,rowno,row)},
+              "Course Name"
           );
           myTable.renderTable();
         })
@@ -269,9 +270,9 @@ function renderSortOptions(col,status){
 		if(status==-1){
 
 				if(col=="CCode" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram" ){
-            str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
+            str+="<div onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</div>";
         } else if(col=="Course Name" || col=="Comment" || col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)"){
-            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
+            str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</div>";
         } else{
             let sign=col.substring(col.lastIndexOf(" "),col.length);
             let fname=col.substring(0,col.indexOf(" "));
@@ -284,12 +285,12 @@ function renderSortOptions(col,status){
 		}else{
         if(col=="CCode" || col=="Course Name" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram"){
             if(status==0){
-                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b4;</span>";
+                str+="<div onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b4;</div>";
             }else{
-                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25be;</span>";
+                str+="<div onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25be;</div>";
             }
         } else if(col=="Course Name" || col=="Comment"){
-            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
+            str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</div>";
         } else{
             let sign=col.substr(col.lastIndexOf(" "),col.length);
             let fname=col.substr(0,col.indexOf(" "));
@@ -450,15 +451,13 @@ function makeSum(col,value,rowno,row){
         return parseFloat(value.students);
     } else if(col=="Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)"){
         // We need to calc the value for total
+        /*
         let students=row[currentTable.tbl.tblhead.indexOf("Students")].students;
         let ttb=value.time_budget.lecture+value.time_budget.seminar+value.time_budget.supervision+value.time_budget.preparation+value.time_budget.development+(value.time_budget.grading * students)+value.time_budget.examination+value.time_budget.running+value.time_budget.other;        
         currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf(col)].time_budget.total=ttb;
-        return parseFloat(ttb);
-    }  else if(col=="Total Time Budget"){
-        let total=currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf("Time Budget (lecture / seminar / supervision / preparation / development / grading / examination / running / other / total)")].time_budget.total;
-        currentTable.tbl.tblbody[rowno][currentTable.tbl.tblhead.indexOf(col)]=total;
-        return total;
-    }else{
+        */
+        return parseFloat(0);
+    }  else{
 				if(value.hours=="UNK"){
 						return 0;
 				}else{

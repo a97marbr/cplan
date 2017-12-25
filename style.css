@@ -84,12 +84,21 @@
   overflow: hidden;
 }
 
-table {
-    margin-top:30px;
-}
 tbody tr:nth-child(odd) {
     background-color: #ddd;
 }
 tfoot td {
     text-align: center;
+}
+
+th,td {
+    padding:0 5px;
+    white-space: nowrap;            
+    background-color: inherit;
+}
+tr:nth-child(odd) {
+    background-color: #dddddd;
+}
+tr:nth-child(even) {
+    background-color: #ffffff;
 }

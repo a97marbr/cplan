@@ -1,11 +1,13 @@
-// Keep track of Currently active Table
+// Keep track of Currently active Table and all sortable tables
 var currentTable=null;
+var sortableTables=[];
 
 // Global sorting function global
 function sortableInternalSort(a,b)
 {
 		let ret=0;		
-		let colno=currentTable.tbl.tblhead.indexOf(currentTable.sortcolumn);
+    //let colno=currentTable.tbl.tblhead.indexOf(currentTable.sortcolumn);
+    let colno=currentTable.getSortcolumnNum();
 		
 		if(currentTable.ascending){
 				//alert("Compare: "+a+" "+b);			
@@ -17,25 +19,36 @@ function sortableInternalSort(a,b)
 		return ret;
 }
 
-function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions,renderColumnFilter,rowFilter,colsumList,rowsumList,rowsumHeading,sumFunc) {
+function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions,renderColumnFilter,rowFilter,colsumList,rowsumList,rowsumHeading,sumFunc,freezePane) {
 
-		this.columnfilter=[];
-		this.sortcolumn="UNK";
-		this.sortkind=-1;
+		var columnfilter=[];
+		var sortcolumn="UNK";
+		var sortkind=-1;
+		var tbl=tbl;
+		var filterid=filterid;
+		var caption=caption;
+		var renderCell=renderCell;
+		var renderSortOptions=renderSortOptions;
+		var renderColumnFilter=renderColumnFilter;
+		var rowFilter=rowFilter;
+		var colsumList=colsumList;
+		var rowsumList=rowsumList;
+		var rowsumHeading=rowsumHeading;
+		var sumFunc=sumFunc;
+    var freezePane=freezePane;
+    var freezePaneArr=[];
+
 		this.ascending=false;
-		this.tbl=tbl;
 		this.tableid=tableid;
-		this.filterid=filterid;
-		this.caption=caption;
-		this.renderCell=renderCell;
-		this.renderSortOptions=renderSortOptions;
-		this.renderColumnFilter=renderColumnFilter;
-		this.rowFilter=rowFilter;
-		this.colsumList=colsumList;
-		this.rowsumList=rowsumList;
-		this.rowsumHeading=rowsumHeading;
-		this.sumFunc=sumFunc;
+	
+    tbl.cleanHead=[];
+    
+    for(let i=0;i<tbl.tblhead.length;i++){
+        tbl.cleanHead.push(tbl.tblhead[i].toLowerCase().replace(/[^a-zA-Z0-9]+/g, ""));      
+    }    
 								
+    sortableTables.push(this);
+    
 		this.renderTable = function ()
 		{
 				this.reRender();
@@ -46,112 +59,141 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 				// Assign currently active table
 				currentTable=this;
 
-				// Global that contains rendered html for column filter div
-				this.columnfilter = JSON.parse(localStorage.getItem(this.tableid+"_filtercolnames"));
+				// Private array that contains names of filtered columns
+				columnfilter = JSON.parse(localStorage.getItem(tableid+"_filtercolnames"));
 
-				// Summing array
+				// Local variable that contains summing array
 				var sumContent=[];
 
 				let isFirstVisit=false;
-				if(this.columnfilter == null) {
+				if(columnfilter == null) {
 						isFirstVisit=true;
-						this.columnfilter=[];
+						columnfilter=[];
 				} 
 
 				var filterstr="";
-				for(let colno in this.tbl.tblhead){
-						var col=this.tbl.tblhead[colno];
+				for(let colno in tbl.tblhead){
+						var col=tbl.tblhead[colno];
 						if(isFirstVisit){
-								this.columnfilter.push(col);
+								columnfilter.push(col);
 						} 
-						filterstr+=this.renderColumnFilter(col,this.columnfilter.indexOf(col)>-1);							
+						filterstr+=renderColumnFilter(col,columnfilter.indexOf(col)>-1);							
 						
 				}
-				document.getElementById(this.filterid).innerHTML=filterstr;
+				document.getElementById(filterid).innerHTML=filterstr;
 
-				// Global that contains rendered html for table
-				var str="";
+				// Local variable that contains html code for main table and local variable that contains magic headings table
+				var str="<table style='border-collapse: collapse;' id='"+tableid+"_tbl'>";
+				var	mhstr="<table style='table-layout:fixed;border-collapse: collapse;position:fixed;top:0px;left:0px;z-index:2000;' id='"+tableid+"_tbl_mh'>";;
+      	var mhvstr="<table style='table-layout:fixed;border-collapse: collapse;position:fixed;left:0px;z-index:1000;' id='"+tableid+"_tbl_mhv'>";
+      	var mhfstr="<table style='table-layout:fixed;border-collapse: collapse;position:fixed;left:0px;top:0px;z-index:3000;' id='"+tableid+"_tbl_mhf'>";
+			
+				str+= "<caption>"+caption+"</caption>";
 
-				str+= "<caption>"+this.caption+"</caption>";
-
-				str+= "<thead>";
-					str+= "<tr>";
-					for(let colno in this.tbl.tblhead){
-							var col=this.tbl.tblhead[colno];
-							if(this.columnfilter.indexOf(col)>-1){
-									if(col==this.sortcolumn){
-											str+= "<th>"+this.renderSortOptions(col,this.sortkind)+"</th>";
-									}else{
-											str+= "<th>"+this.renderSortOptions(col,-1)+"</th>";
-									}
-							}
-					}
-					if(this.rowsumList.length>0){
-							if(this.rowsumHeading==this.sortcolumn){
-									str+= "<th>"+this.renderSortOptions(this.rowsumHeading,this.sortkind)+"</th>";
-							}else{
-									str+= "<th>"+this.renderSortOptions(this.rowsumHeading,-1)+"</th>";
-							}
-					}
-					str+= "</tr>";
-				str+= "</thead>";
+				// Make headings Clean Contains headings using only A-Z a-z 0-9 ... move to function removes lines of code and removes redundant code/data!?
+        str+= "<thead id='"+tableid+"_tblhead'><tr>";
+        mhstr+= "<thead id='"+tableid+"_tblhead_mh'><tr>";
+        mhvstr+= "<thead id='"+tableid+"_tblhead_mhv'><tr>";
+        mhfstr+= "<thead id='"+tableid+"_tblhead_mhf'><tr>";
+				
+        var freezePaneIndex=tbl.tblhead.indexOf(freezePane);
+				for(let colno=0;colno<tbl.tblhead.length; colno++){
+						var col=tbl.tblhead[colno];
+            var cleancol=tbl.cleanHead[colno];
+						// If column is visible
+						if(columnfilter.indexOf(col)>-1){
+                if(colno <= freezePaneIndex){
+										if(col==sortcolumn){
+												mhfstr+= "<th id='"+cleancol+"_"+tableid+"_tbl_mhf' class='"+tableid+"'>"+renderSortOptions(col,sortkind)+"</th>";
+												mhvstr+= "<th id='"+cleancol+"_"+tableid+"_tbl_mhv' class='"+tableid+"'>"+renderSortOptions(col,sortkind)+"</th>";
+										}else{
+												mhfstr+= "<th id='"+cleancol+"_"+tableid+"_tbl_mhf' class='"+tableid+"'>"+renderSortOptions(col,-1)+"</th>";
+												mhvstr+= "<th id='"+cleancol+"_"+tableid+"_tbl_mhv' class='"+tableid+"'>"+renderSortOptions(col,-1)+"</th>";
+										}
+								}
+								if(col==sortcolumn){
+										str+= "<th id='"+cleancol+"_"+tableid+"_tbl' class='"+tableid+"'>"+renderSortOptions(col,sortkind)+"</th>";
+										mhstr+= "<th id='"+cleancol+"_"+tableid+"_tbl_mh' class='"+tableid+"'>"+renderSortOptions(col,sortkind)+"</th>";
+								}else{
+										str+= "<th id='"+cleancol+"_"+tableid+"_tbl' class='"+tableid+"'>"+renderSortOptions(col,-1)+"</th>";
+										mhstr+= "<th id='"+cleancol+"_"+tableid+"_tbl_mh' class='"+tableid+"'>"+renderSortOptions(col,-1)+"</th>";
+								}
+						}
+				}
+				if(rowsumList.length>0){
+						if(rowsumHeading==sortcolumn){
+								str+= "<th id='"+rowsumHeading+"_"+tableid+"_tbl' class='"+tableid+" freeze_vertical'>"+renderSortOptions(rowsumHeading,sortkind)+"</th>";
+								mhstr+= "<th id='"+rowsumHeading+"_"+tableid+"_tbl_mh' class='"+tableid+" freeze_vertical'>"+renderSortOptions(rowsumHeading,sortkind)+"</th>";
+						}else{
+                str+= "<th id='"+rowsumHeading+"_"+tableid+"_tbl' class='"+tableid+" freeze_vertical'>"+renderSortOptions(rowsumHeading,-1)+"</th>";
+                mhstr+= "<th id='"+rowsumHeading+"_"+tableid+"_tbl_mh' class='"+tableid+" freeze_vertical'>"+renderSortOptions(rowsumHeading,-1)+"</th>";
+						}
+				}
+        str+= "</tr></thead>";
+        mhstr+= "</tr></thead></table>";
+        mhfstr+= "</tr></thead></table>";
+			
 
 				// Render table body
-				str+= "<tbody>";
-					for(let rowno in this.tbl.tblbody){
-							var row=this.tbl.tblbody[rowno]
+				str+= "<tbody id='"+tableid+"_body'>";
+				mhvstr+= "<tbody id='"+tableid+"_mhvbody'>";
+				for(let rowno in tbl.tblbody){
+							var row=tbl.tblbody[rowno]
 							if(rowFilter(row)){
 								
 								// Keep row sum total here
 								var rowsum=0;
 								
 								str+="<tr>";
+								mhvstr+="<tr>";
 								for(let colno in row){
-									col=row[colno]; // this info can be updated in the sumFunc 
+									col=row[colno];
+                  cleancol=tbl.cleanHead[colno];
 																		
 									// If we show this column...
-									if(this.columnfilter.indexOf(this.tbl.tblhead[colno])>-1){
+									if(columnfilter.indexOf(tbl.tblhead[colno])>-1){
 											
 											// This condition is true if column is in summing list and in that case perform the sum like a BOSS
-											if(this.colsumList.indexOf(this.tbl.tblhead[colno])>-1){
-													if(typeof(sumContent[this.tbl.tblhead[colno]]) == "undefined") sumContent[this.tbl.tblhead[colno]]=0;
-													sumContent[this.tbl.tblhead[colno]]+=this.sumFunc(this.tbl.tblhead[colno],row[colno],rowno,row);		
+											if(colsumList.indexOf(tbl.tblhead[colno])>-1){
+													if(typeof(sumContent[tbl.tblhead[colno]]) == "undefined") sumContent[tbl.tblhead[colno]]=0;
+													sumContent[tbl.tblhead[colno]]+=sumFunc(tbl.tblhead[colno],col);		
 											}
 
-											if(this.rowsumList.indexOf(this.tbl.tblhead[colno])>-1){
-													rowsum+=this.sumFunc(this.tbl.tblhead[colno],row[colno],rowno,row);
+											if(rowsumList.indexOf(tbl.tblhead[colno])>-1){
+													rowsum+=sumFunc(tbl.tblhead[colno],col);
 											}
 
-											let cellid="r"+rowno+"c"+colno;
-											str+="<td id='"+cellid+"'>";
-											str+=this.renderCell(row[colno],this.tbl.tblhead[colno],cellid);
-											str+="</td>";						
+											let cellid="r"+rowno+"_"+tableid+"_"+cleancol;
+											str+="<td id='"+cellid+"' >"+renderCell(col,tbl.tblhead[colno],cellid)+"</td>";
+											if(colno <= freezePaneIndex){
+													mhvstr+="<td id='"+cellid+"' >"+renderCell(col,tbl.tblhead[colno],cellid)+"</td>";                      
+											}			                      
+                      
 									}
 								}
 								
-								if(this.rowsumList.length>0){
-										str+="<td>";
-										str+=rowsum;
-										str+="</td>";
+								if(rowsumList.length>0){
+										str+="<td>"+rowsum+"</td>";
 								}
 								
-								str+="</tr>";
+                str+="</tr>";
+								mhvstr+="</tr>";
 							}
-					}
+				}
 				str+= "</tbody>";
+				mhvstr+= "</tbody>";
 
 				str+= "<tfoot style='border-top:2px solid #000'>";
 				str+= "<tr style='font-style:italic;'>";
-				for(let colno in this.tbl.tblfoot){
+				for(let colno in tbl.tblfoot){
 						// If we show this column...
-						if(this.columnfilter.indexOf(this.tbl.tblhead[colno])>-1){
-
-								if(this.colsumList.indexOf(this.tbl.tblhead[colno])>-1){
+						if(columnfilter.indexOf(tbl.tblhead[colno])>-1){
+								if(colsumList.indexOf(tbl.tblhead[colno])>-1){
 										// If writing sum - just write it
-										str+="<td>"+sumContent[this.tbl.tblhead[colno]]+"</td>";						
+										str+="<td>"+sumContent[tbl.tblhead[colno]]+"</td>";						
 								}else{
-										if (this.tbl.tblfoot[col]!="UNK"){
-												str+="<td>"+this.tbl.tblfoot[colno]+"</td>";
+										if (tbl.tblfoot[col]!="UNK"){
+												str+="<td>"+tbl.tblfoot[colno]+"</td>";
 										} else {
 												str+="<td>&nbsp;</td>";
 										}
@@ -160,23 +202,42 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 				}
 				str+="</tr>";
 				str+= "</tfoot></table>";
+				mhvstr+= "</table>";
 
-				document.getElementById(this.tableid).innerHTML=str;
+				// Assign table and magic headings table(s)
+				document.getElementById(tableid).innerHTML=mhstr+mhvstr+mhfstr+str;
 
-		}
+        document.getElementById(tableid+"_tbl_mh").style.width=document.getElementById(tableid+"_tbl").getBoundingClientRect().width+"px";
+        document.getElementById(tableid+"_tbl_mh").style.boxSizing = "border-box";          
+				children=document.getElementById(tableid+"_tbl").getElementsByTagName('TH');
+				for(i=0;i<children.length;i++){
+          document.getElementById(children[i].id+"_mh").style.width=children[i].getBoundingClientRect().width;
+          document.getElementById(children[i].id+"_mh").style.boxSizing = "border-box";          
+				}
+
+        document.getElementById(tableid+"_tbl_mhf").style.width=Math.round(document.getElementById(tableid+"_tbl_mhv").getBoundingClientRect().width)+"px";
+        document.getElementById(tableid+"_tbl_mhf").style.boxSizing = "border-box";
+				children=document.getElementById(tableid+"_tbl_mhv").getElementsByTagName('TH');
+				for(i=0;i<children.length;i++){
+          document.getElementById(children[i].id.slice(0, -1)+"f").style.width=children[i].getBoundingClientRect().width;
+          document.getElementById(children[i].id.slice(0, -1)+"f").style.boxSizing = "border-box";
+  			}
+			
+
+}
 
 		this.toggleColumn = function(col)
 		{
 				// Assign currently active table
 				currentTable=this;
 
-				if(this.columnfilter.indexOf(col)==-1){
-						this.columnfilter.push(col);
+				if(columnfilter.indexOf(col)==-1){
+						columnfilter.push(col);
 				}else{
-						this.columnfilter.splice(this.columnfilter.indexOf(col),1);
+						columnfilter.splice(columnfilter.indexOf(col),1);
 				}
 
-				localStorage.setItem(this.tableid+"_filtercolnames", JSON.stringify(this.columnfilter));
+				localStorage.setItem(tableid+"_filtercolnames", JSON.stringify(columnfilter));
 
 				this.reRender();
 		}
@@ -186,15 +247,62 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 				// Assign currently active table
 				currentTable=this;
 				
-				this.sortcolumn=col;
-				this.sortkind=kind;		
+				sortcolumn=col;
+				sortkind=kind;		
 				
 				this.ascending=!this.ascending;
 				
 				// Sort the body of the table again
-				this.tbl.tblbody.sort(sortableInternalSort);
+				tbl.tblbody.sort(sortableInternalSort);
 								
 				this.reRender();
 		}
-		
+    
+    this.getSortcolumn = function (){
+        return sortcolumn;
+    } 
+
+    this.getSortcolumnNum = function (){
+        return tbl.tblhead.indexOf(sortcolumn);
+    } 
+    
+    this.getSortkind = function (){
+        return sortkind;
+    }    
+    
+		// Simpler magic heading v. III
+		setInterval(freezePaneHandler,30);
+
+		function freezePaneHandler()
+		{
+				// Hide magic headings and find minimum overdraft
+				for(var i=0;i<sortableTables.length;i++){
+							var thetab=document.getElementById(sortableTables[i].tableid+"_tbl").getBoundingClientRect();
+							var thetabhead=document.getElementById(sortableTables[i].tableid+"_tblhead").getBoundingClientRect();
+							// If top is negative and top+height is positive draw mh otherwise hide
+							// Vertical
+							if(thetabhead.top<0&&thetab.bottom>0){
+									document.getElementById(sortableTables[i].tableid+"_tbl_mh").style.left=Math.round(thetab.left)+"px";
+									document.getElementById(sortableTables[i].tableid+"_tbl_mh").style.display="table";
+							}else{
+									document.getElementById(sortableTables[i].tableid+"_tbl_mh").style.display="none";
+							}
+							// Horizontal
+							if(thetab.left<0&&thetab.right>0){
+									document.getElementById(sortableTables[i].tableid+"_tbl_mhv").style.top=Math.round(thetabhead.top)+"px";
+									document.getElementById(sortableTables[i].tableid+"_tbl_mhv").style.display="table";
+							}else{
+									document.getElementById(sortableTables[i].tableid+"_tbl_mhv").style.display="none";							
+							}
+					
+							// Fixed
+							if(thetab.left<0&&thetab.right>0&&thetabhead.top<0&&thetab.bottom>0){
+									document.getElementById(sortableTables[i].tableid+"_tbl_mhf").style.display="table";
+							}else{
+									document.getElementById(sortableTables[i].tableid+"_tbl_mhf").style.display="none";
+							}
+							
+				}
+		}
+	
 }

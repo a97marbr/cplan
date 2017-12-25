@@ -3,9 +3,9 @@
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="style.css">
     <script
-			  src="https://code.jquery.com/jquery-3.2.1.min.js"
-			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-			  crossorigin="anonymous"></script>
+    			  src="https://code.jquery.com/jquery-2.2.4.min.js"
+    			  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+    			  crossorigin="anonymous"></script>
     <script src="unlock.js"></script>
     <script src="sortableTable.js"></script> 
     <script src="course.js"></script> 
@@ -30,7 +30,7 @@
 </div> 
 <h2>Column filter for Course Table</h2>
 <div id="columnFilter"></div>
-<table id="c"  style='border-collapse: collapse;'></table>
+<div id="c"></div>
 
 <?php
 
