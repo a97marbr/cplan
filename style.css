@@ -90,6 +90,11 @@ tbody tr:nth-child(odd) {
 tfoot td {
     text-align: center;
 }
+.hoPa:hover .hoCh{
+    display:block;
+    right:0;
+    top:-20px;
+}
 
 th,td {
     padding:0 5px;

@@ -1,6 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE=11">
     <link rel="stylesheet" type="text/css" href="style.css">
     <script
     			  src="https://code.jquery.com/jquery-2.2.4.min.js"

@@ -48,10 +48,10 @@
     if(isset($_POST['credits'])){
         $credits=floatval($_POST['credits']);
     } else {
-        $credits="UNK";
+        $credits=0.0;
     }
 
-    if ($ccode != "UNK" && $cname!="UNK" && $class != "UNK" && $credits!="UNK"){        
+    if ($ccode != "UNK" && $cname!="UNK"){        
         $sql = 'INSERT INTO course (ccode,cname,class,credits) values(:ccode,:cname,:class,:credits)';
         
         $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));

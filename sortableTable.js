@@ -2,6 +2,53 @@
 var currentTable=null;
 var sortableTables=[];
 
+// Magic heading updated based on scroll position
+//window.onscroll = function() {magicHeading()};
+
+// Global function for magic Headings
+/*
+function magicHeading(){  
+    for (let i=0;i<sortableTables.length;i++){
+        // Update col widths
+        var tintin=sortableTables[i];        
+        var leftMostCol="";        
+        
+        document.getElementById(tintin.getID()+"_magic").style.width=document.getElementById(tintin.getID()+"_tbl").clientWidth+"px";
+        
+        for(let colno in tintin.tbl.tblhead){
+						var col=tintin.tbl.tblhead[colno];
+						if(tintin.columnfilter.indexOf(col)>-1){
+              let ccol=col.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "");
+              let mhcol=ccol+"_"+tintin.tableid+"_mh";
+              ccol+="_"+tintin.tableid+"_tbl";
+              let w=document.getElementById(ccol).clientWidth;
+              let s=document.getElementById(ccol).getBoundingClientRect();
+              pl=window.getComputedStyle(document.getElementById(ccol), null).getPropertyValue('padding-left');
+              pr=window.getComputedStyle(document.getElementById(ccol), null).getPropertyValue('padding-right');
+              pl=parseInt(pl.replace("px",""));
+              pr=parseInt(pr.replace("px",""));
+              padding=pl+pr;
+              document.getElementById(mhcol).style.width=(w-padding)+"px";
+						}
+				}
+        
+        // Display magic heading if part of the table has scrolled past the top 
+        // BUT the entire table has not scrolled out of view.
+        var top=document.getElementById(tintin.tableid).getBoundingClientRect().top;
+        var height=document.getElementById(tintin.tableid).getBoundingClientRect().height;
+        if (top < 0 && top+height > 0){
+          // Position mh table
+          document.getElementById(tintin.tableid+"_magic").style.top="0px";
+          // display
+          document.getElementById(tintin.tableid+"_magic").style.display="block";
+        } else {
+          // hide
+          document.getElementById(tintin.tableid+"_magic").style.display="none";          
+        }        
+    }
+}
+*/
+
 // Global sorting function global
 function sortableInternalSort(a,b)
 {

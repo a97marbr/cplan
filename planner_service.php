@@ -1,10 +1,10 @@
 <?php 
     require 'dbconnect.php';
 ?>
-
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE=11">
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
