@@ -95,8 +95,9 @@ tfoot td {
 }
 .hoPa:hover .hoCh{
     display:block;
-    right:0;
+    right:0px;
     top:-20px;
+    z-index:1000;
 }
 
 .hoPa .hoCh {
@@ -130,4 +131,42 @@ tr:nth-child(even) {
 .mytable.freeze_horizontal {
     z-index: 1;
     position: relative;
+}
+#editpopover{
+    border:1px solid red;
+    box-shadow:2px 2px 2px #000;
+    position:absolute;
+    background-color: #82a43a; 
+}
+
+.icon {
+    width:20px;
+    height:20px;
+    padding:0px;
+}                
+
+#input-container input{
+    width:100%;
+    border:0px;
+    padding:0px;
+    margin:2px;
+    font-size: 16px;
+    font-family: serif;
+}
+
+.editInput{
+    position:relative;
+}
+
+.editInput > label {
+    display:inline-block;
+    width:100%;
+    font-family: serif;
+    font-size: 16px;
+    position: absolute;
+    right:100%;
+    padding: 2px 0px;
+    background-color: #800080;
+    color:#FFF;
+    text-align: right;
 }

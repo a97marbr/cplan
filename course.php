@@ -8,7 +8,7 @@
     <script src="sortableTable.js"></script> 
     <script src="course.js"></script> 
 </head>
-<body onload="getData();">
+<body onload="getData();" onkeypress='keypressHandler(event)';>
 <h3>Course planing overview</h3>
 <?php 
     require 'menu.php';
@@ -29,6 +29,7 @@
 <h2>Column filter for Course Table</h2>
 <div id="columnFilter"></div>
 <div id="c"></div>
+<div id="editpopover" style="display:none;"></div>
 
 <?php
 
