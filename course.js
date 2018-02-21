@@ -295,12 +295,12 @@ function renderSortOptions(col,status){
 		}else{
         if(col=="CCode" || col=="Course Name" || col=="Class" || col=="Credits" || col=="Start" || col=="End" || col=="Students" || col=="SProgram"){
             if(status==0){
-                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25bc;</span>";
+                str+="<div onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b4;</div>";
             }else{
-                str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+col+"&#x25b2;</span>";
+                str+="<div onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"&#x25be;</div>";
             }
         } else if(col=="Course Name" || col=="Comment"){
-            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
+            str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</div>";
         } else{
             let sign=col.substr(col.lastIndexOf(" "),col.length);
             let fname=col.substr(0,col.indexOf(" "));

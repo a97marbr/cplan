@@ -84,9 +84,6 @@
   overflow: hidden;
 }
 
-table {
-    margin-top:30px;
-}
 tbody tr:nth-child(odd) {
     background-color: #ddd;
 }
@@ -100,15 +97,9 @@ tfoot td {
     z-index:1000;
 }
 
-.hoPa .hoCh {
-    display:none;
-}
-
 th,td {
     padding:0 5px;
     white-space: nowrap;            
-}
-tr,td,th {
     background-color: inherit;
 }
 tr:nth-child(odd) {
