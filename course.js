@@ -281,8 +281,10 @@ function renderSortOptions(col,status){
             str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
         } else if(col=="Course Name" || col=="Comment"){
             str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</span>";
-        }else if(col=="Student & Time Budget"){
-            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Student & Time Budget</span>";
+        }else if(col=="Budget"){
+            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Budget</span>";
+            str+="<div><span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Stud</span>|";
+            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Time</span></div>";
         } else{
             let sign=col.substring(col.lastIndexOf(" "),col.length);
             let fname=col.substring(0,col.indexOf(" "));
@@ -301,8 +303,8 @@ function renderSortOptions(col,status){
             }
         } else if(col=="Course Name" || col=="Comment"){
             str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+col+"</div>";
-        }else if(col=="Student & Time Budget"){
-            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Student & Time Budget</span>";
+        }else if(col=="Budget"){
+            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Budget</span>";
         } else{
             let sign=col.substr(col.lastIndexOf(" "),col.length);
             let fname=col.substr(0,col.indexOf(" "));
@@ -344,7 +346,7 @@ function renderCell(celldata,col,cellid,rowdata,colnames){
         t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"superviseTime\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.superviseTime+"\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.superviseTime+"</div>"; 
     } else if (col=="Student Time") {
         t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"studentTime\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata.studentTime+"</div>"; 
-    } else if (col=="Time Budget") {
+    } else if (col=="Budget") {
         //console.log(rowdata);
         //console.log(colnames);
         // lecture / seminar / supervision / preparation / development / grading / examination / running / other / total        
@@ -463,7 +465,7 @@ function compare(a,b){
         let left = (isNaN(a)) ? tmp : +a; 
         let right = (isNaN(b)) ? tmp : +b; 
         return right-left;     
-    }else if (col == "Time Budget"){
+    }else if (col == "Budget"){
         /*
         let left = (isNaN(a.time_budget.unspecified)) ? tmp : +a.time_budget.unspecified; 
         let right = (isNaN(b.time_budget.unspecified)) ? tmp : +b.time_budget.unspecified; 
@@ -498,7 +500,7 @@ function compare(a,b){
 function makeSum(col,value){
     if(col=="Students"){
         return parseFloat(value.students);
-    } else if(col=="Time Budget"){
+    } else if(col=="Budget"){
         //console.log(value);
         let total=value.time_budget.unspecified+value.time_budget.lecture+value.time_budget.seminar+value.time_budget.supervision+value.time_budget.preparation+value.time_budget.development+value.time_budget.grading+value.time_budget.examination+value.time_budget.running+value.time_budget.other;
         return parseFloat(total);
@@ -597,7 +599,7 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
         str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
         str+="<input type='text' id='popoveredit_students' class='popoveredit' style='flex-grow:1' value='"+celldata.students+"' size='"+celldata.students.toString().length+"'/>";
         str+="</div>";
-    }else if (column=="timebudget"){
+    }else if (column=="budget"){
       str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
           str+="<div class='editInput'><label>Status:</label><select id='popoveredit_status' class='popoveredit' style='width:100%;padding:0;'>";
               str+="<option value='0'>confirmed</option>";
@@ -606,14 +608,14 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
               str+="<option value='3'>error</option>";
           str+="</select>";            
           str+="<div class='editInput'><label>Students:</label><input type='text' id='popoveredit_students' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.students+"' size="+celldata.time_budget.students.toString().length+"/></div>";
-          str+="<div class='editInput'><label>Constant time</label>&nbsp;</div>";
+          str+="<div class='editInput'><label>Fixed time</label>&nbsp;</div>";
           str+="<div class='editInput'><label>Unspecified:</label><input type='text' id='popoveredit_unspecified' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.unspecified+"' size="+celldata.time_budget.unspecified.toString().length+"/></div>";
           str+="<div class='editInput'><label>Lecture:</label><input type='text' id='popoveredit_lecture' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.lecture+"' size='"+celldata.time_budget.lecture.toString().length+"'/></div>";
           str+="<div class='editInput'><label>Seminar:</label><input type='text' id='popoveredit_seminar' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.seminar+"' size='"+celldata.time_budget.seminar.toString().length+"'/></div>";
           str+="<div class='editInput'><label>Supervision:</label><input type='text' id='popoveredit_supervision' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.supervision+"' size='"+celldata.time_budget.supervision.toString().length+"'/></div>";
           str+="<div class='editInput'><label>Preparation:</label><input type='text' id='popoveredit_preparation' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.preparation+"' size='"+celldata.time_budget.preparation.toString().length+"'/></div>";
           str+="<div class='editInput'><label>Development:</label><input type='text' id='popoveredit_development' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.development+"' size='"+celldata.time_budget.development.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>variable Time</label>&nbsp;</div>";
+          str+="<div class='editInput'><label>Varying Time</label>&nbsp;</div>";
           str+="<div class='editInput'><label>Grading:</label><input type='text' id='popoveredit_grading' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.grading+"' size='"+celldata.time_budget.grading.toString().length+"'/></div>";
           str+="<div class='editInput'><label>Examination:</label><input type='text' id='popoveredit_examination' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.examination+"' size='"+celldata.time_budget.examination.toString().length+"'/></div>";
           str+="<div class='editInput'><label>Running</label><input type='text' id='popoveredit_running' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.running+"' size='"+celldata.time_budget.running.toString().length+"'/></div>";
@@ -682,10 +684,12 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue){
             updateDB(tableid,rowno,column,newcelldata);
             return newcelldata;
         }          
-    }else if(column=="timebudget"){
+    }else if(column=="budget"){
         //console.log(rowno,colno,column,tableid,oldvalue);
         var newvalue=oldvalue;
+        newvalue.students=parseInt(document.getElementById("popoveredit_students").value);
         var obj={
+            students:parseInt(document.getElementById("popoveredit_students").value),
             unspecified:parseInt(document.getElementById("popoveredit_unspecified").value),
             lecture:parseInt(document.getElementById("popoveredit_lecture").value),
             seminar:parseInt(document.getElementById("popoveredit_seminar").value),

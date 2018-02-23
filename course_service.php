@@ -148,6 +148,7 @@
             $comment=$updatevalue["comment"];
         }else if($updatecol=="timebudget"){
             $timebudget=json_encode($updatevalue["time_budget"]);
+            $students=intval($updatevalue["students"]);
         }
         if ($ciid!=="UNK"){          
             $sql = 'UPDATE course_instance SET ';
@@ -209,7 +210,7 @@
     array_push($tblhead,'Lecture Time');
     array_push($tblhead,'Supervise Time');
     array_push($tblhead,'Student Time');
-    array_push($tblhead,'Time Budget');
+    array_push($tblhead,'Budget');
 
     array_push($tblfoot,'');
     array_push($tblfoot,'');
@@ -222,7 +223,7 @@
     array_push($tblfoot,'');
     array_push($tblfoot,'');
     array_push($tblfoot,'');
-    array_push($tblfoot,'Time Budget');
+    array_push($tblfoot,'Budget');
 
     $hasHeading=false;
     $hasFooter=false;
