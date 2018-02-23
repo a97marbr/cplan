@@ -77,7 +77,7 @@ function clickedInternal(event,clickdobj)
     str+="<img id='popovertick' class='icon' src='Icon_Tick.svg' onclick='updateCellInternal();'>";
     str+="<img id='popovercross' class='icon' src='Icon_Cross.svg' onclick='clearUpdateCellInternal();'>";
     var lmnt=cellelement.getBoundingClientRect();
-    console.log(lmnt.top, lmnt.right, lmnt.bottom, lmnt.left, lmnt.height, lmnt.width);
+    //console.log(lmnt.top, lmnt.right, lmnt.bottom, lmnt.left, lmnt.height, lmnt.width);
     var popoverelement=document.getElementById("editpopover");
     popoverelement.innerHTML=str;
     var popoveredit=document.getElementById("popoveredit");
@@ -191,7 +191,7 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 				document.getElementById(filterid).innerHTML=filterstr;
 
 				// Local variable that contains html code for main table and local variable that contains magic headings table
-				var str="<table style='border-collapse: collapse;margin-left:200px;' id='"+tableid+"_tbl'>";
+				var str="<table style='border-collapse: collapse;' id='"+tableid+"_tbl'>";
 				var	mhstr="<table style='table-layout:fixed;border-collapse: collapse;position:fixed;top:0px;left:0px;z-index:2000;' id='"+tableid+"_tbl_mh'>";;
       	var mhvstr="<table style='table-layout:fixed;border-collapse: collapse;position:fixed;left:0px;z-index:1000;' id='"+tableid+"_tbl_mhv'>";
       	var mhfstr="<table style='table-layout:fixed;border-collapse: collapse;position:fixed;left:0px;top:0px;z-index:3000;' id='"+tableid+"_tbl_mhf'>";
@@ -243,8 +243,8 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 			
 
 				// Render table body
-				str+= "<tbody id='"+tableid+"_body'>";
-				mhvstr+= "<tbody id='"+tableid+"_mhvbody'>";
+				str+= "<tbody id='"+tableid+"_body' class='"+tableid+"'>";
+				mhvstr+= "<tbody id='"+tableid+"_mhvbody' class='"+tableid+"'>";
 				for(let rowno in tbl.tblbody){
 							var row=tbl.tblbody[rowno]
 							if(rowFilter(row)){
@@ -252,8 +252,8 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 								// Keep row sum total here
 								var rowsum=0;
 								
-								str+="<tr id='"+tableid+"_"+rowno+"' onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)' style='box-sizing:border-box'>";
-								mhvstr+="<tr id='"+tableid+"_"+rowno+"_mvh' onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)' style='box-sizing:border-box'>";
+								str+="<tr id='"+tableid+"_"+rowno+"' class='"+tableid+"' onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)' style='box-sizing:border-box'>";
+								mhvstr+="<tr id='"+tableid+"_"+rowno+"_mvh' class='"+tableid+"' onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)' style='box-sizing:border-box'>";
 								for(let colno in row){
 									col=row[colno];
                   cleancol=tbl.cleanHead[colno];
@@ -272,9 +272,9 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 											}
 
 											let cellid="r"+rowno+"_"+tableid+"_"+cleancol;
-											str+="<td id='"+cellid+"' onclick='clickedInternal(event,this);' class='"+tableid+"-"+tbl.cleanHead[colno]+"-"+colno+"'>"+renderCell(col,tbl.tblhead[colno],cellid)+"</td>";
+											str+="<td id='"+cellid+"' onclick='clickedInternal(event,this);' class='"+tableid+" "+tableid+"-"+tbl.cleanHead[colno]+"-"+colno+"'>"+renderCell(col,tbl.tblhead[colno],cellid,row,tbl.cleanHead)+"</td>";
 											if(colno <= freezePaneIndex){
-													mhvstr+="<td id='"+cellid+"' >"+renderCell(col,tbl.tblhead[colno],cellid)+"</td>";                      
+													mhvstr+="<td id='"+cellid+"' class='"+tableid+"'>"+renderCell(col,tbl.tblhead[colno],cellid,row,tbl.cleanHead)+"</td>";                      
 											}			                      
                       
 									}
@@ -415,7 +415,7 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 		}
     this.updateCell = function(){
         console.log(sortableTable.edit_rowno,sortableTable.edit_columnno,sortableTable.edit_columnname,sortableTable.edit_tableid)     
-        tbl.tblbody[sortableTable.edit_rowno][sortableTable.edit_columnno]=updateCellCallback(sortableTable.edit_rowno,sortableTable.edit_columnno,sortableTable.edit_columnname,sortableTable.edit_tableid);
+        tbl.tblbody[sortableTable.edit_rowno][sortableTable.edit_columnno]=updateCellCallback(sortableTable.edit_rowno,sortableTable.edit_columnno,sortableTable.edit_columnname,sortableTable.edit_tableid,tbl.tblbody[sortableTable.edit_rowno][sortableTable.edit_columnno]);
         this.renderTable();
     }
 
