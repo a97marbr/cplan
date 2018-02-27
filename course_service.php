@@ -135,7 +135,6 @@
             $error=$stmt->errorInfo();
         }	        
     } else if ($op=="UPDATECOURSEINSTANCE" && $updatevalue !=="UNK" && $isUnlocked){
-        $error=$updatecol;
         $timebudget="UNK";
         $students="UNK";
         $comment="UNK";
@@ -148,7 +147,6 @@
             $comment=$updatevalue["comment"];
         }else if($updatecol=="budget"){
             $timebudget=json_encode($updatevalue["time_budget"]);
-            $students=intval($updatevalue["students"]);
         }
         if ($ciid!=="UNK"){          
             $sql = 'UPDATE course_instance SET ';
