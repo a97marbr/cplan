@@ -166,7 +166,7 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
         console.log(tbl.tblbody);
 				// Assign currently active table
 				sortableTable.currentTable=this;
-
+        
 				// Private array that contains names of filtered columns
 				columnfilter = JSON.parse(localStorage.getItem(tableid+"_filtercolnames"));
 
@@ -314,6 +314,7 @@ function SortableTable(tbl,tableid,filterid,caption,renderCell,renderSortOptions
 
 				// Assign table and magic headings table(s)
 				document.getElementById(tableid).innerHTML=mhstr+mhvstr+mhfstr+str;
+        
 
         document.getElementById(tableid+"_tbl_mh").style.width=document.getElementById(tableid+"_tbl").getBoundingClientRect().width+"px";
         document.getElementById(tableid+"_tbl_mh").style.boxSizing = "border-box";          

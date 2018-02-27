@@ -400,7 +400,7 @@ function renderCell(celldata,col,cellid,rowdata,colnames){
             t="<div class='ellipsis' style='max-width:300px;' title='"+celldata+"'>"+celldata+"</div>";        
         }      
     } else {        
-        if(celldata.time_allocation!=="UNK"){
+        if(celldata.allocation!=="UNK" && celldata.allocation!==null){
           /*
           unspecified:parseInt(document.getElementById("popoveredit_unspecified").value),
           lecture:parseInt(document.getElementById("popoveredit_lecture").value),
@@ -413,7 +413,7 @@ function renderCell(celldata,col,cellid,rowdata,colnames){
           running:parseInt(document.getElementById("popoveredit_running").value),
           other:parseInt(document.getElementById("popoveredit_other").value),
           */
-            let total=celldata.time_allocation.unspecified+celldata.time_allocation.lecture+celldata.time_allocation.seminar+celldata.time_allocation.supervision+celldata.time_allocation.preparation+celldata.time_allocation.development+celldata.time_allocation.grading+celldata.time_allocation.examination+celldata.time_allocation.running+celldata.time_allocation.other;
+            let total=celldata.allocation.unspecified+celldata.allocation.lecture+celldata.allocation.seminar+celldata.allocation.supervision+celldata.allocation.preparation+celldata.allocation.development+celldata.allocation.grading+celldata.allocation.examination+celldata.allocation.running+celldata.allocation.other;
             let sclass="";
             if (celldata.status==0){
                 sclass="confirmed";
@@ -509,7 +509,10 @@ function makeSum(col,value){
 						return 0;
 				}else{
             //alert(value.hours);
-            let total=value.time_allocation.unspecified+value.time_allocation.lecture+value.time_allocation.seminar+value.time_allocation.supervision+value.time_allocation.preparation+value.time_allocation.development+value.time_allocation.grading+value.time_allocation.examination+value.time_allocation.running+value.time_allocation.other;
+            let total=0;
+            if(value.allocation !== null){
+                total=value.allocation.unspecified+value.allocation.lecture+value.allocation.seminar+value.allocation.supervision+value.allocation.preparation+value.allocation.development+value.allocation.grading+value.allocation.examination+value.allocation.running+value.allocation.other;
+            }            
 						return parseFloat(total);
 				}
 		}
@@ -600,8 +603,9 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
         str+="<input type='text' id='popoveredit_students' class='popoveredit' style='flex-grow:1' value='"+celldata.students+"' size='"+celldata.students.toString().length+"'/>";
         str+="</div>";
     }else if (column=="budget"){
-      str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
-          str+="<div class='editInput'><label>Status:</label><select id='popoveredit_status' class='popoveredit' style='width:100%;padding:0;'>";
+        console.log(celldata);
+        str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
+        str+="<div class='editInput'><label>Status:</label><select id='popoveredit_status' class='popoveredit' style='width:100%;padding:0;'>";
               str+="<option value='0'>confirmed</option>";
               str+="<option value='1'>unconfirmed</option>";
               str+="<option value='2'>must change</option>";
@@ -629,10 +633,10 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
       str+="</div>";
     }else{
         var ta;
-        if (celldata.time_allocation=="UNK"){
+        if (celldata.allocation=="UNK" || celldata.allocation===null){
             ta={"unspecified":0,"lecture":0,"seminar":0,"supervision":0,"preparation":0,"development":0,"grading":0,"examination":0,"running":0,"other":0,"total":0,"status":0};
         }else{
-            ta=celldata.time_allocation;
+            ta=celldata.allocation;
         }
         str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
             str+="<div class='editInput'><label>Status:</label><select id='popoveredit_status' class='popoveredit' style='width:100%;padding:0;'>";
@@ -731,7 +735,7 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue){
             //total:parseInt(document.getElementById("popoveredit_total").value),
             status:parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value)
         };        
-        newvalue.time_allocation=obj;
+        newvalue.allocation=obj;
         newvalue.status=parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value);
         newvalue.hours=0;
         updateDB(tableid,rowno,column,newvalue,"TEACHING");

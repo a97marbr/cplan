@@ -102,34 +102,34 @@
     $max_teachers=0;    
     if ($op=="UPDATETEACHING" && $updatevalue !=="UNK" && $isUnlocked){
         $teid=$updaterow;
+        $timeAllocation=$updatevalue["allocation"];
         if ($teid!=="UNK" && $timeAllocation!=="UNK"){
-            $sql = 'UPDATE teaching SET time_allocation=:time_allocation,status=:status,changed_ts=NOW() WHERE teid=:teid;';
-            //$sql = 'UPDATE teaching SET time_allocation=:time_allocation,changed_ts=NOW() WHERE teid=:teid;';
-            $timeAllocation=$updatevalue["time_allocation"];
+            $sql = 'UPDATE teaching SET allocation=:allocation,status=:status,changed_ts=NOW() WHERE teid=:teid;';
+            //$sql = 'UPDATE teaching SET allocation=:allocation,changed_ts=NOW() WHERE teid=:teid;';
             $status=intval($timeAllocation['status']);
             $timeAllocation=json_encode($timeAllocation);
-            $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':teid', $teid);
-            $stmt->bindParam(':time_allocation', $timeAllocation);
+            $stmt->bindParam(':allocation', $timeAllocation);
             $stmt->bindParam(':status', $status);
             if(!$stmt->execute()){
                 $error=$stmt->errorInfo();
             }
         } 
     } else if ($op=="INSERTTEACHING" && $updatevalue !=="UNK" && $isUnlocked){        
-        $sql = 'INSERT INTO teaching (hours,status,ciid,teacher,create_ts,time_allocation) VALUES(:hours,:status,:ciid,:tid,NOW(),:time_allocation);';
-        $timeAllocation=$updatevalue["time_allocation"];
+        $sql = 'INSERT INTO teaching (hours,status,ciid,teacher,create_ts,allocation) VALUES(:hours,:status,:ciid,:tid,NOW(),:allocation);';
+        $timeAllocation=$updatevalue["allocation"];
         $hours=intval($updatevalue["hours"]);
         $status=intval($timeAllocation['status']);
         $ciid=intval($updatevalue['ciid']);
         $tid=intval($updatevalue['tid']);
         $timeAllocation=json_encode($timeAllocation);
-        $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+        $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':hours', $hours);
         $stmt->bindParam(':status', $status);          
         $stmt->bindParam(':ciid', $ciid);
         $stmt->bindParam(':tid', $tid);
-        $stmt->bindParam(':time_allocation', $timeAllocation);
+        $stmt->bindParam(':allocation', $timeAllocation);
         
         if(!$stmt->execute()){
             $error=$stmt->errorInfo();
@@ -146,7 +146,7 @@
             $students=intval($updatevalue["students"]);
         }else if($updatecol=="comment"){
             $comment=$updatevalue["comment"];
-        }else if($updatecol=="timebudget"){
+        }else if($updatecol=="budget"){
             $timebudget=json_encode($updatevalue["time_budget"]);
             $students=intval($updatevalue["students"]);
         }
@@ -163,7 +163,7 @@
             }
             $sql.='changed_ts=NOW() WHERE ciid=:ciid;';
             $error=$sql;
-            $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':ciid', $ciid);
             if($comment!=="UNK"){
                 $stmt->bindParam(':comment', $comment);
@@ -249,7 +249,7 @@
         array_push($course,array('ciid'=>$crow['ciid'],'studentTime'=>$crow['student_time']));
         array_push($course,array('ciid'=>$crow['ciid'],'time_budget'=>json_decode($crow['time_budget'])));
         
-        $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,b.time_allocation,teid,ciid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,ciid,time_allocation from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
+        $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,b.allocation,teid,ciid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,ciid,allocation from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
         //$sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid,ciid,comment from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,course_instance.ciid,course_instance.comment from teaching left outer join course_instance on teaching.ciid=course_instance.ciid where teaching.ciid=:ciid ) b ON a.tid=b.teacher ORDER BY sign;';
         $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
         $stmt->bindParam(':ciid', $crow['ciid']);
@@ -260,9 +260,9 @@
               array_push($tblfoot,$row['fname'].' '.$row['lname'].' ('.$row['sign'].')');
             }
             if ($row['hours']!=null){
-                array_push($course,array('time_allocation'=>json_decode($row['time_allocation']),'hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid'],'tid'=>$row['tid'],'ciid'=>$row['ciid']));
+                array_push($course,array('allocation'=>json_decode($row['allocation']),'hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid'],'tid'=>$row['tid'],'ciid'=>$row['ciid']));
             } else {
-                array_push($course,array('time_allocation'=>'UNK','hours'=>"UNK",'status'=>"UNK",'teid'=>"UNK",'tid'=>$row['tid'],'ciid'=>$crow['ciid']));
+                array_push($course,array('allocation'=>'UNK','hours'=>"UNK",'status'=>"UNK",'teid'=>"UNK",'tid'=>$row['tid'],'ciid'=>$crow['ciid']));
             }
         }
         $hasHeading=true;

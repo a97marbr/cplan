@@ -39,12 +39,12 @@
     }
 
     if ($fname != "UNK" && $lname!="UNK" && $sign != "UNK"){        
-        $sql = 'INSERT INTO teacher (fname,lname,sign) values(:fname,:lname,:sign)';
+        $sql = "INSERT INTO teacher (fname,lname,sign) VALUES(:fname,:lname,:sign);";
         
-        $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
-        $stmt->bindParam(':fname', $fname);
-        $stmt->bindParam(':lname', $lname);
-        $stmt->bindParam(':sign', $sign);
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':fname', $fname, PDO::PARAM_STR, 100);
+        $stmt->bindParam(':lname', $lname, PDO::PARAM_STR, 100);
+        $stmt->bindParam(':sign', $sign, PDO::PARAM_STR, 5);
         $stmt->execute();      
     }        
  
