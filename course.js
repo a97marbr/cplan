@@ -603,29 +603,36 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
         str+="<input type='text' id='popoveredit_students' class='popoveredit' style='flex-grow:1' value='"+celldata.students+"' size='"+celldata.students.toString().length+"'/>";
         str+="</div>";
     }else if (column=="budget"){
-        console.log(celldata);
         str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
         str+="<div class='editInput'><label>Status:</label><select id='popoveredit_status' class='popoveredit' style='width:100%;padding:0;'>";
-              str+="<option value='0'>confirmed</option>";
-              str+="<option value='1'>unconfirmed</option>";
-              str+="<option value='2'>must change</option>";
-              str+="<option value='3'>error</option>";
-          str+="</select>";            
-          str+="<div class='editInput'><label>Students:</label><input type='text' id='popoveredit_students' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.students+"' size="+celldata.time_budget.students.toString().length+"/></div>";
-          str+="<div class='editInput'><label>Fixed time</label>&nbsp;</div>";
-          str+="<div class='editInput'><label>Unspecified:</label><input type='text' id='popoveredit_unspecified' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.unspecified+"' size="+celldata.time_budget.unspecified.toString().length+"/></div>";
-          str+="<div class='editInput'><label>Lecture:</label><input type='text' id='popoveredit_lecture' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.lecture+"' size='"+celldata.time_budget.lecture.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>Seminar:</label><input type='text' id='popoveredit_seminar' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.seminar+"' size='"+celldata.time_budget.seminar.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>Supervision:</label><input type='text' id='popoveredit_supervision' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.supervision+"' size='"+celldata.time_budget.supervision.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>Preparation:</label><input type='text' id='popoveredit_preparation' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.preparation+"' size='"+celldata.time_budget.preparation.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>Development:</label><input type='text' id='popoveredit_development' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.development+"' size='"+celldata.time_budget.development.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>Varying Time</label>&nbsp;</div>";
-          str+="<div class='editInput'><label>Grading:</label><input type='text' id='popoveredit_grading' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.grading+"' size='"+celldata.time_budget.grading.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>Examination:</label><input type='text' id='popoveredit_examination' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.examination+"' size='"+celldata.time_budget.examination.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>Running</label><input type='text' id='popoveredit_running' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.running+"' size='"+celldata.time_budget.running.toString().length+"'/></div>";
-          str+="<div class='editInput'><label>Other:</label><input type='text' id='popoveredit_other' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.other+"' size='"+celldata.time_budget.other.toString().length+"'/></div>";
-          //str+="<div class='editInput'><label>Total:</label><input type='text' id='popoveredit_total' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.total+"' size='"+celldata.time_budget.total.toString().length+"'/></div>";
-      str+="</div>";
+            str+="<option ";
+            if(celldata.time_budget.status==0){str+="selected";}
+            str+=" value='0'>confirmed</option>";
+            str+="<option ";
+            if(celldata.time_budget.status==1){str+="selected";}
+            str+=" value='1'>unconfirmed</option>";
+            str+="<option ";
+            if(celldata.time_budget.status==2){str+="selected";}
+            str+=" value='2'>must change</option>";
+            str+="<option ";
+            if(celldata.time_budget.status==3){str+="selected";}
+            str+=" value='3'>error</option>";
+        str+="</select>";            
+        str+="<div class='editInput'><label>Students:</label><input type='text' id='popoveredit_students' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.students+"' size="+celldata.time_budget.students.toString().length+"/></div>";
+        str+="<div class='editInput'><label>Fixed time</label>&nbsp;</div>";
+        str+="<div class='editInput'><label>Unspecified:</label><input type='text' id='popoveredit_unspecified' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.unspecified+"' size="+celldata.time_budget.unspecified.toString().length+"/></div>";
+        str+="<div class='editInput'><label>Lecture:</label><input type='text' id='popoveredit_lecture' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.lecture+"' size='"+celldata.time_budget.lecture.toString().length+"'/></div>";
+        str+="<div class='editInput'><label>Seminar:</label><input type='text' id='popoveredit_seminar' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.seminar+"' size='"+celldata.time_budget.seminar.toString().length+"'/></div>";
+        str+="<div class='editInput'><label>Supervision:</label><input type='text' id='popoveredit_supervision' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.supervision+"' size='"+celldata.time_budget.supervision.toString().length+"'/></div>";
+        str+="<div class='editInput'><label>Preparation:</label><input type='text' id='popoveredit_preparation' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.preparation+"' size='"+celldata.time_budget.preparation.toString().length+"'/></div>";
+        str+="<div class='editInput'><label>Development:</label><input type='text' id='popoveredit_development' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.development+"' size='"+celldata.time_budget.development.toString().length+"'/></div>";
+        str+="<div class='editInput'><label>Varying Time</label>&nbsp;</div>";
+        str+="<div class='editInput'><label>Grading:</label><input type='text' id='popoveredit_grading' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.grading+"' size='"+celldata.time_budget.grading.toString().length+"'/></div>";
+        str+="<div class='editInput'><label>Examination:</label><input type='text' id='popoveredit_examination' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.examination+"' size='"+celldata.time_budget.examination.toString().length+"'/></div>";
+        str+="<div class='editInput'><label>Running</label><input type='text' id='popoveredit_running' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.running+"' size='"+celldata.time_budget.running.toString().length+"'/></div>";
+        str+="<div class='editInput'><label>Other:</label><input type='text' id='popoveredit_other' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.other+"' size='"+celldata.time_budget.other.toString().length+"'/></div>";
+        //str+="<div class='editInput'><label>Total:</label><input type='text' id='popoveredit_total' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.total+"' size='"+celldata.time_budget.total.toString().length+"'/></div>";
+        str+="</div>";
     }else if (column=="comment"){
       console.log(celldata);
       str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
