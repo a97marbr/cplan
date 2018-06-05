@@ -49,3 +49,9 @@ CREATE TABLE teaching (
   alt_ts TIMESTAMP DEFAULT NULL,
   PRIMARY KEY (teid)
 );
+
+/* Code to update sequences after a restore */
+SELECT setval(pg_get_serial_sequence('teacher', 'tid'), coalesce(max(tid),0) + 1, false) FROM teacher;
+SELECT setval(pg_get_serial_sequence('teaching', 'teid'), coalesce(max(teid),0) + 1, false) FROM teaching;
+SELECT setval(pg_get_serial_sequence('course', 'cid'), coalesce(max(cid),0) + 1, false) FROM course;
+SELECT setval(pg_get_serial_sequence('course_instance', 'ciid'), coalesce(max(ciid),0) + 1, false) FROM course_instance;
