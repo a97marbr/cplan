@@ -29,7 +29,7 @@
     </select>
     <button onclick="getData()">Get Data</button>
 </div> 
-<h2>Column filter for Course Table</h2>
+<div>Column filter for Course Table</div>
 <div id="columnFilter"></div>
 <div id="c"></div>
 <div id="editpopover" style="display:none;"></div>

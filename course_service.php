@@ -1,5 +1,5 @@
 <?php 
-    require 'dbconnect.php';
+    require '../dbconnect.php';
 
     if(isset($_POST['year'])){      
         $year=$_POST['year'];
@@ -101,13 +101,14 @@
     $teachers = array();
     $max_teachers=0;    
     if ($op=="UPDATETEACHING" && $updatevalue !=="UNK" && $isUnlocked){
-        $teid=$updaterow;
-        $timeAllocation=$updatevalue["allocation"];
+        $timeAllocation=json_encode($updatevalue["allocation"]);
+        $status=intval($updatevalue['status']);
+        $teid=$updatevalue['teid'];
+        $hours=intval($updatevalue["hours"]);
+        $ciid=intval($updatevalue['ciid']);
+        $tid=intval($updatevalue['tid']);
         if ($teid!=="UNK" && $timeAllocation!=="UNK"){
             $sql = 'UPDATE teaching SET allocation=:allocation,status=:status,changed_ts=NOW() WHERE teid=:teid;';
-            //$sql = 'UPDATE teaching SET allocation=:allocation,changed_ts=NOW() WHERE teid=:teid;';
-            $status=intval($timeAllocation['status']);
-            $timeAllocation=json_encode($timeAllocation);
             $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':teid', $teid);
             $stmt->bindParam(':allocation', $timeAllocation);
@@ -115,25 +116,20 @@
             if(!$stmt->execute()){
                 $error=$stmt->errorInfo();
             }
-        } 
-    } else if ($op=="INSERTTEACHING" && $updatevalue !=="UNK" && $isUnlocked){        
-        $sql = 'INSERT INTO teaching (hours,status,ciid,teacher,create_ts,allocation) VALUES(:hours,:status,:ciid,:tid,NOW(),:allocation);';
-        $timeAllocation=$updatevalue["allocation"];
-        $hours=intval($updatevalue["hours"]);
-        $status=intval($timeAllocation['status']);
-        $ciid=intval($updatevalue['ciid']);
-        $tid=intval($updatevalue['tid']);
-        $timeAllocation=json_encode($timeAllocation);
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':hours', $hours);
-        $stmt->bindParam(':status', $status);          
-        $stmt->bindParam(':ciid', $ciid);
-        $stmt->bindParam(':tid', $tid);
-        $stmt->bindParam(':allocation', $timeAllocation);
-        
-        if(!$stmt->execute()){
-            $error=$stmt->errorInfo();
-        }	        
+        } else {
+            $sql = 'INSERT INTO teaching (hours,status,ciid,teacher,create_ts,allocation) VALUES(:hours,:status,:ciid,:tid,NOW(),:allocation);';
+            $error=$sql;
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':hours', $hours);
+            $stmt->bindParam(':status', $status);          
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->bindParam(':tid', $tid);
+            $stmt->bindParam(':allocation', $timeAllocation);
+            
+            if(!$stmt->execute()){
+                $error=$stmt->errorInfo();
+            }	                  
+        }
     } else if ($op=="UPDATECOURSEINSTANCE" && $updatevalue !=="UNK" && $isUnlocked){
         $timebudget="UNK";
         $students="UNK";
@@ -142,11 +138,11 @@
             $ciid=$updaterow;
         }
         if ($updatecol=="students"){
-            $students=intval($updatevalue["students"]);
+            $students=intval($updatevalue);
         }else if($updatecol=="comment"){
-            $comment=$updatevalue["comment"];
-        }else if($updatecol=="budget"){
-            $timebudget=json_encode($updatevalue["time_budget"]);
+            $comment=$updatevalue;
+        }else if($updatecol=="time_budget"){
+            $timebudget=json_encode($updatevalue);
         }
         if ($ciid!=="UNK"){          
             $sql = 'UPDATE course_instance SET ';
@@ -160,7 +156,7 @@
                 $sql.='time_budget=:time_budget,';
             }
             $sql.='changed_ts=NOW() WHERE ciid=:ciid;';
-            $error=$sql;
+            $error=$timebudget;
             $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':ciid', $ciid);
             if($comment!=="UNK"){
@@ -193,23 +189,38 @@
     }
     $cstmt->execute();
     
-    $tblhead=array();
+    $tblhead = array(    
+        'ciid'=>'Course Instance ID',
+        'ccode'=>'CCode',
+        'cname'=>'Course Name',
+        'class'=>'Class',
+        'credits'=>'Credits',
+        'start_period'=>'Start',
+        'end_period'=>'End',
+        'study_program'=>'SProgram',
+        'students'=>'Students',
+        'lecture_time'=>'Lecture Time',
+        'supervise_time'=>'Supervise Time',
+        'student_time'=>'Student Time',
+        'time_budget'=>'Budget'
+    );
+
+    $columnOrder=array('ccode','cname','class','credits','start_period','end_period','study_program','students','time_budget');    
+    $sumColumns=array();    
+    $sql2 = 'SELECT fname,lname,sign FROM teacher ORDER BY lname ASC;';
+    $stmt2 = $pdo->prepare($sql2);
+    $stmt2->execute();
+    $resColumn = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+    $columnOrderIdx=sizeof($columnOrder);
+    foreach($resColumn as $key => $row){
+        $columnName='teacher_'.strtolower($row['fname'].'_'.$row['lname'].'_'.$row['sign']);
+        $tblhead[$columnName]=$row['lname'].', '.$row['fname'].' ('.$row['sign'].')';
+        $columnOrder[$columnOrderIdx++]=$columnName;
+        
+    } 
+
     $tblbody=array();
     $tblfoot=array();
-    
-    array_push($tblhead,'CCode');
-    array_push($tblhead,'Course Name');
-    array_push($tblhead,'Class');
-    array_push($tblhead,'Credits');
-    array_push($tblhead,'Start');
-    array_push($tblhead,'End');
-    array_push($tblhead,'SProgram');
-    array_push($tblhead,'Students');
-    array_push($tblhead,'Lecture Time');
-    array_push($tblhead,'Supervise Time');
-    array_push($tblhead,'Student Time');
-    array_push($tblhead,'Budget');
-
     array_push($tblfoot,'');
     array_push($tblfoot,'');
     array_push($tblfoot,'');
@@ -229,45 +240,74 @@
         $course = array();
         //$courses[]=array('ccode'=>$row['ccode'],'cname'=>$row['cname'],'class'=>$row['class'],'credits'=>$row['credits'],'start_period'=>$row['start_period'],'end_period'=>$row['end_period'], 'students'=>$row['students'],'study_program'=>$row['study_program'], 'teachers'=>array());    
         //$course = array('ccode'=>$row['ccode'],'cname'=>$row['cname'],'class'=>$row['class'],'credits'=>$row['credits'],'start_period'=>$row['start_period'],'end_period'=>$row['end_period'], 'students'=>$row['students'],'study_program'=>$row['study_program'], 'teachers'=>array());
+        /*
         array_push($course,$crow['ccode']);
         array_push($course,$crow['cname']);
         array_push($course,$crow['class']);
         array_push($course,$crow['credits']);
         array_push($course,$crow['start_period']);
         array_push($course,$crow['end_period']);
+        */
+        $course['ciid']=$crow['ciid'];
+        $course['ccode']=$crow['ccode'];
+        $course['cname']=$crow['cname'];
+        $course['class']=$crow['class'];
+        $course['credits']=$crow['credits'];
+        $course['start_period']=$crow['start_period'];
+        $course['end_period']=$crow['end_period'];
+        
         if ($crow['study_program']){
-            array_push($course,$crow['study_program']);
+            //array_push($course,$crow['study_program']);
+            $course['study_program']=$crow['study_program'];
         } else {
-            array_push($course,"UNK");
+            $course['study_program']="UNK";
+            //array_push($course,"UNK");
         }
+        
+        /*
         array_push($course,array('ciid'=>$crow['ciid'],'students'=>$crow['students']));
-
         array_push($course,array('ciid'=>$crow['ciid'],'lectureTime'=>$crow['lecture_time']));
         array_push($course,array('ciid'=>$crow['ciid'],'superviseTime'=>$crow['supervise_time']));
         array_push($course,array('ciid'=>$crow['ciid'],'studentTime'=>$crow['student_time']));
         array_push($course,array('ciid'=>$crow['ciid'],'time_budget'=>json_decode($crow['time_budget'])));
-        
+        */
+        $course['students']=$crow['students'];
+        $course['lecture_time']=$crow['lecture_time'];
+        $course['supervise_time']=$crow['supervise_time'];
+        $course['student_time']=$crow['student_time'];
+        $course['time_budget']=json_decode($crow['time_budget']);
+               
         $sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,b.allocation,teid,ciid from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,ciid,allocation from teaching where ciid=:ciid) b ON a.tid=b.teacher ORDER BY sign;';
         //$sql = 'select a.lname,a.fname,a.sign,a.tid,b.hours,b.status,teid,ciid,comment from (select lname,fname,sign,tid from teacher) a left outer join (select hours,teacher,status,teid,course_instance.ciid,course_instance.comment from teaching left outer join course_instance on teaching.ciid=course_instance.ciid where teaching.ciid=:ciid ) b ON a.tid=b.teacher ORDER BY sign;';
         $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
         $stmt->bindParam(':ciid', $crow['ciid']);
         $stmt->execute();
         foreach($stmt as $key => $row){
-            if(!$hasHeading){
-              array_push($tblhead,$row['fname'].' '.$row['lname'].' ('.$row['sign'].')');
-              array_push($tblfoot,$row['fname'].' '.$row['lname'].' ('.$row['sign'].')');
-            }
-            if ($row['hours']!=null){
-                array_push($course,array('allocation'=>json_decode($row['allocation']),'hours'=>$row['hours'],'status'=>$row['status'],'teid'=>$row['teid'],'tid'=>$row['tid'],'ciid'=>$row['ciid']));
+            if ($row['allocation']!="UNK"&&$row['allocation']!=null){
+                $course[strtolower('teacher_'.$row['fname'].'_'.$row['lname'].'_'.$row['sign'])]=array(
+                    'allocation'=>json_decode($row['allocation']),
+                    'hours'=>$row['hours'],
+                    'status'=>$row['status'],
+                    'teid'=>$row['teid'],
+                    'tid'=>intval($row['tid']),
+                    'ciid'=>intval($row['ciid'])
+                );
             } else {
-                array_push($course,array('allocation'=>'UNK','hours'=>"UNK",'status'=>"UNK",'teid'=>"UNK",'tid'=>$row['tid'],'ciid'=>$crow['ciid']));
+                $course[strtolower('teacher_'.$row['fname'].'_'.$row['lname'].'_'.$row['sign'])]=array(
+                    'allocation'=>'UNK',
+                    'hours'=>"UNK",
+                    'status'=>"UNK",
+                    'teid'=>"UNK",
+                    'tid'=>intval($row['tid']),
+                    'ciid'=>intval($crow['ciid'])
+                );
             }
         }
         $hasHeading=true;
         if ($crow['comment']){
-            array_push($course,array('ciid'=>$crow['ciid'],'comment'=>$crow['comment']));          
+            $course['comment']=$crow['comment'];          
         } else {
-            array_push($course,array('ciid'=>$crow['ciid'],'comment'=>"UNK"));
+            $course['comment']="UNK";          
         }
 
         if($hasFooter){
@@ -275,11 +315,14 @@
         }
         $tblbody[]=$course;
     }
-    array_push($tblhead,'Comment');
+    $tblhead['comment']='Comment';
+    $columnOrder[$columnOrderIdx++]='comment';
+    
     array_push($tblfoot,'');
     
     $data=array(
       "tbldata" => array("tblhead" => $tblhead,"tblbody" => $tblbody,"tblfoot" => $tblfoot),
+      "columnOrder" => $columnOrder,
       "error" => $error
     );
     echo json_encode($data);
