@@ -127,167 +127,6 @@ function updateStatus(cellid,teid,newstatus){
     updateTeaching(teid,hours,newstatus);
 }
 
-function updateTeaching(teid,hours,status){  
-    alert("updateTeaching");
-    if ($('#year').val()){
-        year=$('#year').val();
-    } else {
-        year=2018;
-    }
-    if($('#sign').val()){
-        sign=$('#sign').val();
-    } else {
-        sign='BROM';
-    }      
-    if($('#sprogram').val()){
-        sprogram=$('#sprogram').val();
-    } else {
-        sprogram='ALL';
-    }
-        
-    var jqxhr = $.ajax({
-            type: 'POST',
-            url: 'course_service.php',
-            data: 'year='+year+'&sprogram='+sprogram+'&sign='+sign+'&op=UPDATE&teid='+teid+'&hours='+hours+'&status='+status
-        }) 
-        .done(function(data) {
-          let json = JSON.parse(data);
-          sumRowList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumRowFilterList.includes( el );
-          } );
-      
-          sumColList = json.tbldata.tblhead.filter( function( el ) {
-            return !sumColFilterList.includes( el );
-          } );
-          myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for WEBUG courses in year"+year,
-              function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
-              function(col,status){return renderSortOptions(col,status)},
-              function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)},
-              sumColList,
-              sumRowList,
-              "Course Total",
-              function(col, val, rowno, row){return makeSum(col,val,rowno,row)},
-              true
-          );
-          myTable.renderTable();
-        })
-        .fail(function() {
-          alert( "error" );
-        })
-        .always(function() {
-          //alert( "complete" );
-        });    
-}
-
-function insertTeaching(tid,ciid,hours,status){
-    alert("insertTeaching");
-    if ($('#year').val()){
-        year=$('#year').val();
-    } else {
-        year=2018;
-    }
-    if($('#sign').val()){
-        sign=$('#sign').val();
-    } else {
-        sign='BROM';
-    }    
-
-    //alert(tid + " "+ ciid + " " + hours + " " + status);
-    
-    var jqxhr = $.ajax({
-            type: 'POST',
-            url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=INSERT&tid='+tid+'&ciid='+ciid+'&hours='+hours+'&status='+status
-        }) 
-        .done(function(data) {
-          let json = JSON.parse(data);
-          /*
-          sumRowList = json.tbldata.tblhead.filter( function( el ) {
-            return !(sumRowFilterList.indexOf( el )>=0);
-          } );
-      
-          sumColList = json.tbldata.tblhead.filter( function( el ) {
-            return !(sumRowFilterList.indexOf( el )>=0);
-          } );
-          */
-/*
-          myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
-              function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
-              function(col,status){return renderSortOptions(col,status)},
-              function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)},
-              sumColList,
-              sumRowList,
-              "Course Total",      				
-              function(col, val, rowno, row){return makeSum(col,val,rowno,row)}
-          );
-          */
-          myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
-              function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
-              function(col,status){return renderSortOptions(col,status)},
-              function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)},
-              null,
-              null,
-              null,      				
-              null
-          );
-          myTable.renderTable();
-        })
-        .fail(function() {
-          alert( "error" );
-        })
-        .always(function() {
-          //alert( "complete" );
-        });    
-}
-
-function updateCourseInstance(ciid,comment,students,lectureTime,superviseTime,studentTime){
-    if ($('#year').val()){
-        year=$('#year').val();
-    } else {
-        year=2018;
-    }
-    if($('#sign').val()){
-        sign=$('#sign').val();
-    } else {
-        sign='BROM';
-    }    
-
-    var jqxhr = $.ajax({
-            type: 'POST',
-            url: 'course_service.php',
-            data: 'year='+year+'&sign='+sign+'&op=UPDATECOURSEINSTANCE&ciid='+ciid+'&comment='+comment+'&students='+students+'&lectureTime='+lectureTime+'&superviseTime='+superviseTime+'&studentTime='+studentTime
-        }) 
-        .done(function(data) {
-          let json = JSON.parse(data);
-          sumRowList = json.tbldata.tblhead.filter( function( el ) {
-            return !(sumRowFilterList.indexOf( el )>=0);
-          } );
-      
-          sumColList = json.tbldata.tblhead.filter( function( el ) {
-            return !(sumRowFilterList.indexOf( el )>=0);
-          } );
-          myTable = new SortableTable(json.tbldata,"c","columnFilter","Teaching allocation for "+sprogram+" courses in year "+year,
-              function(celldata,col,cellid){return renderCell(celldata,col,cellid)},
-              function(col,status){return renderSortOptions(col,status)},
-              function(col,status){return renderColumnFilter(col,status)},
-              function(row){ return rowFilter(row)},
-              sumColList,
-              sumRowList,
-              "Course Total",
-              function(col, val, rowno, row){return makeSum(col,val,rowno,row)}
-          );
-          myTable.renderTable();
-        })
-        .fail(function() {
-          alert( "error" );
-        })
-        .always(function() {
-        });    
-}
-
 
 //------------==========########### FUNCTIONZ ###########==========------------
 
@@ -388,7 +227,6 @@ function renderCell(col,celldata,cellid,rowdata,colnames){
     } else if (col=="student_time") {
         t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"studentTime\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata+"</div>"; 
     } else if (col=="time_budget") {
-        //console.log(colnames);
         // lecture / seminar / supervision / preparation / development / grading / examination / running / other / total        
         let students=parseInt(celldata.students);
         let total=celldata.unspecified+celldata.lecture+celldata.seminar+celldata.supervision+celldata.preparation+celldata.development+(celldata.grading*students)+(celldata.examination*students)+(celldata.running*students)+(celldata.other*students);
@@ -765,10 +603,10 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue,rowid){
             supervision:parseInt(document.getElementById("popoveredit_supervision").value),
             preparation:parseInt(document.getElementById("popoveredit_preparation").value),
             development:parseInt(document.getElementById("popoveredit_development").value),
-            grading:parseInt(document.getElementById("popoveredit_grading").value),
-            examination:parseInt(document.getElementById("popoveredit_examination").value),
-            running:parseInt(document.getElementById("popoveredit_running").value),
-            other:parseInt(document.getElementById("popoveredit_other").value),
+            grading:parseFloat(document.getElementById("popoveredit_grading").value.replace(",",".")),
+            examination:parseFloat(document.getElementById("popoveredit_examination").value.replace(",",".")),
+            running:parseFloat(document.getElementById("popoveredit_running").value.replace(",",".")),
+            other:parseFloat(document.getElementById("popoveredit_other").value.replace(",",".")),
             //total:parseInt(document.getElementById("popoveredit_total").value),
             status:parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value)
         };        
@@ -784,14 +622,12 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue,rowid){
         updateDB(tableid,rowid,column,newvalue,"COURSEINSTANCE");
         return newvalue;
     }else{     
-        console.log(rowno,rowno,column,tableid,oldvalue,rowid);
         var newvalue;
         if(oldvalue!==null){
             newvalue=oldvalue;
         }else{
             newvalue={allocation:"UNK",hours:"UNK",status:"UNK",teid:"UNK",tid:"UNK",ciid:"UNK"};
         }
-        console.log(newvalue);
         var obj={
             unspecified:parseInt(document.getElementById("popoveredit_unspecified").value),
             lecture:parseInt(document.getElementById("popoveredit_lecture").value),
@@ -799,10 +635,10 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue,rowid){
             supervision:parseInt(document.getElementById("popoveredit_supervision").value),
             preparation:parseInt(document.getElementById("popoveredit_preparation").value),
             development:parseInt(document.getElementById("popoveredit_development").value),
-            grading:parseInt(document.getElementById("popoveredit_grading").value),
-            examination:parseInt(document.getElementById("popoveredit_examination").value),
-            running:parseInt(document.getElementById("popoveredit_running").value),
-            other:parseInt(document.getElementById("popoveredit_other").value),
+            grading:parseFloat(document.getElementById("popoveredit_grading").value.replace(",",".")),
+            examination:parseFloat(document.getElementById("popoveredit_examination").value.replace(",",".")),
+            running:parseFloat(document.getElementById("popoveredit_running").value.replace(",",".")),
+            other:parseFloat(document.getElementById("popoveredit_other").value.replace(",",".")),
             status:parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value)
         };        
         newvalue.allocation=obj;
@@ -811,10 +647,6 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue,rowid){
         newvalue.ciid=
         updateDB(tableid,rowid,column,newvalue,"TEACHING");
         return newvalue;
-        /*
-        updateDB(tableid,rowno,column,document.getElementById("popoveredit0").value);
-        return document.getElementById("popoveredit0").value;
-        */
     }    
 }
 
@@ -884,18 +716,6 @@ function rowHighlightOn(rowid,rowno,colclass,centerel){
 
 function rowHighlightOff(rowid,rowno,colclass,centerel){
     if(!isLocked){
-        /*
-        document.getElementById(rowid).style.border="2px solid rgba(255,0,0,0)";
-        document.getElementById(rowid+"_mvh").style.borderLeft="2px solid rgba(255,0,0,0)";
-        document.getElementById(rowid+"_mvh").style.borderTop="2px solid rgba(255,0,0,0)";
-        document.getElementById(rowid+"_mvh").style.borderBottom="2px solid rgba(255,0,0,0)";
-    		var collist = document.getElementsByClassName(colclass);
-    		for(let i=0;i<collist.length;i++){
-    			collist[i].style.borderLeft="2px solid rgba(255,0,0,0)";
-    			collist[i].style.borderRight="2px solid rgba(255,0,0,0)";
-    		}   		
-    		centerel.style.backgroundImage="none";
-        */
         document.getElementById(rowid).style.border="";
         document.getElementById(rowid+"_mvh").style.borderLeft="";
         document.getElementById(rowid+"_mvh").style.borderTop="";
