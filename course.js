@@ -1,8 +1,6 @@
 var isLocked=false;
 var sprogram;
 var myTable;
-var sumColFilterList=["CCode","Course Name","Class","Credits","Start","End","Students","SProgram","Comment","Lecture Time","Supervise Time","Student Time"];
-var sumRowFilterList=["CCode","Course Name","Class","Credits","Start","End","Students","SProgram","Comment","Lecture Time","Supervise Time","Student Time"];
 
 function dropdown(el) {
     document.getElementById("dropdown_"+el).classList.toggle("show");
@@ -48,7 +46,26 @@ function getData(){
         .done(function(data) {
           //alert( "success"+data );
           let json = JSON.parse(data);
-
+          
+          var colsums=["students","time_budget"];
+          var rowsums=[[{"name":"Total Allocated","id":"tallocated"}]]
+          for(let k=0;k<json.columnOrder.length;k++){
+              if(json.columnOrder[k].startsWith("teacher_")){
+                  colsums.push(json.columnOrder[k]);
+                  rowsums[0].push(json.columnOrder[k]+".allocation.unspecified");
+                  rowsums[0].push(json.columnOrder[k]+".allocation.lecture");
+/*
+                  rowsums[0].push(json.columnOrder[k]+".allocation.seminar");
+                  rowsums[0].push(json.columnOrder[k]+".allocation.supervision");
+                  rowsums[0].push(json.columnOrder[k]+".allocation.preparation");
+                  rowsums[0].push(json.columnOrder[k]+".allocation.development");
+                  rowsums[0].push(json.columnOrder[k]+".allocation.grading");
+                  rowsums[0].push(json.columnOrder[k]+".allocation.examination");
+                  rowsums[0].push(json.columnOrder[k]+".allocation.other");
+  */
+              }
+          }
+          //console.log(rowsums);
           myTable = new SortableTable({
               data:json.tbldata,
               tableElementId:"c",
@@ -59,12 +76,30 @@ function getData(){
               renderColumnFilterCallback:renderColumnFilter,
               rowFilterCallback:rowFilter,
               columnOrder:json.columnOrder,
+              columnSumCallback:makeSum,
+              columnSum:colsums,
+              rowSum:rowsums,
               rowHighlightOnCallback:rowHighlightOn,
               rowHighlightOffCallback:rowHighlightOff,
               displayCellEditCallback:displayCellEdit,
               updateCellCallback:updateCellCallback,
               hasMagicHeadings:true
           });
+          
+          var colorder=myTable.getColumnOrder();
+          for(let k=0;k<colorder.length;k++){
+              if (colorder[k]==="tallocated") {
+                  colorder.splice(k,1);
+                  break;
+              }
+          }
+          for(let k=0;k<colorder.length;k++){
+              if (colorder[k]==="time_budget") {
+                  colorder.splice(k+1,0,"tallocated");
+                  break;
+              }
+          }
+          myTable.reorderColumns(colorder);
           myTable.renderTable();
         })
         .fail(function() {
@@ -264,13 +299,15 @@ function updateCourseInstance(ciid,comment,students,lectureTime,superviseTime,st
 //  Callback function that renders the col filter div
 //--------------------------------------------------------------------------
 		
-function renderColumnFilter(col,status){
-    if(status){
-				str="<span style='margin: 0 15px'><label>"+col.name+"</label>:<input type='checkbox' checked onclick='myTable.toggleColumn(\""+col.id+"\")'><span>";
-		}else{
-				str="<span style='margin: 0 15px'><label>"+col.name+"</label>:<input type='checkbox' onclick='myTable.toggleColumn(\""+col.id+"\")'></span>";
-		}
-		return str;
+function renderColumnFilter(col,status,colname) {
+  str = "";
+  if (status) {
+    str = "<label>" + colname + "</label>:<input type='checkbox' checked onclick='myTable.toggleColumn(\"" + col + "\")'>";
+  } else {
+    str = "<label>" + colname + "</label>:<input type='checkbox' onclick='myTable.toggleColumn(\"" + col + "\")'>";
+  }
+
+  return str;
 }
 
 //--------------------------------------------------------------------------
@@ -342,7 +379,7 @@ function renderCell(col,celldata,cellid,rowdata,colnames){
     let t="";
     if(col=="ccode"){
         t="<span style='font-family:monospace'>"+celldata+"</span>";
-    } else if (col=="class" || col=="credits" || col=="start_period" || col=="end_period") {
+    } else if (col=="class" || col=="credits" || col=="start_period" || col=="end_period" || col=="tallocated") {
         t=celldata;      
     } else if (col=="students") {
         t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"students\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.students+"\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>"+celldata+"</div>"; 
@@ -443,8 +480,6 @@ function compare(a,b){
     // Find out which column and part of column are we sorting on from currentTable
     let col=sortableTable.currentTable.getSortcolumn();
     let kind=sortableTable.currentTable.getSortkind();
-    console.log(col);
-    console.log(a);
     // We allways sort none numbers below 
     let tmp=(sortableTable.currentTable.ascending) ? -1000000 : 1000000;
 
@@ -508,11 +543,11 @@ function compare(a,b){
 //--------------------------------------------------------------------------
 
 function makeSum(col,value){
-    if(col=="Students"){
-        return parseFloat(value.students);
-    } else if(col=="Budget"){
+    if(col=="students"){
+        return parseFloat(value);
+    } else if(col=="time_budget"){
         //console.log(value);
-        let total=value.time_budget.unspecified+value.time_budget.lecture+value.time_budget.seminar+value.time_budget.supervision+value.time_budget.preparation+value.time_budget.development+value.time_budget.grading+value.time_budget.examination+value.time_budget.running+value.time_budget.other;
+        let total=value.unspecified+value.lecture+value.seminar+value.supervision+value.preparation+value.development+value.grading+value.examination+value.running+value.other;
         return parseFloat(total);
     } else{
 				if(value.hours=="UNK"){
@@ -609,7 +644,6 @@ function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students,tim
 //  *must* define sortableTable.edit_rowid for each column
 //--------------------------------------------------------------------------
 function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowdata,coldata,tableid){
-    console.log(celldata,rowno,rowelement,cellelement,column,colno,rowdata,coldata,tableid)
     isLocked=true;
     let str="";
     if(column=="students"){
@@ -665,10 +699,18 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
         }
         str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
             str+="<div class='editInput'><label>Status:</label><select id='popoveredit_status' class='popoveredit' style='width:100%;padding:0;'>";
-                str+="<option value='0'>confirmed</option>";
-                str+="<option value='1'>unconfirmed</option>";
-                str+="<option value='2'>must change</option>";
-                str+="<option value='3'>error</option>";
+            str+="<option ";
+            if(celldata.status==0){str+="selected";}
+            str+=" value='0'>confirmed</option>";
+            str+="<option ";
+            if(celldata.status==1){str+="selected";}
+            str+=" value='1'>unconfirmed</option>";
+            str+="<option ";
+            if(celldata.status==2){str+="selected";}
+            str+=" value='2'>must change</option>";
+            str+="<option ";
+            if(celldata.status==3){str+="selected";}
+            str+=" value='3'>error</option>";
             str+="</select>";            
             str+="<div class='editInput'><label>Unspecified:</label><input type='text' id='popoveredit_unspecified' class='popoveredit' style='flex-grow:1' value='"+ta.unspecified+"' size="+ta.unspecified.toString().length+"/></div>";
             str+="<div class='editInput'><label>Lecture:</label><input type='text' id='popoveredit_lecture' class='popoveredit' style='flex-grow:1' value='"+ta.lecture+"' size="+ta.lecture.toString().length+"/></div>";
@@ -680,7 +722,6 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
             str+="<div class='editInput'><label>Examination:</label><input type='text' id='popoveredit_examination' class='popoveredit' style='flex-grow:1' value='"+ta.examination+"' size="+ta.examination.toString().length+"/></div>";
             str+="<div class='editInput'><label>Running</label><input type='text' id='popoveredit_running' class='popoveredit' style='flex-grow:1' value='"+ta.running+"' size="+ta.running.toString().length+"/></div>";
             str+="<div class='editInput'><label>Other:</label><input type='text' id='popoveredit_other' class='popoveredit' style='flex-grow:1' value='"+ta.other+"' size="+ta.other.toString().length+"/></div>";
-            //str+="<div class='editInput'><label>Total:</label><input type='text' id='popoveredit_total' class='popoveredit' style='flex-grow:1' value='"+ta.total+"' size="+ta.total.toString().length+"/></div>";
             str+="</div>";
         str+="</div>";
     }
@@ -693,7 +734,6 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
 //  Callback function for updating a cell value after editing a cell
 //--------------------------------------------------------------------------
 function updateCellCallback(rowno,colno,column,tableid,oldvalue,rowid){
-    console.log(rowno,colno,column,tableid,oldvalue,rowid);
     oldvalue=sortableTable.edit_celldata;    
     isLocked=false;
     // Make AJAX call and return 
@@ -795,9 +835,6 @@ function clearUpdateCell(){
 // AJAX call to update cell value in database on server
 //--------------------------------------------------------------------------
 function updateDB(tableid,rowno,col,val,dbtbl){
-    console.log(val);
-    console.log(rowno);
-  
     var id="UNK";
     var command;
     if(dbtbl=="TEACHING"){

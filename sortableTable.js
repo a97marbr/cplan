@@ -10,6 +10,33 @@ var sortableTable = {
     edit_tableid:null,
 }
 
+// Help function to get property value from object based on string in dot-format
+//
+// var obj = {trumma:{xk:30,yk:25.0}}
+// var str = "trumma.xk"
+// 
+// consol.log(byString(obj,str))
+// will print '30' to console
+// if property is NaN the function returns 0
+function byString(o, s) {
+    s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+    var a = s.split('.');
+    for (var i = 1, n = a.length; i < n; ++i) {
+        var k = a[i];
+        if (typeof(o)==='object'){
+            if (k in o) {              
+                o = o[k];
+            } else {
+                return 0;
+            }          
+        }else{
+            return 0;
+        }
+    }
+    if(typeof(o)!=='number')o=0;
+    return o;
+}
+
 function searchKeyUp(e) {
 	// look for window.event in case event isn't passed in
     e = e || window.event;
@@ -78,23 +105,11 @@ function clickedInternal(event,clickdobj) {
       }
   }
   sortableTable.currentTable=active;
-  //console.log(sortableTable.currentTable);
   
 	if (sortableTable.currentTable.showEditCell != null) {
 		var cellelement = event.target.closest("td");
-    /*
-		var arr = cellelement.id.split("_");
-		var rowelement = event.target.closest("tr");
-		var barr = rowelement.id.split("_");
-    arr[0] = arr[0].split("r")[1];
-		var columnname = arr[2];
-		var columnno = arr[0];
-
-		var rowno = parseInt(barr[1]);
-		var tableid = barr[0];
-    */
     var rowelement = event.target.closest("tr");
-    let match=cellelement.id.match(/^r([0-9]+)_([a-zA-Z]+)_(.*)/);
+    let match=cellelement.id.match(/^r([0-9]+)_([a-zA-Z0-9]+)_(.*)/);
     var rowno = match[1];
     var columnno = null; // Not used anymore
     var tableid = match[2];
@@ -117,7 +132,6 @@ function clickedInternal(event,clickdobj) {
 		str += "<img id='popovertick' class='icon' src='Icon_Tick.svg' onclick='updateCellInternal();'>";
 		str += "<img id='popovercross' class='icon' src='Icon_Cross.svg' onclick='clearUpdateCellInternal();'>";
 		var lmnt = cellelement.getBoundingClientRect();
-		console.log(lmnt.top, lmnt.right, lmnt.bottom, lmnt.left, lmnt.height, lmnt.width);
 		var popoverelement = document.getElementById("editpopover");
 
 		popoverelement.innerHTML = str;
@@ -128,7 +142,7 @@ function clickedInternal(event,clickdobj) {
 		popoverelement.style.left = Math.round(lmnt.left+xscroll)+"px";
 		popoverelement.style.top = Math.round(lmnt.top+yscroll)+"px";
 		popoverelement.style.minHeight = (Math.round(lmnt.height)-5)+"px";
-		//popoverelement.style.maxWidth = "fit-content";
+		popoverelement.style.maxWidth = "fit-content";
 		popoverelement.style.display = "flex";
 	}
 }
@@ -194,23 +208,30 @@ function SortableTable(param)
         param.rowFilterCallback=defaultRowFilter;
     }
     var rowFilter = param.rowFilterCallback;
-    
-    if(typeof param.columnSum === "undefined"){
-        param.columnSum=[];
-    }
-    var colsumList = param.columnSum;
-    if(typeof param.rowSum === "undefined"){
-        param.rowSum=[];
-    }
-    var rowsumList = param.rowSum;
-    if(typeof param.columnSumCallback === "undefined"){
-        param.columnSumCallback=null;
-    }
-    var sumFunc = param.columnSumCallback;
+
     if(typeof param.columnOrder === "undefined"){
         param.columnOrder=[];
     }
     var columnOrder = param.columnOrder;
+    
+    if(typeof param.columnSum === "undefined"){
+        param.columnSum=[];        
+    }
+    var colsumList = param.columnSum;
+    
+    if(typeof param.rowSum === "undefined"){
+        param.rowSum=[];
+    }
+    var rowsumList = param.rowSum;
+    for(let i=0;i<rowsumList.length;i++){
+        tbl.tblhead[rowsumList[i][0]['id']]=rowsumList[i][0]['name'];
+        columnOrder.push(rowsumList[i][0]['id']);
+    }
+      
+    if(typeof param.columnSumCallback === "undefined"){
+        param.columnSumCallback=null;
+    }
+    var sumFunc = param.columnSumCallback;
     if(typeof param.freezePaneIndex === "undefined"){
         param.freezePaneIndex=-1;
     }
@@ -239,7 +260,7 @@ function SortableTable(param)
         param.hasCounterColumn=false;
     }
     this.hasCounter = param.hasCounterColumn;
-    
+        
     //------------==========########### Private member variables ###########==========------------        
     var result = 0;
     var columnfilter = [];
@@ -249,8 +270,7 @@ function SortableTable(param)
     // Keeps track of the last picked sorting order
     var tableSort;
     var colSort;
-    var reverseSort;
-    var rowsumHeading = rowsumHeading;
+    var reverseSort;    
     var freezePane = freezePane;
     var freezePaneArr = [];
 
@@ -285,21 +305,23 @@ function SortableTable(param)
 
     	// Assign currently active table
     	sortableTable.currentTable = this;
-            
-    	columnfilter = JSON.parse(localStorage.getItem(this.tableid+"_filtercolnames"));  
-      //console.log(columnfilter);        
+      if(localStorage.getItem(this.tableid+"_filtercolnames")===null){
+          columnfilter=[];
+      }else{
+          columnfilter = JSON.parse(localStorage.getItem(this.tableid+"_filtercolnames"));
+      }    	
       var filterstr="";
       var columnOrderIdx;
       for (columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
           if(!(columnfilter[columnOrderIdx]===null||columnfilter[columnOrderIdx]===columnOrder[columnOrderIdx])){
               break;
           }
-          if (renderColumnFilter != null) filterstr += renderColumnFilter({"id":columnOrder[columnOrderIdx],"name":tbl.tblhead[columnOrder[columnOrderIdx]]},columnfilter[columnOrderIdx]);
+          if (renderColumnFilter != null) filterstr += renderColumnFilter(columnOrder[columnOrderIdx],columnfilter[columnOrderIdx],tbl.tblhead[columnOrder[columnOrderIdx]]);
       }          
           
       for (;columnOrderIdx<columnOrder.length;columnOrderIdx++){
           columnfilter[columnOrderIdx]=columnOrder[columnOrderIdx];
-          if (renderColumnFilter != null) filterstr += renderColumnFilter({"id":columnOrder[columnOrderIdx],"name":tbl.tblhead[columnOrder[columnOrderIdx]]},columnfilter[columnOrderIdx]);
+          if (renderColumnFilter != null) filterstr += renderColumnFilter(columnOrder[columnOrderIdx],columnfilter[columnOrderIdx],tbl.tblhead[columnOrder[columnOrderIdx]]);
       }
       localStorage.setItem(this.tableid+"_filtercolnames",JSON.stringify(columnfilter));
   
@@ -323,7 +345,6 @@ function SortableTable(param)
           mhstr += "<th id='counter_"+this.tableid+"_tbl_mh' class='"+this.tableid+"'></th>";
       }
 
-//    for(var colname in tbl.tblhead) {
       for(var columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
       		var colname=columnOrder[columnOrderIdx];
           var col=tbl.tblhead[colname];
@@ -349,11 +370,11 @@ function SortableTable(param)
         			} else {
           				if (columnOrderIdx <= freezePaneIndex) {
           				 	if (colname == sortcolumn){
-          				 		mhfstr += "<th id='"+cleancol+"_"+this.tableid+"_tbl_mhf' class='"+this.tableid+"'>"+col+"</th>";
-          				 		mhvstr += "<th id='"+cleancol+"_"+this.tableid+"_tbl_mhv' class='"+this.tableid+"'>"+col+"</th>";
+          				 		mhfstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mhf' class='"+this.tableid+"'>"+col+"</th>";
+          				 		mhvstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mhv' class='"+this.tableid+"'>"+col+"</th>";
           				 	} else {
-          				 		mhfstr += "<th id='"+cleancol+"_"+this.tableid+"_tbl_mhf' class='"+this.tableid+"'>"+col+"</th>";
-          				 		mhvstr += "<th id='"+cleancol+"_"+this.tableid+"_tbl_mhv' class='"+this.tableid+"'>"+col+"</th>";
+          				 		mhfstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mhf' class='"+this.tableid+"'>"+col+"</th>";
+          				 		mhvstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mhv' class='"+this.tableid+"'>"+col+"</th>";
           				 	}
           				}
           				if (col != "move") {
@@ -363,17 +384,6 @@ function SortableTable(param)
         			}
           }
     	}
-
-    	if (rowsumList.length > 0) {
-      		if (rowsumHeading == sortcolumn) {
-        			str += "<th id='"+rowsumHeading+"_"+this.tableid+"_tbl' class='"+tthis.ableid+" freeze_vertical'>"+renderSortOptions(rowsumHeading,sortkind)+"</th>";
-        			mhstr += "<th id='"+rowsumHeading+"_"+this.tableid+"_tbl_mh' class='"+this.tableid+" freeze_vertical'>"+renderSortOptions(rowsumHeading,sortkind)+"</th>";
-      		} else {
-        			str += "<th id='"+rowsumHeading+"_"+this.tableid+"_tbl' class='"+this.tableid+" freeze_vertical'>"+renderSortOptions(rowsumHeading,-1)+"</th>";
-        			mhstr += "<th id='"+rowsumHeading+"_"+this.tableid+"_tbl_mh' class='"+this.tableid+" freeze_vertical'>"+renderSortOptions(rowsumHeading,-1)+"</th>";
-      		}
-    	}
-
     	str += "</tr></thead>";
     	mhstr += "</tr></thead></table>";
     	mhfstr += "</tr></thead></table>";
@@ -384,8 +394,6 @@ function SortableTable(param)
     	for (var i = 0; i < tbl.tblbody.length; i++) {
       		var row = tbl.tblbody[i];
       		if (rowFilter(row)) {
-        			// Keep row sum total here
-        			var rowsum = 0;
         			str += "<tr id='"+this.tableid+"_"+i+"' onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)' style='box-sizing:border-box'>";
         			mhvstr += "<tr id='"+this.tableid+"_"+i+"_mvh' onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)' style='box-sizing:border-box'>";
 
@@ -394,82 +402,56 @@ function SortableTable(param)
                   str += "<td onclick='clickedInternal(event,this);' class='" + this.tableid + "_counter'><span>"+ this.rowIndex++ +"</span></td>";
               }
         			result++;
-              /*
-              for (var colnamez in row) {
-        				//Counter for freeze here
-        				// If we show this column...
-        				if (columnfilter[colnamez] !== null) {
+              for(var columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
+        				if (columnfilter[columnOrderIdx] !== null) {
+                    // check if this column is a row-sum column
+                    for (let j=0;j<rowsumList.length;j++){                      
+                        if (columnOrder[columnOrderIdx].indexOf(rowsumList[j][0]['id'])>-1) {
+                            tbl.tblbody[i][columnOrder[columnOrderIdx]]=0;
+                            for(let k=1;k<rowsumList[j].length;k++){                                
+                                if (typeof(tbl.tblbody[i][rowsumList[j][k].substring(0,rowsumList[j][k].indexOf('.'))])==='object'){
+                                    tbl.tblbody[i][columnOrder[columnOrderIdx]]+=parseFloat(byString(tbl.tblbody[i][rowsumList[j][k].substring(0,rowsumList[j][k].indexOf('.'))],rowsumList[j][k]));
+                                }else{
+                                    tbl.tblbody[i][columnOrder[columnOrderIdx]]+=parseFloat(tbl.tblbody[i][rowsumList[j][k]]);
+                                } 
+                                
+                            }                  						
+                        }
+                    }
+                  
           					// This condition is true if column is in summing list and in that case perform the sum like a BOSS
-          					if (colsumList.indexOf(colnamez) >- 1) {
-          						if (typeof(sumContent[colnamez]) == "undefined") sumContent[colnamez] = 0;
-          						sumContent[colnamez] += sumFunc(colnamez,col);
+          					if (colsumList.indexOf(columnOrder[columnOrderIdx]) >- 1) {
+            						if (typeof(sumContent[columnOrder[columnOrderIdx]]) == "undefined") sumContent[columnOrder[columnOrderIdx]]=0;
+            						sumContent[columnOrder[columnOrderIdx]]+=sumFunc(columnOrder[columnOrderIdx],tbl.tblbody[i][columnOrder[columnOrderIdx]],row);
           					}
-
-          					if (rowsumList.indexOf(colnamez) >- 1) {
-          						rowsum += sumFunc(colnamez,col);
-          					}
-
-          					var cellid = "r"+i+"_"+this.tableid+"_"+colnamez;
-          					str += "<td id='"+cellid+"' onclick='clickedInternal(event,this);' class='"+this.tableid+"-"+colnamez+"'>"+renderCell(colnamez,tbl.tblbody[i][colnamez],cellid)+"</td>";
-
-          					// if (colnamez <= freezePaneIndex) {
-          					// 	mhvstr+="<td id='"+cellid+"' >"+renderCell(col,colnamez,cellid)+"</td>";
-          					// }
+                      
+          					var cellid = "r"+i+"_"+this.tableid+"_"+columnOrder[columnOrderIdx];
+          					str += "<td id='"+cellid+"' onclick='clickedInternal(event,this);' class='"+this.tableid+"-"+columnOrder[columnOrderIdx]+"'>"+renderCell(columnOrder[columnOrderIdx],tbl.tblbody[i][columnOrder[columnOrderIdx]],cellid)+"</td>";  
         				}
-                */
-                for(var columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
-          				if (columnfilter[columnOrderIdx] !== null) {
-            					// This condition is true if column is in summing list and in that case perform the sum like a BOSS
-            					if (colsumList.indexOf(columnOrder[columnOrderIdx]) >- 1) {
-            						if (typeof(sumContent[columnOrder[columnOrderIdx]]) == "undefined") sumContent[columnOrder[columnOrderIdx]] = 0;
-            						sumContent[columnOrder[columnOrderIdx]] += sumFunc(columnOrder[columnOrderIdx],col);
-            					}
-  
-            					if (rowsumList.indexOf(columnOrder[columnOrderIdx]) >- 1) {
-            						rowsum += sumFunc(columnOrder[columnOrderIdx],col);
-            					}
-  
-            					var cellid = "r"+i+"_"+this.tableid+"_"+columnOrder[columnOrderIdx];
-            					str += "<td id='"+cellid+"' onclick='clickedInternal(event,this);' class='"+this.tableid+"-"+columnOrder[columnOrderIdx]+"'>"+renderCell(columnOrder[columnOrderIdx],tbl.tblbody[i][columnOrder[columnOrderIdx]],cellid)+"</td>";
-  
-          				}
       			}
-
-      			if (rowsumList.length > 0) {
-                str += "<td>"+rowsum+"</td>";
-      			}
-
       			str += "</tr>";
       			mhvstr += "</tr>";
           }
     	}
-
     	str += "</tbody>";
     	mhvstr += "</tbody>";
+      str += "<tfoot style='border-top:2px solid #000'>";
+      str += "<tr style='font-style:italic;'>";
 
-    	if(tbl.tblfoot.length > 0) {
-    		str += "<tfoot style='border-top:2px solid #000'>";
-    		str += "<tr style='font-style:italic;'>";
+      if(this.hasCounter) {
+          str += "<td>&nbsp;</td>";
+      }
+      for(var columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
+          if (columnfilter[columnOrderIdx] !== null) {
+              if (typeof(sumContent[columnOrder[columnOrderIdx]])!=='undefined') {
+                  str += "<td>"+sumContent[columnOrder[columnOrderIdx]]+"</td>";
+              }else{
+                  str += "<td>&nbsp;</td>";
+              }          
+          }
+      }
 
-    		for (var colnamez in tbl.tblfoot) {
-    			// If we show this column...
-    			if (columnfilter.indexOf(colnamez) >- 1) {
-    				if (colsumList.indexOf(colnamez) >- 1) {
-    					// If writing sum - just write it
-    					str += "<td>"+sumContent[colnamez]+"</td>";
-    				} else {
-    					if (tbl.tblfoot[col] != "UNK") {
-    						str += "<td>"+colnamez+"</td>";
-    					} else {
-    						str += "<td>&nbsp;</td>";
-    					}
-    				}
-    			}
-    		}
-
-    		str+= "</tr></tfoot>";
-    	}
-
+      str+= "</tr></tfoot>";
     	str += "</table>";
     	mhvstr+= "</table>";
 
@@ -480,13 +462,6 @@ function SortableTable(param)
     this.toggleColumn = function(colname,col) {
     	// Assign currently active table
     	sortableTable.currentTable = this;
-      /*
-    	if (columnfilter[colname] == null) {
-    		columnfilter[colname] = tbl.tblhead[colname];
-    	} else {
-    		columnfilter[colname] = null;
-    	}
-      */
       for(var idx=0;idx<columnOrder.length;idx++){
           if(columnOrder[idx]===colname){
               if(columnfilter[idx]){
@@ -496,7 +471,6 @@ function SortableTable(param)
               }
           }
       }
-      //console.log(columnfilter);
     	localStorage.setItem(this.tableid+"_filtercolnames", JSON.stringify(columnfilter));
 
     	this.reRender();
@@ -522,17 +496,17 @@ function SortableTable(param)
       	return Object.keys(tbl.tblhead).find(key => tbl.tblhead[key] === sortcolumn);
     }
 
-      this.getSortcolumn = function() {
-          return sortcolumn;
-      }
+    this.getSortcolumn = function() {
+        return sortcolumn;
+    }
 
-      this.getSortcolumnNum = function() {
-          //return tbl.tblhead[sortcolumn];
-      }
+    this.getSortcolumnNum = function() {
+        //return tbl.tblhead[sortcolumn];
+    }
 
-      this.getSortkind = function() {
-          return sortkind;
-      }
+    this.getSortkind = function() {
+        return sortkind;
+    }
 
     this.magicHeader = function() {
     	// Assign table and magic headings table(s)
@@ -566,77 +540,56 @@ function SortableTable(param)
 
     setInterval(freezePaneHandler,30);
     function freezePaneHandler() {
-    	// Hide magic headings and find minimum overdraft
-    	for (var i = 0; i < sortableTable.sortableTables.length; i++) {
-    		var table = sortableTable.sortableTables[i];
-    		if (table.hasMagicHeadings) {
-    			if (document.getElementById(table.tableid+"_tbl") != null) {
-    				var thetab = document.getElementById(table.tableid+"_tbl").getBoundingClientRect();
-    				var thetabhead = document.getElementById(table.tableid+"_tblhead").getBoundingClientRect();
-    				// If top is negative and top+height is positive draw mh otherwise hide
-    				// Vertical
-    				if (thetabhead.top < 50 && thetab.bottom > 0) {
-    					document.getElementById(table.tableid+"_tbl_mh").style.left = thetab.left+"px";
-    					document.getElementById(table.tableid+"_tbl_mh").style.display = "table";
-    				}
-    				 else {
-    					document.getElementById(table.tableid+"_tbl_mh").style.display = "none";
-    				}
-    				// Horizontal
-    				if (thetab.left < 0 && thetab.right > 0) {
-    					document.getElementById(table.tableid+"_tbl_mhv").style.top = thetabhead.top+"px";
-    					document.getElementById(table.tableid+"_tbl_mhv").style.display = "table";
-    				}
-    				else {
-    					document.getElementById(table.tableid+"_tbl_mhv").style.display = "none";
-    				}
+      	// Hide magic headings and find minimum overdraft
+      	for (var i = 0; i < sortableTable.sortableTables.length; i++) {
+        		var table = sortableTable.sortableTables[i];
+        		if (table.hasMagicHeadings) {
+          			if (document.getElementById(table.tableid+"_tbl") != null) {
+            				var thetab = document.getElementById(table.tableid+"_tbl").getBoundingClientRect();
+            				var thetabhead = document.getElementById(table.tableid+"_tblhead").getBoundingClientRect();
+            				// If top is negative and top+height is positive draw mh otherwise hide
+            				// Vertical
+            				if (thetabhead.top < 50 && thetab.bottom > 0) {
+              					document.getElementById(table.tableid+"_tbl_mh").style.left = thetab.left+"px";
+              					document.getElementById(table.tableid+"_tbl_mh").style.display = "table";
+            				}
+            				 else {
+                        document.getElementById(table.tableid+"_tbl_mh").style.display = "none";
+            				}
+            				// Horizontal
+            				if (thetab.left < 0 && thetab.right > 0) {
+              					document.getElementById(table.tableid+"_tbl_mhv").style.top = thetabhead.top+"px";
+              					document.getElementById(table.tableid+"_tbl_mhv").style.display = "table";
+            				}
+            				else {
+                        document.getElementById(table.tableid+"_tbl_mhv").style.display = "none";
+            				}
 
-    				// Fixed
-    				if (thetab.left < 0 && thetab.right > 0 && thetabhead.top < 0 && thetab.bottom > 0) {
-    					document.getElementById(table.tableid+"_tbl_mhf").style.display = "table";
-    				}
-    				else {
-    					document.getElementById(table.tableid+"_tbl_mhf").style.display = "none";
-    				}
-    			}
-    		}
-    	}
+            				// Fixed
+            				if (thetab.left < 0 && thetab.right > 0 && thetabhead.top < 0 && thetab.bottom > 0) {
+                        document.getElementById(table.tableid+"_tbl_mhf").style.display = "table";
+            				}
+            				else {
+                        document.getElementById(table.tableid+"_tbl_mhf").style.display = "none";
+            				}
+          			}
+        		}
+      	}
     }
 
-      this.updateCell = function() {
-        //rowno,colno,column,tableid,oldvalue
-          console.log(sortableTable.edit_rowid,sortableTable.edit_columnname,sortableTable.edit_tableid);
-          tbl.tblbody[sortableTable.edit_rowno][sortableTable.edit_columnname] = updateCellCallback(sortableTable.edit_rowno,null,sortableTable.edit_columnname,sortableTable.edit_tableid,null,sortableTable.edit_rowid);
-          this.renderTable();
-      }
+    this.updateCell = function() {
+        tbl.tblbody[sortableTable.edit_rowno][sortableTable.edit_columnname] = updateCellCallback(sortableTable.edit_rowno,null,sortableTable.edit_columnname,sortableTable.edit_tableid,null,sortableTable.edit_rowid);
+        this.renderTable();
     }
 
-    function showVariant(param){
-      var variantId="#variantInfo" + param;
-      var duggaId="#dugga" + param;
-      var arrowId="#arrow" + param;
-      var index = variant.indexOf(param);
+    this.getColumnOrder=function(){
+        return columnOrder;
+    }
 
-
-      if (document.getElementById("variantInfo"+param) && document.getElementById("dugga"+param)) { // Check if dugga row and corresponding variant
-          if(!isInArray(variant, param)){
-               variant.push(param);
-          }
-
-          if($(duggaId).hasClass("selectedtr")){ // Add a class to dugga if it is not already set and hide/show variant based on class.
-              $(variantId).hide();
-              $(duggaId).removeClass("selectedtr");
-              $(arrowId).html("&#9658;");
-              if (index > -1) {
-                 variant.splice(index, 1);
-              }
-
-          } else {
-              $(duggaId).addClass("selectedtr");
-              $(variantId).slideDown();
-              $(arrowId).html("&#x25BC;");
-          }
-
-          $(variantId).css("border-bottom", "1px solid gray");
-      }
+    this.reorderColumns=function(newOrderList){        
+        if(Array.isArray(newOrderList)){
+            columnOrder=newOrderList;
+            this.reRender();          
+        }
+    }
 }
