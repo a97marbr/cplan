@@ -54,7 +54,6 @@ function getData(){
                   colsums.push(json.columnOrder[k]);
                   rowsums[0].push(json.columnOrder[k]+".allocation.unspecified");
                   rowsums[0].push(json.columnOrder[k]+".allocation.lecture");
-/*
                   rowsums[0].push(json.columnOrder[k]+".allocation.seminar");
                   rowsums[0].push(json.columnOrder[k]+".allocation.supervision");
                   rowsums[0].push(json.columnOrder[k]+".allocation.preparation");
@@ -62,7 +61,6 @@ function getData(){
                   rowsums[0].push(json.columnOrder[k]+".allocation.grading");
                   rowsums[0].push(json.columnOrder[k]+".allocation.examination");
                   rowsums[0].push(json.columnOrder[k]+".allocation.other");
-  */
               }
           }
           //console.log(rowsums);
