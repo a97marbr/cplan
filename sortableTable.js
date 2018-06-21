@@ -329,7 +329,9 @@ function SortableTable(param)
     		  document.getElementById(filterid).innerHTML = filterstr;
     	}
 
-    	str += "<caption>"+caption+"</caption>";
+      if(caption!=="UNK"){
+          str += "<caption>"+caption+"</caption>";  
+      }    	
 
     	// Make headings Clean Contains headings using only A-Z a-z 0-9 ... move to function removes lines of code and removes redundant code/data!?
       str += "<thead class='listHeading' id='"+this.tableid+"_tblhead'><tr>";
@@ -399,22 +401,23 @@ function SortableTable(param)
 
         			// Add Counter cell to the row. The class <tableid>_counter can be used to style the counterText
         			if(this.hasCounter) {
-                  str += "<td onclick='clickedInternal(event,this);' class='" + this.tableid + "_counter'><span>"+ this.rowIndex++ +"</span></td>";
+                  str += "<td class='" + this.tableid + "_counter'><span>"+ this.rowIndex++ +"</span></td>";
               }
         			result++;
               for(var columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
+                var isEditable=true;
         				if (columnfilter[columnOrderIdx] !== null) {
                     // check if this column is a row-sum column
                     for (let j=0;j<rowsumList.length;j++){                      
                         if (columnOrder[columnOrderIdx].indexOf(rowsumList[j][0]['id'])>-1) {
+                            isEditable=false;
                             tbl.tblbody[i][columnOrder[columnOrderIdx]]=0;
                             for(let k=1;k<rowsumList[j].length;k++){                                
                                 if (typeof(tbl.tblbody[i][rowsumList[j][k].substring(0,rowsumList[j][k].indexOf('.'))])==='object'){
                                     tbl.tblbody[i][columnOrder[columnOrderIdx]]+=parseFloat(byString(tbl.tblbody[i][rowsumList[j][k].substring(0,rowsumList[j][k].indexOf('.'))],rowsumList[j][k]));
                                 }else{
                                     tbl.tblbody[i][columnOrder[columnOrderIdx]]+=parseFloat(tbl.tblbody[i][rowsumList[j][k]]);
-                                } 
-                                
+                                }                                 
                             }                  						
                         }
                     }
@@ -426,7 +429,11 @@ function SortableTable(param)
           					}
                       
           					var cellid = "r"+i+"_"+this.tableid+"_"+columnOrder[columnOrderIdx];
-          					str += "<td id='"+cellid+"' onclick='clickedInternal(event,this);' class='"+this.tableid+"-"+columnOrder[columnOrderIdx]+"'>"+renderCell(columnOrder[columnOrderIdx],tbl.tblbody[i][columnOrder[columnOrderIdx]],cellid)+"</td>";  
+          					str+="<td id='"+cellid+"'";
+                    if(isEditable){
+                        str+=" onclick='clickedInternal(event,this);'";  
+                    }                    
+                    str+=" class='"+this.tableid+"-"+columnOrder[columnOrderIdx]+"'>"+renderCell(columnOrder[columnOrderIdx],tbl.tblbody[i][columnOrder[columnOrderIdx]],cellid)+"</td>";  
         				}
       			}
       			str += "</tr>";

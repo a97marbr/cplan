@@ -12,7 +12,6 @@
     <script src="course.js"></script> 
 </head>
 <body onload="getData();" onkeypress='keypressHandler(event)';>
-<h3>Course planing overview</h3>
 <?php 
     require 'menu.php';
 ?>
@@ -29,8 +28,11 @@
     </select>
     <button onclick="getData()">Get Data</button>
 </div> 
-<div>Column filter for Course Table</div>
+<hr>
+<div style="font-weight:bold">Column filter for Course Table</div>
 <div id="columnFilter"></div>
+<hr>
+<div style="margin-bottom:0px;"><span>Search:</span><input type="text" id="lookingGlass" placeholder="write your query" onkeyup="searchterm=document.getElementById('lookingGlass').value;myTable.renderTable();"/></div>
 <div id="c"></div>
 <div id="editpopover" style="display:none;"></div>
 

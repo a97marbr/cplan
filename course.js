@@ -68,7 +68,7 @@ function getData(){
               data:json.tbldata,
               tableElementId:"c",
               filterElementId:"columnFilter",
-              tableCaption:"Teaching allocation for "+sprogram+" courses in year "+year,
+              //tableCaption:"Teaching allocation for "+sprogram+" courses in year "+year,
               renderCellCallback:renderCell,
               renderSortOptionsCallback:renderSortOptions,
               renderColumnFilterCallback:renderColumnFilter,
@@ -81,7 +81,8 @@ function getData(){
               rowHighlightOffCallback:rowHighlightOff,
               displayCellEditCallback:displayCellEdit,
               updateCellCallback:updateCellCallback,
-              hasMagicHeadings:true
+              hasMagicHeadings:true,
+              hasCounterColumn:true
           });
           
           var colorder=myTable.getColumnOrder();
@@ -107,6 +108,7 @@ function getData(){
           //alert( "complete" );
         });    
 }
+/*
 function updateStatus(cellid,teid,newstatus){
     let hours=$("#input_"+cellid).val();
 
@@ -126,7 +128,7 @@ function updateStatus(cellid,teid,newstatus){
     //alert(teid + " " + hours + " " + newstatus);    
     updateTeaching(teid,hours,newstatus);
 }
-
+*/
 
 //------------==========########### FUNCTIONZ ###########==========------------
 
@@ -242,6 +244,22 @@ function renderCell(col,celldata,cellid,rowdata,colnames){
         t="<div class='ellipsis' id='datacell_"+cellid+"' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"studentTime\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")' style='text-align:center;' placeholder='Enter comment'>"+celldata+"</div>"; 
     } else if (col=="time_budget") {
         // lecture / seminar / supervision / preparation / development / grading / examination / running / other / total        
+        if(celldata===null){
+            celldata={
+              students:0,
+              unspecified:0,
+              lecture:0,
+              seminar:0,
+              supervision:0,
+              preparation:0,
+              development:0,
+              grading:0,
+              examination:0,
+              running:0,
+              other:0,
+              status:0
+            }
+        }
         let students=parseInt(celldata.students);
         let total=celldata.unspecified+celldata.lecture+celldata.seminar+celldata.supervision+celldata.preparation+celldata.development+(celldata.grading*students)+(celldata.examination*students)+(celldata.running*students)+(celldata.other*students);
         let sclass="";
@@ -396,7 +414,8 @@ function makeSum(col,value){
         return parseFloat(value);
     } else if(col=="time_budget"){
         //console.log(value);
-        let total=value.unspecified+value.lecture+value.seminar+value.supervision+value.preparation+value.development+value.grading+value.examination+value.running+value.other;
+        let total=0;
+        if(value!==null)total=value.unspecified+value.lecture+value.seminar+value.supervision+value.preparation+value.development+value.grading+value.examination+value.running+value.other;        
         return parseFloat(total);
     } else{
 				if(value.hours=="UNK"){
@@ -429,6 +448,7 @@ function makeSum(col,value){
 // students: num of students
 // {"lecture":0,"seminar":0,"supervision":0,"preparation":0,"development":0,"grading":0,"examination":0,"running":0,"other":0,"total":0}
 // 
+/*
 function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students,timeBudget){
     myTable.renderTable();
     let str="";
@@ -483,6 +503,7 @@ function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students,tim
     document.getElementById("input_"+cellid).select();
     document.getElementById("input_"+cellid).addEventListener('keydown', function(ev) { if(ev.keyCode == 27){myTable.renderTable();}});
 }
+*/
 
 //--------------------------------------------------------------------------
 // editCell
@@ -501,6 +522,22 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
         str+="<input type='text' id='popoveredit_students' class='popoveredit' style='flex-grow:1' value='"+celldata+"' size='"+celldata.toString().length+"'/>";
         str+="</div>";
     }else if (column=="time_budget"){
+        if(celldata===null){
+            celldata={
+              students:0,
+              unspecified:0,
+              lecture:0,
+              seminar:0,
+              supervision:0,
+              preparation:0,
+              development:0,
+              grading:0,
+              examination:0,
+              running:0,
+              other:0,
+              status:0
+            }
+        }
         sortableTable.edit_rowid=rowdata.ciid;
         str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
         str+="<div class='editInput'><label>Status:</label><select id='popoveredit_status' class='popoveredit' style='width:100%;padding:0;'>";
@@ -537,6 +574,8 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
       str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
           str+="<div class='editInput'><label>Comment:</label><input type='text' id='popoveredit_comment' class='popoveredit' style='flex-grow:1' value='"+celldata+"' size="+celldata.toString().length+"/></div>";
       str+="</div>";
+    }else if (column=="tallocated"){
+        return null;
     }else{
         var ta;
         if (celldata.allocation=="UNK" || celldata.allocation===null){
@@ -606,6 +645,22 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue,rowid){
         }          
     }else if(column=="time_budget"){
         //console.log(rowno,colno,column,tableid,oldvalue);
+        if(oldvalue===null){
+            oldvalue={
+              students:0,
+              unspecified:0,
+              lecture:0,
+              seminar:0,
+              supervision:0,
+              preparation:0,
+              development:0,
+              grading:0,
+              examination:0,
+              running:0,
+              other:0,
+              status:0
+            }
+        }
         var newvalue=oldvalue;
         newvalue.students=parseInt(document.getElementById("popoveredit_students").value);
         var obj={
