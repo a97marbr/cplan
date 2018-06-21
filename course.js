@@ -157,7 +157,7 @@ function renderSortOptions(col,status,colname){
 		str="";
 		if(status==-1){
 
-				if(col=="ccode" || col=="class" || col=="credits" || col=="start_period" || col=="end_period" || col=="students" || col=="study_program"){
+				if(col=="ccode" || col=="class" || col=="credits" || col=="start_period" || col=="end_period" || col=="students" || col=="study_program"|| col=="tallocated"){
             str+="<span onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"</span>";
         } else if(col=="cname" || col=="comment"){
             str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"</span>";
@@ -175,7 +175,7 @@ function renderSortOptions(col,status,colname){
             str+="</div>";
 				}
 		}else{
-        if(col=="ccode" || col=="cname" || col=="class" || col=="credits" || col=="start_period" || col=="end_period" || col=="students" || col=="study_program"){
+        if(col=="ccode" || col=="cname" || col=="class" || col=="credits" || col=="start_period" || col=="end_period" || col=="students" || col=="study_program"|| col=="tallocated"){
             if(status==0){
                 str+="<div onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"&#x25b4;</div>";
             }else{
@@ -184,7 +184,16 @@ function renderSortOptions(col,status,colname){
         } else if(col=="cname" || col=="comment"){
             str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"</div>";
         }else if(col=="time_budget"){
-            str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Budget</span>";
+            if(status==0){
+                str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Budget</span>";
+                str+="<div><span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Stud</span>|";
+                str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Time&#x25b4;</span></div>";
+            }else{
+                str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",0)'>Budget</span>";
+                str+="<div><span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",0)'>Stud</span>|";
+                str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",0)'>Time&#x25be;</span></div>";              
+            }
+            //str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"</span>";
         } else{
             let sign=colname.substr(colname.lastIndexOf(" "),colname.length);
             let fname=colname.substr(0,colname.indexOf(" "));
@@ -241,21 +250,6 @@ function renderCell(col,celldata,cellid,rowdata,colnames){
             sclass="error";
         }
         t="<div id='datacell_"+cellid+"' style='text-align:center;display:flex;justify-content:space-between;padding:0 5px;' class='"+sclass+"'><div style='margin-right:15px;'>"+celldata.students+"</div><div>"+total+"</div></div>";              
-//        t="<div id='datacell_'"+cellid+"' style='text-align:center;position:relative' class=''>"+total;
-        /*
-        t+="<div id='datacelldropdown_"+cellid+"' style='text-align:center;position:absolute;top:0px;left:0px;background-color:#cc5' placeholder='Enter comment' class='hoCh'>";
-            t+="<div title='"+celldata.time_budget.lecture+"h in lecture' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetLecture\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>Lecture:"+celldata.time_budget.lecture+"</div> + ";
-            t+="<div title='"+celldata.time_budget.seminar+"h in seminar' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetSeminar\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>Seminar:"+celldata.time_budget.seminar+"</div> + ";
-            t+="<div title='"+celldata.time_budget.supervision+"h in supervision' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetSupervision\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>Supervision"+celldata.time_budget.supervision+"</div> + ";
-            t+="<div title='"+celldata.time_budget.preparation+"h in preparation' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetPreparation\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>Preparation"+celldata.time_budget.preparation+"</div> + ";
-            t+="<div title='"+celldata.time_budget.development+"h in development' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetDevelopment\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>Development"+celldata.time_budget.development+"</div> + ";
-            t+="<div>( #students * <span title='"+celldata.time_budget.grading+"h grading per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetGrading\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>Grading"+celldata.time_budget.grading+"</div> ) + ";
-            t+="<div>( #students * <span title='"+celldata.time_budget.examination+"h examination per student' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetExamination\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>Examination"+celldata.time_budget.examination+"</div> ) + ";
-            t+="<div title='"+celldata.time_budget.running+"h running the course' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetRunning\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.running+"</div> + ";
-            t+="<div title='"+celldata.time_budget.other+"h other time' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"timeBudgetOther\",\""+cellid+"\",\"UNK\","+celldata.ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\""+celldata.studentTime+"\")'>"+celldata.time_budget.other+"</div> = ";
-            t+="<div title='"+celldata.time_budget.total+"h total time budgeted for the course' >"+celldata.time_budget.total+"</div>";
-            t+="</div>"
-            */
         t+="</div>"; 
     } else if (col=="study_program") {
         if (celldata==="UNK"){
@@ -302,9 +296,20 @@ function renderCell(col,celldata,cellid,rowdata,colnames){
 // ---------------
 //  Callback function that filters rows in the table
 //--------------------------------------------------------------------------
-		
-function rowFilter(row){  
-    return true;
+var searchterm = "";
+function rowFilter(row) {      
+  if(searchterm == ""){
+      return true;
+  }else{
+      for (var property in row) {
+          if (row.hasOwnProperty(property)) {
+              if (row[property].indexOf != null) {
+                if (row[property].indexOf(searchterm) != -1) return true;
+              }
+          }
+      }   
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------
@@ -319,7 +324,7 @@ function compare(a,b){
     // We allways sort none numbers below 
     let tmp=(sortableTable.currentTable.ascending) ? -1000000 : 1000000;
 
-    if (col == "ccode" || col == "cname" || col == "start_period" || col == "end_period" || col == "class" || col == "comment" || col == "study_program"){
+    if (col == "ccode" || col == "cname" || col == "start_period" || col == "end_period" || col == "class" || col == "comment" || col == "study_program"|| col == "tallocated"){
         let tmp=(sortableTable.currentTable.ascending) ? -1 : 1;
         if ( a=="UNK" ) return -tmp;
         if ( b=="UNK" ) return tmp;
@@ -336,9 +341,26 @@ function compare(a,b){
         let left = (isNaN(a.time_budget.unspecified)) ? tmp : +a.time_budget.unspecified; 
         let right = (isNaN(b.time_budget.unspecified)) ? tmp : +b.time_budget.unspecified; 
         */
+        /*
         let left = a.time_budget.unspecified+a.time_budget.lecture+a.time_budget.supervision+a.time_budget.seminar+a.time_budget.development+a.time_budget.preparation;
         let right = b.time_budget.unspecified+b.time_budget.lecture+b.time_budget.supervision+b.time_budget.seminar+b.time_budget.development+b.time_budget.preparation;
-        return right-left;     
+        return right-left;  
+        */
+        let left;
+        let right;
+        if(a === null||a==="UNK"){
+            left=tmp;
+        }else{
+            left = a.unspecified+a.lecture+a.supervision+a.seminar+a.development+a.preparation+(a.students*a.grading)+(a.students*a.examination)+(a.students*a.running)+(a.students*a.other);
+        }
+
+        if(b === null||b==="UNK"){            
+            right=tmp;
+        }else{
+            right = b.unspecified+b.lecture+b.supervision+b.seminar+b.development+b.preparation+(b.students*b.grading)+(b.students*b.examination)+(b.students*b.running)+(b.students*b.other);
+        }                
+        
+        return left-right;   
     }  else if (col == "students"){
         // We allways sort none numbers below 
         let tmp=(sortableTable.currentTable.ascending) ? -1000000 : 1000000;
@@ -356,13 +378,13 @@ function compare(a,b){
         */
         let left;
         let right;
-        if(a.allocation === null){
+        if(a.allocation === null||a.allocation==="UNK"){
             left=tmp;
         }else{
             left = a.allocation.unspecified+a.allocation.lecture+a.allocation.supervision+a.allocation.seminar+a.allocation.development+a.allocation.preparation+a.allocation.other;
         }
 
-        if(b.allocation === null){
+        if(b.allocation === null||b.allocation==="UNK"){            
             right=tmp;
         }else{
             right = b.allocation.unspecified+b.allocation.lecture+b.allocation.supervision+b.allocation.seminar+b.allocation.development+b.allocation.preparation+b.allocation.other;
