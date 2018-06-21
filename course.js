@@ -182,7 +182,12 @@ function renderSortOptions(col,status,colname){
                 str+="<div onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+colname+"&#x25be;</div>";
             }
         } else if(col=="cname" || col=="comment"){
-            str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"</div>";
+            //str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"</div>";
+            if(status==0){
+                str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"&#x25b4;</div>";
+            }else{
+                str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+colname+"&#x25be;</div>";
+            }
         }else if(col=="time_budget"){
             if(status==0){
                 str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>Budget</span>";
@@ -335,7 +340,7 @@ function compare(a,b){
         
         let left = (isNaN(a)) ? tmp : +a; 
         let right = (isNaN(b)) ? tmp : +b; 
-        return right-left;     
+        return left-right;     
     }else if (col == "time_budget"){
         let left;
         let right;
@@ -356,9 +361,9 @@ function compare(a,b){
         // We allways sort none numbers below 
         let tmp=(sortableTable.currentTable.ascending) ? -1000000 : 1000000;
         
-        let left = (isNaN(a.students)) ? tmp : +a.students; 
-        let right = (isNaN(b.students)) ? tmp : +b.students; 
-        return right-left;     
+        let left = (isNaN(a)) ? tmp : +a; 
+        let right = (isNaN(b)) ? tmp : +b; 
+        return left-right;     
     } else {
         // We allways sort none numbers below 
         let tmp=(sortableTable.currentTable.ascending) ? 1000000 : -1000000;
