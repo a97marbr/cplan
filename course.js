@@ -337,15 +337,6 @@ function compare(a,b){
         let right = (isNaN(b)) ? tmp : +b; 
         return right-left;     
     }else if (col == "time_budget"){
-        /*
-        let left = (isNaN(a.time_budget.unspecified)) ? tmp : +a.time_budget.unspecified; 
-        let right = (isNaN(b.time_budget.unspecified)) ? tmp : +b.time_budget.unspecified; 
-        */
-        /*
-        let left = a.time_budget.unspecified+a.time_budget.lecture+a.time_budget.supervision+a.time_budget.seminar+a.time_budget.development+a.time_budget.preparation;
-        let right = b.time_budget.unspecified+b.time_budget.lecture+b.time_budget.supervision+b.time_budget.seminar+b.time_budget.development+b.time_budget.preparation;
-        return right-left;  
-        */
         let left;
         let right;
         if(a === null||a==="UNK"){
@@ -371,11 +362,6 @@ function compare(a,b){
     } else {
         // We allways sort none numbers below 
         let tmp=(sortableTable.currentTable.ascending) ? 1000000 : -1000000;
-        /*
-        let left = (isNaN(a.hours)) ? tmp : +a.hours; 
-        let right = (isNaN(b.hours)) ? tmp : +b.hours; 
-
-        */
         let left;
         let right;
         if(a.allocation === null||a.allocation==="UNK"){
