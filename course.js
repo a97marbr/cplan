@@ -476,7 +476,11 @@ function displayCellEdit(celldata,rowno,rowelement,cellelement,column,colno,rowd
     }else if (column=="comment"){
       sortableTable.edit_rowid=rowdata.ciid;
       str+="<div style='display:flex;flex-direction:column;flex-grow:1;'>";
-          str+="<div class='editInput'><label>Comment:</label><input type='text' id='popoveredit_comment' class='popoveredit' style='flex-grow:1' value='"+celldata+"' size="+celldata.toString().length+"/></div>";
+          if(celldata==="UNK"){
+              str+="<div class='editInput'><label>Comment:</label><input type='text' id='popoveredit_comment' class='popoveredit' style='flex-grow:1' value='' size='3'/></div>";
+          }else{
+              str+="<div class='editInput'><label>Comment:</label><input type='text' id='popoveredit_comment' class='popoveredit' style='flex-grow:1' value='"+celldata+"' size="+celldata.toString().length+"/></div>";            
+          }
       str+="</div>";
     }else if (column=="tallocated"){
         return null;
@@ -585,9 +589,9 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue,rowid){
         updateDB(tableid,rowid,column,newvalue,"COURSEINSTANCE");
         return newvalue;
     }else if(column=="comment"){
-        //console.log(rowno,colno,column,tableid,oldvalue);
-        var newvalue=oldvalue;
-        newvalue.comment=document.getElementById("popoveredit_comment").value;
+        var newvalue="";
+        if(oldvalue==="UNK")newvalue=oldvalue;
+        newvalue=document.getElementById("popoveredit_comment").value;
         updateDB(tableid,rowid,column,newvalue,"COURSEINSTANCE");
         return newvalue;
     }else{     
@@ -634,20 +638,17 @@ function clearUpdateCell(){
 // AJAX call to update cell value in database on server
 //--------------------------------------------------------------------------
 function updateDB(tableid,rowno,col,val,dbtbl){
-    var id="UNK";
     var command;
     if(dbtbl=="TEACHING"){
-        id=rowno;
         command="UPDATETEACHING";
     }else if(dbtbl=="COURSEINSTANCE"){
-        id=rowno;
         command="UPDATECOURSEINSTANCE";
     }
   
     $.ajax({
         method: "POST",
         url: "course_service.php",
-        data: {"command":command,"updatecol":col,"updatetable":tableid,"updatevalue":JSON.stringify(val),"updaterow":id}
+        data: {"command":command,"updatecol":col,"updatetable":tableid,"updatevalue":JSON.stringify(val),"updaterow":rowno}
     })
     .done(function( data ) {        
         clearUpdateCellInternal();
