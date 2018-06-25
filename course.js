@@ -108,27 +108,6 @@ function getData(){
           //alert( "complete" );
         });    
 }
-/*
-function updateStatus(cellid,teid,newstatus){
-    let hours=$("#input_"+cellid).val();
-
-    $("#datacell_"+cellid).removeClass("confirmed unconfirmed mustchange error");
-    $("#datacell_"+cellid).addClass(newstatus);
-
-    if (newstatus==0){        
-        $("#datacell_"+cellid).addClass("confirmed")
-    } else if(newstatus==1){        
-        $("#datacell_"+cellid).addClass("unconfirmed")
-    } else if (newstatus==2){        
-        $("#datacell_"+cellid).addClass("mustchange")
-    } else {
-        $("#datacell_"+cellid).addClass("error");
-    }
-    
-    //alert(teid + " " + hours + " " + newstatus);    
-    updateTeaching(teid,hours,newstatus);
-}
-*/
 
 //------------==========########### FUNCTIONZ ###########==========------------
 
@@ -184,7 +163,6 @@ function renderSortOptions(col,status,colname){
                 str+="<div onclick='myTable.toggleSortStatus(\""+col+"\",0)'>"+colname+"&#x25be;</div>";
             }
         } else if(col=="cname" || col=="comment"){
-            //str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"</div>";
             if(status==0){
                 str+="<div class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"&#x25b4;</div>";
             }else{
@@ -200,7 +178,6 @@ function renderSortOptions(col,status,colname){
                 str+="<div><span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",0)'>Stud</span>|";
                 str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",0)'>Time&#x25be;</span></div>";              
             }
-            //str+="<span class='ellipsis' onclick='myTable.toggleSortStatus(\""+col+"\",1)'>"+colname+"</span>";
         } else{
             let sign=colname.substr(colname.lastIndexOf(" "),colname.length);
             let fname=colname.substr(0,colname.indexOf(" "));
@@ -432,79 +409,6 @@ function makeSum(col,value){
 		return 0;
 }
 
-// 
-// makeEditbox
-// Generates an editbox that will 
-// type: INSERT_TEACHING, UPDATE_TEACHING or UPDATE_COURSE_INSTANCE
-// cellid: the id of html element that we should put the editbox
-// --- Change teaching ---
-// tid: teacher id
-// teid: teaching id
-// hours: num hours 
-// --- Change Course instance ---
-// ciid: course instance id
-// status: 0 - verified, 1 - unverified, 2 - must change, 3 - error
-// comment: comment on course instance
-// students: num of students
-// {"lecture":0,"seminar":0,"supervision":0,"preparation":0,"development":0,"grading":0,"examination":0,"running":0,"other":0,"total":0}
-// 
-/*
-function makeEditbox(type,cellid,tid,ciid,teid,hours,status,comment,students,timeBudget){
-    myTable.renderTable();
-    let str="";
-    if(type==="INSERT_TEACHING"){
-        if(tid!=="UNK"&&ciid!=="UNK"){
-              str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                str+="<input maxlength='5' size='5' class='newtimecell' id='input_"+cellid+"' placeholder='hours' onchange='insertTeaching("+tid+","+ciid+",this.value,0)' >";
-                str+="</div>";
-        }      
-    } else if (type==="UPDATE_TEACHING"){
-        str+="<div id='datacell_"+cellid+"' style='min-width:100px;' >";
-            str+="<input maxlength='5' size='5' onchange='updateTeaching("+teid+",this.value,"+status+")' class='newtimecell' id='input_"+cellid+"' value='"+hours+"' onfocus='this.value = this.value;'>";
-            str+="<div class='dropdown'>";
-                str+="<div onclick='dropdown("+teid+")' class='dropbtn'>*</div>";
-                str+="<div id='dropdown_"+teid+"' class='dropdown-content'>";
-                    str+="<div class='confirmed' onclick='updateStatus(\""+cellid+"\","+teid+",0)'>Confirmed</div>";
-                    str+="<div class='unconfirmed' onclick='updateStatus(\""+cellid+"\","+teid+",1)'>Unconfirmed</div>";
-                    str+="<div class='mustchange' onclick='updateStatus(\""+cellid+"\","+teid+",2)'>Must change</div>";
-                    str+="<div class='error' onclick='updateStatus(\""+cellid+"\","+teid+",3)'>Error</div>";
-                str+="</div>";
-            str+="</div>";
-        str+="</div>";      
-    } else if (type==="UPDATE_COURSE_INSTANCE"){
-        if(ciid!=="UNK"){
-          if(comment!=="UNK"){
-              str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                  str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",this.value,\"UNK\",\"UNK\",\"UNK\",\"UNK\")' value='"+comment+"'>";            
-              str+="</div>";
-          } else if(students!=="UNK"){
-            str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",\"UNK\",this.value,\"UNK\",\"UNK\",\"UNK\")' value='"+students+"'>";            
-            str+="</div>";
-          } else if(lectureTime!=="UNK"){
-            str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",\"UNK\",\"UNK\",this.value,\"UNK\",\"UNK\")' value='"+lectureTime+"'>";            
-            str+="</div>";
-          } else if(superviseTime!=="UNK"){
-            str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",\"UNK\",\"UNK\",\"UNK\",this.value,\"UNK\")' value='"+superviseTime+"'>";            
-            str+="</div>";
-          } else if(studentTime!=="UNK"){
-            str+="<div id='datacell_"+cellid+"'  style='min-width:100px;'>";
-                str+="<input class='newtimecell' id='input_"+cellid+"' placeholder='Enter comment' onchange='updateCourseInstance("+ciid+",\"UNK\",\"UNK\",\"UNK\",\"UNK\",this.value)' value='"+studentTime+"'>";            
-            str+="</div>";
-          }
-        }            
-    } else {
-        //str+="<input  >";
-    }
-    document.getElementById(cellid).outerHTML=str;
-    document.getElementById("input_"+cellid).focus();    
-    document.getElementById("input_"+cellid).select();
-    document.getElementById("input_"+cellid).addEventListener('keydown', function(ev) { if(ev.keyCode == 27){myTable.renderTable();}});
-}
-*/
-
 //--------------------------------------------------------------------------
 // editCell
 // ---------------
@@ -675,12 +579,9 @@ function updateCellCallback(rowno,colno,column,tableid,oldvalue,rowid){
             examination:parseFloat(document.getElementById("popoveredit_examination").value.replace(",",".")),
             running:parseFloat(document.getElementById("popoveredit_running").value.replace(",",".")),
             other:parseFloat(document.getElementById("popoveredit_other").value.replace(",",".")),
-            //total:parseInt(document.getElementById("popoveredit_total").value),
             status:parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value)
         };        
         newvalue=obj;
-        //newvalue.status=parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value);
-        //newvalue.hours=0;
         updateDB(tableid,rowid,column,newvalue,"COURSEINSTANCE");
         return newvalue;
     }else if(column=="comment"){
@@ -738,13 +639,6 @@ function updateDB(tableid,rowno,col,val,dbtbl){
     if(dbtbl=="TEACHING"){
         id=rowno;
         command="UPDATETEACHING";
-        /*
-        if(id!=="UNK"){
-            command="UPDATETEACHING";
-        }else{
-            command="INSERTTEACHING";
-        } 
-        */     
     }else if(dbtbl=="COURSEINSTANCE"){
         id=rowno;
         command="UPDATECOURSEINSTANCE";
@@ -755,8 +649,7 @@ function updateDB(tableid,rowno,col,val,dbtbl){
         url: "course_service.php",
         data: {"command":command,"updatecol":col,"updatetable":tableid,"updatevalue":JSON.stringify(val),"updaterow":id}
     })
-    .done(function( data ) {
-        
+    .done(function( data ) {        
         clearUpdateCellInternal();
     });
 }
