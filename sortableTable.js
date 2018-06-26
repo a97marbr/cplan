@@ -113,7 +113,7 @@ function clickedInternal(event,clickdobj) {
     var rowno = match[1];
     var columnno = null; // Not used anymore
     var tableid = match[2];
-    var columnname=match[3]
+    var columnname=match[3];
 
 		var str = "";
     var rowdata = sortableTable.currentTable.getRow(rowno);
