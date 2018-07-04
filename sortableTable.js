@@ -405,12 +405,10 @@ function SortableTable(param)
               }
         			result++;
               for(var columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
-                var isEditable=true;
         				if (columnfilter[columnOrderIdx] !== null) {
                     // check if this column is a row-sum column
                     for (let j=0;j<rowsumList.length;j++){                      
                         if (columnOrder[columnOrderIdx].indexOf(rowsumList[j][0]['id'])>-1) {
-                            isEditable=false;
                             tbl.tblbody[i][columnOrder[columnOrderIdx]]=0;
                             for(let k=1;k<rowsumList[j].length;k++){                                
                                 if (typeof(tbl.tblbody[i][rowsumList[j][k].substring(0,rowsumList[j][k].indexOf('.'))])==='object'){
