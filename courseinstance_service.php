@@ -106,10 +106,9 @@
     // Get the Data
     // -------------------------------------------------------------------------
                
-    $sql = 'select * from teacher,teaching,course_instance,course where teacher.tid=teaching.teacher and teacher.sign=:sign and teaching.ciid=course_instance.ciid and course.cid=course_instance.cid and course_instance.year=:year order by course_instance.start_period;';
+    $sql = 'select * from teacher,course_instance,teaching where course_instance.ciid=:ciid and teaching.ciid=course_instance.ciid and teacher.tid=teaching.teacher;';
     $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':sign', $sign);
-    $stmt->bindParam(':year', $year);
+    $stmt->bindParam(':ciid', $ciid);
     $stmt->execute();
     $tblhead=array("ccode"=>"Course Code","cname"=>"Course Name","time_allocation"=>"Total Allocated","start_period"=>"Start","end_period"=>"End","unspecified"=>"Unspecified","lecture"=>"Lecture","supervision"=>"Supervision","seminar"=>"Seminar","development"=>"Development","preparation"=>"Preparation","grading"=>"Grading","examination"=>"Examination","running"=>"Running","other"=>"Other");
     $tblfoot=array();
@@ -118,8 +117,6 @@
     foreach($stmt as $key => $row){
         $item=array(
             "teid"=>$row['teid'],
-            "ccode"=>$row['ccode'],
-            "cname"=>$row['cname'],
             "start_period"=>$row['start_period'],
             "end_period"=>$row['end_period'],
             "time_allocation"=>json_decode($row['allocation'])
@@ -131,6 +128,7 @@
         array_push($tblbody,$item);
     }
 
+/*
     $sql = 'select * from teacher order by lname';
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
@@ -146,13 +144,13 @@
 
         array_push($teachers,$item);
     }
-
+*/
     
     $data=array(
       "tbldata" => array("tblhead" => $tblhead,"tblbody" => $tblbody,"tblfoot" => $tblfoot),
       "columnOrder" => $columnOrder,
-      "teachers"=>$teachers,
-      "selected"=>$selected,
+  //    "teachers"=>$teachers,
+  //    "selected"=>$selected,
       "error" => $error
     );
     echo json_encode($data);
