@@ -113,7 +113,7 @@ function clickedInternal(event,clickdobj) {
     var rowno = match[1];
     var columnno = null; // Not used anymore
     var tableid = match[2];
-    var columnname=match[3];
+    var columnname=match[3]
 
 		var str = "";
     var rowdata = sortableTable.currentTable.getRow(rowno);
@@ -170,6 +170,43 @@ function rowDeHighlightInternal(event,row) {
 		}
     }
 }
+
+
+
+function defaultRowHighlightOn(rowid,rowno,colclass,centerel){  
+    let table=document.getElementById(centerel.id).closest("TR").id.substring(0,document.getElementById(centerel.id).closest("TR").id.indexOf("_"));
+    let column=centerel.id.substring(centerel.id.lastIndexOf("_")+1);
+    let rowPos=document.getElementById(centerel.id).closest("TR").getBoundingClientRect();
+    let colPos=document.getElementById(column+"_"+table+"_tbl").getBoundingClientRect(); 
+    if(document.getElementById("sortableTableRowHighlight")===null){
+        document.body.innerHTML+='<div id="sortableTableRowHighlight" style="border:2px solid red;position:absolute;z-index:1100;pointer-events: none"></div>';
+    }
+    if(document.getElementById("sortableTablecolumnHighlight")===null){
+        document.body.innerHTML+='<div id="sortableTablecolumnHighlight" style="border:2px solid red;position:absolute;z-index:1100;pointer-events: none"></div>';
+    }
+    let=xBorderOffset=getComputedStyle(document.getElementById('sortableTableRowHighlight'),null).getPropertyValue('border-left-width').replace("px","");
+    let=yBorderOffset=getComputedStyle(document.getElementById('sortableTableRowHighlight'),null).getPropertyValue('border-top-width').replace("px","")
+
+    document.getElementById("sortableTableRowHighlight").style.width=rowPos.width+"px";
+    document.getElementById("sortableTableRowHighlight").style.height=rowPos.height+"px";
+    document.getElementById("sortableTableRowHighlight").style.left=(rowPos.x+window.pageXOffset-xBorderOffset)+"px";
+    document.getElementById("sortableTableRowHighlight").style.top=(rowPos.y+window.pageYOffset-yBorderOffset)+"px";
+    document.getElementById("sortableTablecolumnHighlight").style.width=colPos.width+"px";
+    document.getElementById("sortableTablecolumnHighlight").style.height=(document.getElementById(table+"_body").getBoundingClientRect().height+colPos.height)+"px";
+    document.getElementById("sortableTablecolumnHighlight").style.left=(colPos.x+window.pageXOffset-xBorderOffset)+"px";
+    document.getElementById("sortableTablecolumnHighlight").style.top=(colPos.y+window.pageYOffset-yBorderOffset)+"px";
+    
+    document.getElementById("sortableTablecolumnHighlight").style.display="block";
+    document.getElementById("sortableTableRowHighlight").style.display="block";
+		centerel.style.backgroundImage="radial-gradient(RGBA(0,0,0,0),RGBA(0,0,0,0.2))";
+}
+
+function defaultRowHighlightOff(rowid,rowno,colclass,centerel){
+		centerel.style.backgroundImage="none";
+    document.getElementById("sortableTablecolumnHighlight").style.display="none";
+    document.getElementById("sortableTableRowHighlight").style.display="none";
+}
+
 
 function SortableTable(param)
 {
@@ -236,12 +273,16 @@ function SortableTable(param)
         param.freezePaneIndex=-1;
     }
     var freezePaneIndex = param.freezePaneIndex;
+    if(typeof param.hasRowHighlight === "undefined"){
+        param.hasRowHighlight=false;
+    }
+    this.hasRowHighlight = param.hasRowHighlight;
     if(typeof param.rowHighlightOnCallback === "undefined"){
-        param.rowHighlightOnCallback=null;
+        param.rowHighlightOnCallback=defaultRowHighlightOn;
     }
     this.highlightRow = param.rowHighlightOnCallback;
     if(typeof param.rowHighlightOffCallback === "undefined"){
-        param.rowHighlightOffCallback=null;
+        param.rowHighlightOffCallback=defaultRowHighlightOff;
     }
     this.deHighlightRow = param.rowHighlightOffCallback;
     if(typeof param.displayCellEditCallback === "undefined"){
@@ -345,6 +386,8 @@ function SortableTable(param)
     	if(this.hasCounter) {
           str += "<th id='counter_"+this.tableid+"_tbl' class='"+this.tableid+"'></th>";
           mhstr += "<th id='counter_"+this.tableid+"_tbl_mh' class='"+this.tableid+"'></th>";
+          mhvstr += "<th id='counter_"+this.tableid+"_tbl_mhv' class='"+this.tableid+"'></th>";
+          mhfstr += "<th id='counter_"+this.tableid+"_tbl_mhf' class='"+this.tableid+"'></th>";
       }
 
       for(var columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
@@ -353,7 +396,7 @@ function SortableTable(param)
 
       		if (columnfilter[columnOrderIdx] !== null) {
         			if (renderSortOptions !== null) {
-          				if (columnOrderIdx <= freezePaneIndex) {
+          				if (columnOrderIdx < freezePaneIndex) {
             					if (colname == sortcolumn){
               				 		mhfstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mhf' class='"+this.tableid+"'>"+renderSortOptions(colname,sortkind,col)+"</th>";
               				 		mhvstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mhv' class='"+this.tableid+"'>"+renderSortOptions(colname,sortkind,col)+"</th>";
@@ -370,7 +413,7 @@ function SortableTable(param)
             					mhstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mh' class='"+this.tableid+"'>"+renderSortOptions(colname,-1,col)+"</th>";
           				}
         			} else {
-          				if (columnOrderIdx <= freezePaneIndex) {
+          				if (columnOrderIdx < freezePaneIndex) {                    
           				 	if (colname == sortcolumn){
           				 		mhfstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mhf' class='"+this.tableid+"'>"+col+"</th>";
           				 		mhvstr += "<th id='"+colname+"_"+this.tableid+"_tbl_mhv' class='"+this.tableid+"'>"+col+"</th>";
@@ -396,12 +439,15 @@ function SortableTable(param)
     	for (var i = 0; i < tbl.tblbody.length; i++) {
       		var row = tbl.tblbody[i];
       		if (rowFilter(row)) {
-        			str += "<tr id='"+this.tableid+"_"+i+"' onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)' style='box-sizing:border-box'>";
+        			str += "<tr id='"+this.tableid+"_"+i+"'"
+              if (this.hasRowHighlight)str+=" onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)'";
+              str+=" style='box-sizing:border-box'>";
         			mhvstr += "<tr id='"+this.tableid+"_"+i+"_mvh' onmouseover='rowHighlightInternal(event,this)' onmouseout='rowDeHighlightInternal(event,this)' style='box-sizing:border-box'>";
 
         			// Add Counter cell to the row. The class <tableid>_counter can be used to style the counterText
         			if(this.hasCounter) {
-                  str += "<td class='" + this.tableid + "_counter'><span>"+ this.rowIndex++ +"</span></td>";
+                  str += "<td onclick='clickedInternal(event,this);' class='" + this.tableid + "_counter'><span>"+ this.rowIndex +"</span></td>";
+                  mhvstr += "<td onclick='clickedInternal(event,this);' class='" + this.tableid + "_counter'><span>"+ this.rowIndex++ +"</span></td>";
               }
         			result++;
               for(var columnOrderIdx=0;columnOrderIdx<columnOrder.length;columnOrderIdx++){
@@ -415,7 +461,8 @@ function SortableTable(param)
                                     tbl.tblbody[i][columnOrder[columnOrderIdx]]+=parseFloat(byString(tbl.tblbody[i][rowsumList[j][k].substring(0,rowsumList[j][k].indexOf('.'))],rowsumList[j][k]));
                                 }else{
                                     tbl.tblbody[i][columnOrder[columnOrderIdx]]+=parseFloat(tbl.tblbody[i][rowsumList[j][k]]);
-                                }                                 
+                                } 
+                                
                             }                  						
                         }
                     }
@@ -427,11 +474,10 @@ function SortableTable(param)
           					}
                       
           					var cellid = "r"+i+"_"+this.tableid+"_"+columnOrder[columnOrderIdx];
-          					str+="<td id='"+cellid+"'";
-                    if(isEditable){
-                        str+=" onclick='clickedInternal(event,this);'";  
-                    }                    
-                    str+=" class='"+this.tableid+"-"+columnOrder[columnOrderIdx]+"'>"+renderCell(columnOrder[columnOrderIdx],tbl.tblbody[i][columnOrder[columnOrderIdx]],cellid)+"</td>";  
+          					str += "<td id='"+cellid+"' onclick='clickedInternal(event,this);' class='"+this.tableid+"-"+columnOrder[columnOrderIdx]+"'>"+renderCell(columnOrder[columnOrderIdx],tbl.tblbody[i][columnOrder[columnOrderIdx]],cellid)+"</td>";  
+                    if(columnOrderIdx<freezePaneIndex){
+                        mhvstr+="<td id='"+cellid+"' onclick='clickedInternal(event,this);' class='"+this.tableid+"-"+columnOrder[columnOrderIdx]+"'>"+renderCell(columnOrder[columnOrderIdx],tbl.tblbody[i][columnOrder[columnOrderIdx]],cellid)+"</td>";  
+                    }
         				}
       			}
       			str += "</tr>";
@@ -531,9 +577,13 @@ function SortableTable(param)
       		children=document.getElementById(this.tableid+"_tbl_mhv").getElementsByTagName('TH');
 
       		for (i = 0; i < children.length; i++) {
+              console.log(children[i])
         			document.getElementById(children[i].id.slice(0, -1)+"f").style.width = children[i].getBoundingClientRect().width+"px";
         			document.getElementById(children[i].id.slice(0, -1)+"f").style.boxSizing = "border-box";
       		}
+          document.getElementById(this.tableid+"_tblhead_mh").style.height = Math.round(document.getElementById(this.tableid+"_tblhead").getBoundingClientRect().height)+"px";
+          document.getElementById(this.tableid+"_tblhead_mhv").style.height = Math.round(document.getElementById(this.tableid+"_tblhead").getBoundingClientRect().height)+"px";
+          document.getElementById(this.tableid+"_tblhead_mhf").style.height = Math.round(document.getElementById(this.tableid+"_tblhead").getBoundingClientRect().height)+"px";
     	} else {
     		  document.getElementById(this.tableid).innerHTML = str;
     	}
