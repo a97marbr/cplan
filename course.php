@@ -34,8 +34,7 @@
 <hr>
 <div style="margin-bottom:0px;"><span>Search:</span><input type="text" id="lookingGlass" placeholder="write your query" onkeyup="searchterm=document.getElementById('lookingGlass').value;myTable.renderTable();"/></div>
 <div id="c"></div>
-<div id="editpopover" style="display:none;"></div>
-
+<div id="editpopover" style="display:none;z-index:5000;"></div>
 <?php
 
 ?>

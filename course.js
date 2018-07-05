@@ -78,10 +78,10 @@ function getData(){
               columnSumCallback:makeSum,
               columnSum:colsums,
               rowSum:rowsums,
-              rowHighlightOnCallback:rowHighlightOn,
-              rowHighlightOffCallback:rowHighlightOff,
               displayCellEditCallback:displayCellEdit,
               updateCellCallback:updateCellCallback,
+              freezePaneIndex:2,
+              hasRowHighlight:true,
               hasMagicHeadings:true,
               hasCounterColumn:true
           });
@@ -368,13 +368,13 @@ function compare(a,b){
         if(a.allocation === null||a.allocation==="UNK"){
             left=tmp;
         }else{
-            left = a.allocation.unspecified+a.allocation.lecture+a.allocation.supervision+a.allocation.seminar+a.allocation.development+a.allocation.preparation+a.allocation.other;
+            left = a.allocation.unspecified+a.allocation.lecture+a.allocation.supervision+a.allocation.seminar+a.allocation.development+a.allocation.preparation+a.allocation.other+a.allocation.running+a.allocation.grading+a.allocation.examination;
         }
 
         if(b.allocation === null||b.allocation==="UNK"){            
             right=tmp;
         }else{
-            right = b.allocation.unspecified+b.allocation.lecture+b.allocation.supervision+b.allocation.seminar+b.allocation.development+b.allocation.preparation+b.allocation.other;
+            right = b.allocation.unspecified+b.allocation.lecture+b.allocation.supervision+b.allocation.seminar+b.allocation.development+b.allocation.preparation+b.allocation.other+b.allocation.running+b.allocation.grading+b.allocation.examination;
         }                
         
         return left-right;     
@@ -654,40 +654,4 @@ function updateDB(tableid,rowno,col,val,dbtbl){
     .done(function( data ) {        
         clearUpdateCellInternal();
     });
-}
-
-//--------------------------------------------------------------------------
-// rowHighlight
-// ---------------
-//  Callback function that highlights the currently hovered row
-//--------------------------------------------------------------------------
-			
-function rowHighlightOn(rowid,rowno,colclass,centerel){
-    if(!isLocked){
-        document.getElementById(rowid).style.border="2px solid rgba(255,0,0,1)";
-        document.getElementById(rowid+"_mvh").style.borderLeft="2px solid rgba(255,0,0,1)";
-        document.getElementById(rowid+"_mvh").style.borderTop="2px solid rgba(255,0,0,1)";
-        document.getElementById(rowid+"_mvh").style.borderBottom="2px solid rgba(255,0,0,1)";
-    		var collist = document.getElementsByClassName(colclass);
-    		for(let i=0;i<collist.length;i++){
-    			collist[i].style.borderLeft="2px solid rgba(255,0,0,1)";
-    			collist[i].style.borderRight="2px solid rgba(255,0,0,1)";
-    		}   		
-    		centerel.style.backgroundImage="radial-gradient(RGBA(0,0,0,0),RGBA(0,0,0,0.2))";      
-    }
-}
-
-function rowHighlightOff(rowid,rowno,colclass,centerel){
-    if(!isLocked){
-        document.getElementById(rowid).style.border="";
-        document.getElementById(rowid+"_mvh").style.borderLeft="";
-        document.getElementById(rowid+"_mvh").style.borderTop="";
-        document.getElementById(rowid+"_mvh").style.borderBottom="";
-    		var collist = document.getElementsByClassName(colclass);
-    		for(let i=0;i<collist.length;i++){
-    			collist[i].style.borderLeft="";
-    			collist[i].style.borderRight="";
-    		}   		
-    		centerel.style.backgroundImage="none";
-    }
 }
