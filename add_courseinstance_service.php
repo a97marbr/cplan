@@ -43,18 +43,18 @@
     </select>
     År:<input type="text" name="year" placeholder="2018">
     <select size='1' name='start_period'>
-        <option value='lp1'>lp1</option>
-        <option value='lp2'>lp2</option>
-        <option value='lp3'>lp3</option>
-        <option value='lp4'>lp4</option>
-        <option value='lp5'>lp5</option>
+        <option value='1'>lp1</option>
+        <option value='2'>lp2</option>
+        <option value='3'>lp3</option>
+        <option value='4'>lp4</option>
+        <option value='5'>lp5</option>
     </select>
     <select size='1' name='end_period'>
-        <option value='lp1'>lp1</option>
-        <option value='lp2'>lp2</option>
-        <option value='lp3'>lp3</option>
-        <option value='lp4'>lp4</option>
-        <option value='lp5'>lp5</option>
+        <option value='1'>lp1</option>
+        <option value='2'>lp2</option>
+        <option value='3'>lp3</option>
+        <option value='4'>lp4</option>
+        <option value='5'>lp5</option>
     </select>
     Antal studenter:<input type="text" name="students" placeholder='40'>
     ProgramÅr:<input type="text" name="study_program" placeholder='WEBUG1'>
@@ -114,7 +114,7 @@
     if ($cid != "UNK" && $coordinator!="UNK" && $examiner != "UNK" && $start_period!="UNK" && $end_period!="UNK" && $year!="UNK"){        
         $sql = 'INSERT INTO course_instance (cid,coordinator,examiner,start_period,end_period,year,students,study_program) values(:cid,:coordinator,:examiner,:start_period,:end_period,:year,:students,:study_program)';
         
-        $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+        $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':cid', $cid);
         $stmt->bindParam(':coordinator', $coordinator);
         $stmt->bindParam(':examiner', $examiner);

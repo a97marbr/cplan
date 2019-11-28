@@ -113,6 +113,14 @@ tr:nth-child(even) {
     background-color: #ffffff;
 }
 
+tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+tbody tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+
 .mytable.freeze {
     z-index: 10;
     position: relative;

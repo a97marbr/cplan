@@ -1,5 +1,5 @@
 <?php 
-    require 'dbconnect.php';
+    require '../dbconnect.php';
         
     if(isset($_POST['sign'])){
         $sign=$_POST['sign'];

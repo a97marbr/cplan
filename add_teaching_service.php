@@ -63,7 +63,7 @@
         
         $sql = 'INSERT INTO teaching (teacher,ciid,hours,status) VALUES(:tid,:ciid,:hours,:status);';
         
-        $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+        $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':tid', $tid);
         $stmt->bindParam(':ciid', $ciid);
         $stmt->bindParam(':hours', $hours);

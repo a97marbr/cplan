@@ -33,12 +33,6 @@
         $cname="UNK";
     }
 
-    if(isset($_POST['cname'])){
-        $cname=$_POST['cname'];
-    } else {
-        $cname="UNK";
-    }
-
     if(isset($_POST['class'])){
         $class=$_POST['class'];
     } else {
@@ -54,7 +48,7 @@
     if ($ccode != "UNK" && $cname!="UNK"){        
         $sql = 'INSERT INTO course (ccode,cname,class,credits) values(:ccode,:cname,:class,:credits)';
         
-        $stmt = $pdo->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+        $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':ccode', $ccode);
         $stmt->bindParam(':cname', $cname);
         $stmt->bindParam(':class', $class);
