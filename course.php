@@ -2,7 +2,7 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-if (!isset($_SESSION["userid"])) {
+if (!isset($_SESSION["teacherid"])) {
     header("location: login.php");
     exit;
 }

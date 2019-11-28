@@ -7,6 +7,7 @@
     echo "</div>";
     echo "<div class='login'>";
     //echo "<input type='text' placeholder='unlock code' id='pwd'><button onclick='unlock()'>Unlock</button>";
+    echo "<span>Logged in user: ".$_SESSION['tname']."</span>";
     echo "</div>";
     echo "<div class='admin'>";
     echo "<a class='menu-item' href='add_teacher_service.php'>Add Teacher</a>";
