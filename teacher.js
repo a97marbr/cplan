@@ -107,15 +107,19 @@ function render (json){
 }
 
 function getData(){
+    let year="";
     if ($('#year').val()){
         year=$('#year').val();
-    } else {
-        year=2018;
     }
+
+    let sign=""
     if($('#sign').val()){
         sign=$('#sign').val();
-    } else {
-        sign='BROM';
+    }
+    let op=""
+    let params={
+        year:year,
+        sign:sign
     }
   
     //alert(year + " " + sign);
@@ -123,7 +127,7 @@ function getData(){
     var jqxhr = $.ajax({
             type: 'POST',
             url: 'teacher_service.php',
-            data: 'year='+year+'&sign='+sign
+            data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
         }) 
         .done(function(data) {
           //alert( "success"+data );

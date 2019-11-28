@@ -7,7 +7,23 @@ if (!isset($_SESSION["teacherid"])) {
     exit;
 }
 require '../dbconnect.php';
+require 'basic.php';
 
+$op = getOP("op", "UNK", "string");
+$params = getOP("params", "UNK", "json");
+
+$year = new DateTime();
+$year = $year->format('Y');
+if (!empty($params->year)) {
+    $year = $params->year;
+}
+$sign = "UNK";
+if (empty($params->sign)) {
+    $sign = $_SESSION['username'];
+} else {
+    $sign = $params->sign;
+}
+/*
 if (isset($_POST['year'])) {
     $year = $_POST['year'];
 } else {
@@ -25,6 +41,7 @@ if (isset($_POST['op'])) {
 } else {
     $op = "UNK";
 }
+*/
 
 if (isset($_POST['updatevalue'])) {
     $updatevalue = $_POST['updatevalue'];
@@ -138,7 +155,7 @@ foreach ($stmt as $key => $row) {
     array_push($tblbody, $item);
 }
 
-$sql = 'select * from teacher order by lname';
+$sql = 'SELECT * FROM teacher ORDER BY lname';
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $teachers = array();
@@ -156,7 +173,21 @@ foreach ($stmt as $key => $row) {
     array_push($teachers, $item);
 }
 
+$data = array(
+    "teaching_table"=>array("tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot), "columnOrder" => $columnOrder),
+    "year"=>$year,
+    "teachers" => $teachers,
+    "selected" => $selected,
+);
 
+$ret_data = array(
+    "op"=>$op,
+    "params"=>$params,
+    "data"=>$data,
+    "error" => $error
+);
+header('Content-type: application/json');
+/*
 $data = array(
     "tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot),
     "columnOrder" => $columnOrder,
@@ -164,4 +195,5 @@ $data = array(
     "selected" => $selected,
     "error" => $error
 );
-echo json_encode($data);
+*/
+echo json_encode($ret_data);

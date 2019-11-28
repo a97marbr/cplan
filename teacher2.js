@@ -22,19 +22,24 @@ window.onclick = function(event) {
 }
 
 function getData(){
+    let year="";
     if ($('#year').val()){
         year=$('#year').val();
-    } else {
-        year=2018;
     }
-    var sign="ATIY";
-    if($('#teacherSelect').val()){
-        sign=$('#teacherSelect').val();
+
+    let sign=""
+    if($('#sign').val()){
+        sign=$('#sign').val();
     }
+    let op="GETDATA";
+    let params={
+        year:year,
+        sign:sign
+    }
+
     var status="UNK";
     var teid="UNK";
     var hours="UNK";
-    var op="GETDATA";
     var periods_tables=[];
     for (let i=1;i<=5;i++){
       document.getElementById("lp"+i+"_allocation").innerHTML="";
@@ -43,23 +48,23 @@ function getData(){
     var jqxhr = $.ajax({
             type: 'POST',
             url: 'teacher2_service.php',
-            data: 'year='+year+'&sign='+sign
+            data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
         }) 
-        .done(function(data) {
+        .done(function(json) {
           //alert( "success"+data );
-          let json = JSON.parse(data);
+          //let json = JSON.parse(data);
           
           var s="<select>";
-          for(let l=0;l<json.teachers.length;l++){
-              s+="<option value='"+json.teachers[l].sign+"' ";
-              if(json.teachers[l].sign==json.selected) s+="selected ";
-              s+=">"+json.teachers[l].lname+", "+json.teachers[l].fname+" ("+json.teachers[l].sign+")</option>"
+          for(let l=0;l<json.data.teachers.length;l++){
+              s+="<option value='"+json.data.teachers[l].sign+"' ";
+              if(json.data.teachers[l].sign==json.data.selected) s+="selected ";
+              s+=">"+json.data.teachers[l].lname+", "+json.data.teachers[l].fname+" ("+json.data.teachers[l].sign+")</option>"
           }
           s+="</select>";
           document.getElementById("teacherSelect").innerHTML=s;
           //console.log(rowsums);
           myTable = new SortableTable({
-              data:json.tbldata,
+              data:json.data.teaching_table.tbldata,
               tableElementId:"yearallocation",
               filterElementId:"columnFilter",
               //tableCaption:"Teaching allocation for "+sprogram+" courses in year "+year,
@@ -67,7 +72,7 @@ function getData(){
               renderSortOptionsCallback:renderSortOptions,
               renderColumnFilterCallback:renderColumnFilter,
               rowFilterCallback:rowFilter,
-              columnOrder:json.columnOrder,
+              columnOrder:json.data.teaching_table.columnOrder,
               columnSumCallback:makeSum,
               columnSum:["time_allocation","unspecified","lecture","supervision","seminar","development","preparation","grading","examination","running","other"],
               rowHighlightOnCallback:rowHighlightOn,
@@ -78,15 +83,15 @@ function getData(){
               hasCounterColumn:true
           });          
           myTable.renderTable();
-          console.log(json.tbldata)          
-          for(let jj=0;jj<json.tbldata.tblbody.length;jj++){
+          console.log(json.data.teaching_table.tbldata)          
+          for(let jj=0;jj<json.data.teaching_table.tbldata.tblbody.length;jj++){
               //console.log(json.tbldata.tblbody[jj]);
-              var data=json.tbldata.tblbody[jj];
+              var data=json.data.teaching_table.tbldata.tblbody[jj];
               var courseLength=0;
-              if (json.tbldata.tblbody[jj]['start_period']>json.tbldata.tblbody[jj]['end_period']){
+              if (json.data.teaching_table.tbldata.tblbody[jj]['start_period']>json.data.teaching_table.tbldata.tblbody[jj]['end_period']){
                   
               }else{
-                  courseLength=json.tbldata.tblbody[jj]['end_period']-json.tbldata.tblbody[jj]['start_period']+1;
+                  courseLength=json.data.teaching_table.tbldata.tblbody[jj]['end_period']-json.data.teaching_table.tbldata.tblbody[jj]['start_period']+1;
               }
               //spread time allocation evenly over periods and get total allocation for period
               let tot=0;
@@ -107,11 +112,11 @@ function getData(){
 
               if(tot>0){
                   for(let kk=0;kk<courseLength;kk++){
-                      var p=json.tbldata.tblbody[jj]['start_period']+kk;
+                      var p=json.data.teaching_table.tbldata.tblbody[jj]['start_period']+kk;
                       if(typeof(periods_tables[p])==='undefined'){
                           periods_tables[p]=[];
-                          periods_tables[p]['tblhead']=json.tbldata.tblhead;
-                          periods_tables[p]['tblfoot']=json.tbldata.tblfoot;
+                          periods_tables[p]['tblhead']=json.data.teaching_table.tbldata.tblhead;
+                          periods_tables[p]['tblfoot']=json.data.teaching_table.tbldata.tblfoot;
                           periods_tables[p]['tblbody']=[]
                       }             
                       periods_tables[p]['tblbody'].push(data);
@@ -128,7 +133,7 @@ function getData(){
                   renderCellCallback:renderCell,
                   renderSortOptionsCallback:renderSortOptions,
                   rowFilterCallback:rowFilter,
-                  columnOrder:json.columnOrder,
+                  columnOrder:json.data.teaching_table.columnOrder,
                   columnSumCallback:makeSum,
                   columnSum:["time_allocation","unspecified","lecture","supervision","seminar","development","preparation","grading","examination","running","other"],
                   rowHighlightOnCallback:rowHighlightOn,
