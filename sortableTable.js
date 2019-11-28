@@ -285,8 +285,13 @@ function SortableTable(param)
 
     	// Assign currently active table
     	sortableTable.currentTable = this;
-            
-    	columnfilter = JSON.parse(localStorage.getItem(this.tableid+"_filtercolnames"));  
+      
+      if (JSON.parse(localStorage.getItem(this.tableid+"_filtercolnames"))===null){
+          columnfilter=[];
+      } else {
+          columnfilter=JSON.parse(localStorage.getItem(this.tableid+"_filtercolnames"))
+      }     
+    	
       //console.log(columnfilter);        
       var filterstr="";
       var columnOrderIdx;
