@@ -1,3 +1,12 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION["teacherid"])) {
+    header("location: login.php");
+    exit;
+}
+?>
 <html>
 <head>
   <meta charset="utf-8">
@@ -8,6 +17,7 @@
       crossorigin="anonymous"></script>
   <script src="unlock.js"></script>       
   <script src="teacher.js"></script> 
+  <script src="basic.js"></script>
 </head>
 <body onload="getData();">
 <h3>Teacher View</h3>

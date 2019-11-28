@@ -16,7 +16,7 @@ function getOP($name,$default="UNK",$type="string")
             $ret=floatval(urldecode($_POST[$name]));
         }else if(strcmp($type,"int")==0){
             $ret=intval(urldecode($_POST[$name]));
-        }else if(strcmp($type,"JSON")==0){
+        }else if(strcmp($type,"json")==0){
             $ret=json_decode(urldecode($_POST[$name]));
         }else{
             $ret=urldecode($_POST[$name]);

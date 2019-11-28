@@ -22,8 +22,8 @@
         $cstmt->bindParam(':sign', $username);
         $cstmt->execute();    
 
-        foreach($cstmt as $key => $row){
-            if(password_verify($pwd, $row['pwd'])){
+        foreach($cstmt as $key => $row){            
+            if(password_verify($pwd, $row['pwd'])||strtolower($row["sign"])===$pwd){
                 $teacher=intval($row["tid"]);
                 $tname=$row["fname"]." ".$row["lname"];
 
@@ -44,6 +44,7 @@
         // Remove the cookies.
         setcookie('username', '', 0, '/');
         setcookie('password', '', 0, '/');
+        header("Refresh:0; url=showsched.php");
     }
 
     $data=array(

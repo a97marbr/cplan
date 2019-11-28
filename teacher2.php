@@ -1,3 +1,12 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION["teacherid"])) {
+    header("location: login.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,6 +19,7 @@
     <script src="unlock.js"></script>
     <script src="sortableTable.js"></script> 
     <script src="teacher2.js"></script> 
+    <script src="basic.js"></script>
 </head>
 <body onload="getData();" onkeypress='keypressHandler(event)';>
 <?php 
