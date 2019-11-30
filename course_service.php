@@ -17,7 +17,7 @@ $year=$year->format('Y');
 if (!empty($params->year)) {
     $year = $params->year;
 }
-$sprogram = "ALL";
+$sprogram = "";
 if (!empty($params->sprogram)) {
     $sprogram = '%'.$params->sprogram.'%';
 }
@@ -43,16 +43,59 @@ if (isset($_POST['command'])) {
     $op = "UNK";
 }
 */
+$updaterow = "UNK";
+if(!empty($params->update->updaterow)){
+    $updaterow = $params->update->updaterow;
+}
+$updatecol = "UNK";
+if(!empty($params->update->updatecol)){
+    $updatecol = $params->update->updatecol;
+}
+$updatevalue = "UNK";
+if(!empty($params->update->updatevalue)){
+    $updatevalue = $params->update->updatevalue;
+}
+$ciid = "UNK";
+if(!empty($params->update->ciid)){
+    $ciid = $params->update->ciid;
+}
+$tid = "UNK";
+if(!empty($params->update->tid)){
+    $tid = $params->update->tid;
+}
+$comment = "UNK";
+if(!empty($params->update->comment)){
+    $comment = $params->update->comment;
+}
+$students = "UNK";
+if(!empty($params->update->students)){
+    $students = $params->update->students;
+}
+$lectureTime = "UNK";
+if(!empty($params->update->lectureTime)){
+    $lectureTime = $params->update->lectureTime;
+}
+$superviseTime = "UNK";
+if(!empty($params->update->superviseTime)){
+    $superviseTime = $params->update->superviseTime;
+}
+$studentTime = "UNK";
+if(!empty($params->update->studentTime)){
+    $studentTime = $params->update->studentTime;
+}
+/*
 if (isset($_POST['updaterow'])) {
     $updaterow = intval($_POST['updaterow']);
 } else {
     $updaterow = "UNK";
 }
+
 if (isset($_POST['updatecol'])) {
     $updatecol = $_POST['updatecol'];
 } else {
     $updatecol = "UNK";
 }
+
 if (isset($_POST['updatevalue'])) {
     $updatevalue = json_decode($_POST['updatevalue'], true);
 } else {
@@ -118,18 +161,18 @@ if (isset($_POST['studentTime'])) {
 } else {
     $studentTime = "UNK";
 }
-
+*/
 $error = "UNK";
 $courses = array();
 $teachers = array();
 $max_teachers = 0;
 if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
-    $timeAllocation = json_encode($updatevalue["allocation"]);
-    $status = intval($updatevalue['status']);
-    $teid = $updatevalue['teid'];
-    $hours = intval($updatevalue["hours"]);
-    $ciid = intval($updatevalue['ciid']);
-    $tid = intval($updatevalue['tid']);
+    $timeAllocation = json_encode($updatevalue->allocation);
+    $status = intval($updatevalue->status);
+    $teid = $updatevalue->teid;
+    $hours = intval($updatevalue->hours);
+    $ciid = intval($updatevalue->ciid);
+    $tid = intval($updatevalue->tid);
     if ($teid !== "UNK" && $timeAllocation !== "UNK") {
         $sql = 'UPDATE teaching SET allocation=:allocation,status=:status,changed_ts=NOW() WHERE teid=:teid;';
         $stmt = $pdo->prepare($sql);
@@ -352,7 +395,7 @@ echo json_encode($data);
 */
 $data = array(
     "courses_table"=>array("tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot), "columnOrder" => $columnOrder),
-    "year"=>$year
+    "year"=>$year,    
 );
 
 $ret_data = array(

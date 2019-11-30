@@ -22,14 +22,16 @@ window.onclick = function (event) {
 }
 
 function getData() {
-    let year = "";
-    if ($('#year').val()) {
-        year = $('#year').val();
+    if ($('#year').prop("selectedIndex") === 0) {        
+        $("#year").val($("#year option:first").val());    
     }
-    let sprogram = "";
-    if ($('#sprogram').val()) {
-        sprogram = $('#sprogram').val();
+    let year = $('#year').val();
+
+    if ($('#sprogram').prop("selectedIndex") === 0) {        
+        $("#sprogram").val($("#sprogram option:first").val());    
     }
+    let sprogram = $('#sprogram').val();
+
     console.log(year, sprogram)
     var sign = "BROM";
     var status = "UNK";
@@ -50,7 +52,7 @@ function getData() {
         url: 'course_service.php',
         data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
     })
-        .done(returnData)
+        .done(dataReturned)
         .fail(function () {
             alert("error");
         })
@@ -59,11 +61,13 @@ function getData() {
         });
 }
 
-function returnData(json) {
+function dataReturned(json) {
     //alert( "success"+data );
     //let json = JSON.parse(data);
 
-    $("#title-year").html(json.data.year);
+    $("#title-year").html(json.params.year);
+    $('#year').val(json.params.year);
+    $('#sprogram').val(json.params.sprogram);
     var colsums = ["students", "time_budget"];
     var rowsums = [[{ "name": "Total Allocated", "id": "tallocated" }]];
 
@@ -131,12 +135,15 @@ function returnData(json) {
 //--------------------------------------------------------------------------
 
 function renderColumnFilter(col, status, colname) {
-    str = "";
+    str = "<div>";
     if (status) {
-        str = "<label>" + colname + "</label>:<input type='checkbox' checked onclick='myTable.toggleColumn(\"" + col + "\")'>";
+        str+="<input id='"+colname+"_"+col+"' type='checkbox' checked onchange='myTable.toggleColumn(\"" + col + "\")'>"
+        str+="<label for='"+colname+"_"+col+"'>" + colname + "</label>";
     } else {
-        str = "<label>" + colname + "</label>:<input type='checkbox' onclick='myTable.toggleColumn(\"" + col + "\")'>";
+        str+="<input id='"+colname+"_"+col+"' type='checkbox' onchange='myTable.toggleColumn(\"" + col + "\")'>"
+        str+="<label for='"+colname+"_"+col+"'>" + colname + "</label>";
     }
+    str+="</div>";
 
     return str;
 }
@@ -651,17 +658,32 @@ function clearUpdateCell() {
 // AJAX call to update cell value in database on server
 //--------------------------------------------------------------------------
 function updateDB(tableid, rowno, col, val, dbtbl) {
-    var command;
+    let op;
     if (dbtbl == "TEACHING") {
-        command = "UPDATETEACHING";
+        op = "UPDATETEACHING";
     } else if (dbtbl == "COURSEINSTANCE") {
-        command = "UPDATECOURSEINSTANCE";
+        op = "UPDATECOURSEINSTANCE";
+    }
+    if ($('#year').prop("selectedIndex") === 0) {        
+        $("#year").val($("#year option:first").val());    
+    }
+    let year = $('#year').val();
+
+    if ($('#sprogram').prop("selectedIndex") === 0) {        
+        $("#sprogram").val($("#sprogram option:first").val());    
+    }
+    let sprogram = $('#sprogram').val();
+
+    let params={        
+        update:{ "updatecol": col, "updatetable": tableid, "updatevalue": val, "updaterow": rowno },
+        year:year,
+        sprogram:sprogram
     }
 
     $.ajax({
         method: "POST",
         url: "course_service.php",
-        data: { "command": command, "updatecol": col, "updatetable": tableid, "updatevalue": JSON.stringify(val), "updaterow": rowno }
+        data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
     })
         .done(function (data) {
             clearUpdateCellInternal();

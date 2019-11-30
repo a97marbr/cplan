@@ -24,23 +24,23 @@ if (!isset($_SESSION["teacherid"])) {
     require 'menu.php';
 ?>
 <div>
-    <select size='1' name='year' id='year'>
-        <option hidden disabled selected value>Select Year</option>
+    <select size='1' name='year' id='year' onchange='getData();'>
+        <!--<option hidden disabled selected value>Select Year</option>-->
         <option value='2020'>2020</option>
         <option value='2019'>2019</option>
         <option value='2018'>2018</option>
         <option value='2017'>2017</option>
     </select>
-    <select size='1' name='sprogram' id='sprogram'>
-        <option hidden disabled selected value>Select Study Program</option>
-        <option value='ALL'>All</option>
+    <select size='1' name='sprogram' id='sprogram' onchange='getData();'>
+        <!--<option hidden disabled selected value>Select Study Program</option>-->
+        <option value='%'>All</option>
         <option value='WEBUG'>WEBUG</option>
     </select>
     <button onclick="getData()">Get Data</button>
 </div> 
 <hr>
-<div style="font-weight:bold">Column filter for Course Table</div>
-<div id="columnFilter"></div>
+<h4 onclick='$("#columnFilter").toggle( "slow" );'>Column filter for Course Table</h4>
+<div id="columnFilter" style="display:none"></div>
 <hr>
 <div style="margin-bottom:0px;"><span>Search:</span><input type="text" id="lookingGlass" placeholder="write your query" onkeyup="searchterm=document.getElementById('lookingGlass').value;myTable.renderTable();"/></div>
 <div id="c"></div>
