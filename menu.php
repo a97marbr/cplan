@@ -17,10 +17,12 @@ if ($_SESSION["access"] === 0) {
 echo "</span>";
 echo "<span onclick='logout();'>Logout</span>";
 echo "</div>";
-echo "<div class='admin'>";
-echo "<a class='menu-item' href='add_teacher_service.php'>Add Teacher</a>";
-echo "<a class='menu-item' href='add_teaching_service.php'>Add Teaching</a>";
-echo "<a class='menu-item' href='add_course_service.php'>Add Course</a>";
-echo "<a class='menu-item' href='add_courseinstance_service.php'>Add Course Instance</a>";
-echo "</div>";
+if ($_SESSION["access"] > 0) {
+    echo "<div class='admin'>";
+    echo "<a class='menu-item' href='add_teacher_service.php'>Add Teacher</a>";
+    echo "<a class='menu-item' href='add_teaching_service.php'>Add Teaching</a>";
+    echo "<a class='menu-item' href='add_course_service.php'>Add Course</a>";
+    echo "<a class='menu-item' href='add_courseinstance_service.php'>Add Course Instance</a>";
+    echo "</div>";
+}
 echo "</div>";

@@ -26,11 +26,11 @@ function searchKeyUp(e) {
     }
     return true;
 }
-
 function keypressHandler(event) {
     if (event.keyCode == 13) updateCellInternal();
     if (event.keyCode == 27) clearUpdateCellInternal();
 }
+window.addEventListener("keyup",keypressHandler,0);
 
 function defaultRowFilter() {
     return true;

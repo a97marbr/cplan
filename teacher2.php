@@ -12,6 +12,7 @@ if (!isset($_SESSION["teacherid"])) {
 
 <head>
     <meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE=11">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <script src="unlock.js"></script>

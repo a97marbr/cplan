@@ -1,3 +1,6 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
 .confirmed{
   
 }
@@ -104,15 +107,39 @@
     z-index:1000;
 }
 
+.highrowSortable {
+    background-image:linear-gradient(to top,RGBA(97, 72, 117,1) 2px,RGBA(0,0,0,0.0) 3px, RGBA(0,0,0,0.0) calc(100% - 3px), RGBA(97, 72, 117,1) calc(100% - 3px));
+}
+
+.highcolSortable {
+    background-image:linear-gradient(to right,RGBA(97, 72, 117,1) 2px,RGBA(0,0,0,0.0) 3px, RGBA(0,0,0,0.0) calc(100% - 3px), RGBA(97, 72, 117,1) calc(100% - 2px));
+}
+
+.highcolSortableHead {
+    background-image:linear-gradient(to right,RGBA(97, 72, 117,1),RGBA(97, 72, 117,1));
+    color: #fff;
+}
+
+.highcellSortable {
+    background-image:radial-gradient(RGBA(0,0,0,0),RGBA(0,0,0,0.2)),linear-gradient(to top,RGBA(97, 72, 117,1) 2px,RGBA(0,0,0,0.0) 3px, RGBA(0,0,0,0.0) calc(100% - 3px), RGBA(97, 72, 117,1) calc(100% - 3px)), linear-gradient(to right,RGBA(97, 72, 117,1) 2px,RGBA(0,0,0,0.0) 3px, RGBA(0,0,0,0.0) calc(100% - 3px), RGBA(97, 72, 117,1) calc(100% - 2px));
+}
+
+
 .sortabletable tbody tr {
     /*border:2px solid rgba(255,0,0,0);*/
 }
 
-.sortabletable th,td {
-    padding:0 5px;
+.sortabletable th, .sortabletable td {
+    padding:0px 4px;
     white-space: nowrap;            
     background-color: inherit;
 }
+
+.sortabletable th > div, .sortabletable td > div {
+    padding:2px 4px;
+    white-space: nowrap;            
+}
+
 .sortabletable tr:nth-child(odd) {
     background-color: #dddddd;
 }
@@ -189,8 +216,8 @@
     border:0px;
     padding:0px;
     margin:2px;
-    font-size: 16px;
-    font-family: serif;
+    font-size: 13px;
+    /*font-family: serif;*/
     min-width: 80px;
 }
 
@@ -201,8 +228,8 @@
 .editInput > label {
     display:inline-block;
     width:100%;
-    font-family: serif;
-    font-size: 16px;
+    /*font-family: serif;*/
+    font-size: 13px;
     position: absolute;
     right:100%;
     padding: 2px 0px;

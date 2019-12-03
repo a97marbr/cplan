@@ -23,39 +23,13 @@ if (empty($params->sign)) {
 } else {
     $sign = $params->sign;
 }
-/*
-if (isset($_POST['year'])) {
-    $year = $_POST['year'];
-} else {
-    $year = "2018";
-}
-
-if (isset($_POST['sign'])) {
-    $sign = $_POST['sign'];
-} else {
-    $sign = "ATIY";
-}
-
-if (isset($_POST['op'])) {
-    $op = $_POST['op'];
-} else {
-    $op = "UNK";
-}
-*/
 $update = "UNK";
 if (isset($params->update)) {
     $update = $params->update;
-    /*
-    if(isset($params->update->updatevalue)){
-        $updatevalue = $params->update->updatevalue;
-        $updatecol = $params->update->updatecol;
-        $updaterow = $params->update->updaterow;
-    }else{
-
-    } */
 }
 
-$isUnlocked = false;
+//$isUnlocked = false;
+$isUnlocked = $_SESSION["access"];
 
 $error = "UNK";
 $max_teachers = 0;
@@ -89,7 +63,7 @@ if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
             $error = $stmt->errorInfo();
         }
     }
-} else if ($op == "UPDATECOURSEINSTANCE_STUDENTS" && $update !== "UNK" && $isUnlocked) {
+} else if (strcmp($op, "UPDATECOURSEINSTANCE_STUDENTS") === 0 && is_object($update) && $isUnlocked) {
     $students = "UNK";
     if (isset($update->updatevalue)) {
         $students = $update->updatevalue;
@@ -99,16 +73,18 @@ if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
         $ciid = $update->updaterow;
     }
     if ($students !== "UNK" && $ciid !== "UNK") {
-        $sql = 'UPDATE course_instance SET students=:students,changed_ts=NOW() WHERE ciid:ciid;';
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':students', $students);
-        $stmt->bindParam(':ciid', $ciid);
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
+        try {
+            $sql = 'UPDATE course_instance SET students=:students,changed_ts=NOW() WHERE ciid=:ciid;';
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':students', $students);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            $error = "Database error: Could not update # students\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
     }
-} else if ($op == "UPDATECOURSEINSTANCE_TIMEBUDGET" && $update !== "UNK" && $isUnlocked) {
-    $sql = 'UPDATE course_instance SET time_budget=:timebudget,changed_ts=NOW() WHERE ciid:ciid;';
+} else if (strcmp($op, "UPDATECOURSEINSTANCE_TIMEBUDGET") === 0 && is_object($update) && $isUnlocked) {
+    $sql = 'UPDATE course_instance SET time_budget=:time_budget,changed_ts=NOW() WHERE ciid=:ciid;';
     $timebudget = "UNK";
     if (isset($update->updatevalue)) {
         $timebudget = json_encode($update->updatevalue);
@@ -118,15 +94,17 @@ if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
         $ciid = $update->updaterow;
     }
     if ($timebudget !== "UNK" && $ciid !== "UNK") {
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':time_budget', $timebudget);
-        $stmt->bindParam(':ciid', $ciid);
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':time_budget', $timebudget);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            $error = "Database error: Could not update time budget\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
     }
-} else if ($op == "UPDATECOURSEINSTANCE_COMMENT" && $update !== "UNK" && $isUnlocked) {
-    $sql = 'UPDATE course_instance SET comment=:comment,changed_ts=NOW() WHERE ciid:ciid;';
+} else if (strcmp($op, "UPDATECOURSEINSTANCE_COMMENT") === 0 && is_object($update) && $isUnlocked) {
+    $sql = 'UPDATE course_instance SET comment=:comment,changed_ts=NOW() WHERE ciid=:ciid;';
     $comment = "UNK";
     if (isset($update->updatevalue)) {
         $comment = $update->updatevalue;
@@ -136,19 +114,61 @@ if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
         $ciid = $update->updaterow;
     }
     if ($comment !== "UNK" && $ciid !== "UNK") {
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':comment', $comment);
-        $stmt->bindParam(':ciid', $ciid);
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':comment', $comment);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            $error = "Database error: Could not update comment\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
     }
-
-} else if (strcmp($op, "UPDATETEACHER") === 0) {
+} else if (strcmp($op, "ADD_TEACHER_PLAN") === 0 && $isUnlocked) {
     //INSERT INTO teacher_year_budget(year,tid,yperiod,wtype,whours) VALUES (2020,1,5,1,220);
-
+    $sql = 'SELECT tid FROM teacher WHERE sign=:sign;';
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':sign', $sign);
+    $stmt->execute();
+    $tid = "UNK";
+    foreach ($stmt as $key => $row) {
+        $tid = intval($row["tid"]);
+    }
+    $error="SNUS";
+    if (is_int($tid)) {
+        $yperiod = "UNK";
+        if (isset($params->yperiod)) {
+            $yperiod = $params->yperiod;
+        }
+        $year = "UNK";
+        if (isset($params->year)) {
+            $year = $params->year;
+        }
+        $wtype = "UNK";
+        if (isset($params->wtype)) {
+            $wtype = $params->wtype;
+        }
+        $whours = "UNK";
+        if (isset($params->whours)) {
+            $whours = $params->whours;
+        }
+        $error.=$year."!!".$yperiod."!!".$whours."!!".$wtype;
+        if ($year !== "UNK" && $tid !== "UNK" && $yperiod !== "UNK" && $wtype !== "UNK" && $whours !== "UNK") {
+            try {
+                $sql = 'INSERT INTO teacher_year_budget(year,tid,yperiod,wtype,whours) VALUES (:year,:tid,:yperiod,:wtype,:whours);';
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':year', $year);
+                $stmt->bindParam(':tid', $tid);
+                $stmt->bindParam(':yperiod', $yperiod);
+                $stmt->bindParam(':wtype', $wtype);
+                $stmt->bindParam(':whours', $whours);
+                $stmt->execute();
+            } catch (PDOException $e) {
+                $error = "Database error: Could not update comment\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
+            }
+        }
+    
+    }
 }
-
 // Get the Data
 // -------------------------------------------------------------------------
 
@@ -172,7 +192,7 @@ try {
         // SELECT year_period.id AS year_period,SUM(whours) AS hours FROM teacher_year_budget LEFT OUTER JOIN year_period ON teacher_year_budget.yperiod=year_period.id AND tid=1 AND year=2020 GROUP BY year_period.id ORDER BY year_period.short_desc;
         // SELECT teacher_year_budget.*,year_period.*,worktype.short_desc AS wtype_desc,worktype.letter FROM teacher_year_budget JOIN year_period ON teacher_year_budget.yperiod=year_period.id JOIN worktype ON teacher_year_budget.wtype=worktype.id WHERE tid=1 AND year=2020;
         $y = intval($year);
-        $sql = 'SELECT teacher_year_budget.*,year_period.*,worktype.short_desc AS wtype_desc,worktype.letter FROM teacher_year_budget JOIN year_period ON teacher_year_budget.yperiod=year_period.id JOIN worktype ON teacher_year_budget.wtype=worktype.id WHERE tid=:tid AND year=:year;';
+        $sql = 'SELECT teacher_year_budget.*,year_period.*,worktype.long_desc AS wtype_desc,worktype.letter FROM teacher_year_budget JOIN year_period ON teacher_year_budget.yperiod=year_period.id JOIN worktype ON teacher_year_budget.wtype=worktype.id WHERE tid=:tid AND year=:year;';
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':tid', $tid);
         $stmt->bindParam(':year', $y);
@@ -231,8 +251,22 @@ try {
 
         array_push($teachers, $item);
     }
+
+    $sql = 'SELECT * FROM worktype ORDER BY id';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $worktypes = array();    
+    foreach ($stmt as $key => $row) {
+        $worktype = array(
+            "id" => intval($row['id']),
+            "letter" => $row['letter'],
+            "short_desc" => $row['short_desc'],
+            "long_desc" => $row['long_desc'],
+        );
+        array_push($worktypes, $worktype);
+    }
 } catch (PDOException $e) {
-    $error = "Databasfel: Projektet kunde inte skapas.\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
+    $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
 }
 
 $data = array(
@@ -241,6 +275,7 @@ $data = array(
     "teachers" => $teachers,
     "selected" => $selected,
     "teacher_plans" => $teacher_plans,
+    "worktypes"=>$worktypes
 );
 
 $ret_data = array(
@@ -250,13 +285,5 @@ $ret_data = array(
     "error" => $error
 );
 header('Content-type: application/json');
-/*
-$data = array(
-    "tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot),
-    "columnOrder" => $columnOrder,
-    "teachers" => $teachers,
-    "selected" => $selected,
-    "error" => $error
-);
-*/
+
 echo json_encode($ret_data);

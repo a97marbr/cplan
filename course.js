@@ -136,6 +136,26 @@ function dataReturned(json) {
         hasCounterColumn: true
     });
 
+    myTable2 = new SortableTable({
+        data: json.data.courses_table.tbldata,
+        tableElementId: "c2",
+        filterElementId: "columnFilter",
+        renderCellCallback: renderCell,
+        renderSortOptionsCallback: renderSortOptions,
+        renderColumnFilterCallback: renderColumnFilter,
+        rowFilterCallback: rowFilter,
+        columnOrder: json.data.courses_table.columnOrder,
+        columnSumCallback: makeSum,
+        columnSum: colsums,
+        displayCellEditCallback: displayCellEdit,
+        updateCellCallback: updateCellCallback,
+        preRenderCallback:preRender,
+        freezePaneIndex: 2,
+        hasRowHighlight: true,
+        hasMagicHeadings: true,
+        hasCounterColumn: true
+    });
+
     var colorder = myTable.getColumnOrder();
     for (let k = 0; k < colorder.length; k++) {
         if (colorder[k] === "totalAllocation") {

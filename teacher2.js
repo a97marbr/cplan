@@ -22,6 +22,37 @@ window.onclick = function (event) {
     }
 }
 
+function add_teacher_plan()
+{
+    let op="ADD_TEACHER_PLAN";
+    let sign=$('#teacherSelect').val();
+    let year=$('#year').val();
+    let wtype=$('#plan_wtype').val();
+    let period=$('#plan_period').val();
+    let hours=$('#plan_hours').val();
+
+    let params = {
+        year: year,
+        sign: sign,
+        wtype:wtype,
+        yperiod:period,
+        whours:hours
+    }
+
+    var jqxhr = $.ajax({
+        type: 'POST',
+        url: 'teacher2_service.php',
+        data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
+    })
+        .done(dataReturned)
+        .fail(function () {
+            alert("error");
+        })
+        .always(function () {
+            //alert( "complete" );
+        });
+}
+
 function getData() {
     if ($('#year').prop("selectedIndex") === 0) {        
         $("#year").val($("#year option:first").val());    
@@ -74,8 +105,21 @@ function dataReturned(json) {
         s += ">" + t.lname + ", " + t.fname + " (" + t.sign + ")</option>"
     }
     s += "</select>";
+    let optstr="";
+    for(let i=0;i<json.data.worktypes.length;i++){
+        let t=json.data.worktypes[i];
+        optstr+="<option value='"+t.id+"'>"+t.long_desc+"</option>";
+        /*
+            <option value='1'>Teaching</option>
+            <option value='2'>Research</option>
+            <option value='3'>Pers Dev</option>
+            <option value='4'>SP Coordinator</option>
+        */
+    }
+    $("#plan_wtype").html(optstr);
     document.getElementById("teacherSelect").innerHTML = s;    
     $('#year').val(json.data.year);
+    $("#yearallocation").html("");
     if(json.data.teaching_table.tbldata.tblbody.length>0){
         myTable = new SortableTable({
             data: json.data.teaching_table.tbldata,
@@ -97,7 +141,6 @@ function dataReturned(json) {
             hasCounterColumn: true
         });
         myTable.renderTable();    
-        console.log(json.data.teaching_table.tbldata)
         periods_tables=[];
         for (let jj = 0; jj < json.data.teaching_table.tbldata.tblbody.length; jj++) {
             //console.log(json.tbldata.tblbody[jj]);
@@ -160,7 +203,6 @@ function dataReturned(json) {
             tables[p].renderTable();
         }
         myTable.renderTable();
-        console.log(periods_tables);        
     }else{
         $("#teaching-allocation-container").html("No teaching has been allocated for this year!");
     }
@@ -179,7 +221,6 @@ function dataReturned(json) {
             teacherplan[plan.wtype][plan.period]=plan.whours;
             sumarr[plan.period]+=plan.whours;
         }
-        console.log(teacherplan);
         planstr="<table class='border-collaps'>";
         planstr+="<thead>";
         planstr+="<tr>";
