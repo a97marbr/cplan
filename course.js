@@ -1,9 +1,56 @@
+/*
+*
+* Constants from Henrik S's budget model
+*
+*/
+const HOURS_PER_HP=17;
+const HOURS_PER_STUDENT=3;
+const HOURS_PER_STUDENT_FINAL_YEAR_PROJECT=30;
+const FINANCIAL_CONSTANT=1.0763;
+
 var isLocked = false;
 var sprogram;
 var myTable;
 
+function calcSum(el)
+{
+    let tmp=el.id.split("_");
+    let students=Number($("#"+tmp[0]+"_students").val());
+    let amount=Number(el.value);
+    console.log(students,amount)
+    if(!isNaN(students)&&!isNaN(amount)){
+        $("#"+el.id+"_sum").html((students*amount))
+    }
+}
+
 function dropdown(el) {
     document.getElementById("dropdown_" + el).classList.toggle("show");
+}
+
+function showTooltip(el,data)
+{
+    const allocations = Object.entries(data);
+    let elpos=el.getBoundingClientRect();
+    let str="";
+    str+="<div style='background-color:#FFF;box-shadow:4px 4px 10px #000;'>"
+    str+="<table>";
+    for(const [allocationtype,allocation] of allocations){
+        str+="<tr>";
+        str+="<td>"+allocationtype+":</td>"
+        str+="<td>"+allocation+"</td>";
+        str+="</tr>";    
+    }
+    str+="</table>";
+    str+="</div>";
+    $("#tooltip").html(str);
+    $("#tooltip").css({left:elpos.left+"px",top:elpos.bottom+"px"});
+    $("#tooltip").show();
+}
+
+function hideTooltip()
+{
+    $("#tooltip").hide();
+    $("#tooltip").html("");
 }
 
 // Close the dropdown if the user clicks outside of it
@@ -32,7 +79,6 @@ function getData() {
     }
     let sprogram = $('#sprogram').val();
 
-    console.log(year, sprogram)
     var sign = "BROM";
     var status = "UNK";
     var teid = "UNK";
@@ -68,30 +114,12 @@ function dataReturned(json) {
     $("#title-year").html(json.params.year);
     $('#year').val(json.params.year);
     $('#sprogram').val(json.params.sprogram);
-    var colsums = ["students", "time_budget"];
-    var rowsums = [[{ "name": "Total Allocated", "id": "tallocated" }]];
+    var colsums = ["students", "time_budget"];    
 
-    for (let k = 0; k < json.data.courses_table.columnOrder.length; k++) {
-        if (json.data.courses_table.columnOrder[k].startsWith("teacher_")) {
-            colsums.push(json.data.courses_table.columnOrder[k]);
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.unspecified");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.lecture");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.seminar");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.supervision");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.preparation");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.development");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.grading");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.examination");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.running");
-            rowsums[0].push(json.data.courses_table.columnOrder[k] + ".allocation.other");
-        }
-    }
-    //console.log(rowsums);
     myTable = new SortableTable({
         data: json.data.courses_table.tbldata,
         tableElementId: "c",
         filterElementId: "columnFilter",
-        //tableCaption:"Teaching allocation for "+sprogram+" courses in year "+year,
         renderCellCallback: renderCell,
         renderSortOptionsCallback: renderSortOptions,
         renderColumnFilterCallback: renderColumnFilter,
@@ -99,9 +127,9 @@ function dataReturned(json) {
         columnOrder: json.data.courses_table.columnOrder,
         columnSumCallback: makeSum,
         columnSum: colsums,
-        rowSum: rowsums,
         displayCellEditCallback: displayCellEdit,
         updateCellCallback: updateCellCallback,
+        preRenderCallback:preRender,
         freezePaneIndex: 2,
         hasRowHighlight: true,
         hasMagicHeadings: true,
@@ -110,14 +138,14 @@ function dataReturned(json) {
 
     var colorder = myTable.getColumnOrder();
     for (let k = 0; k < colorder.length; k++) {
-        if (colorder[k] === "tallocated") {
+        if (colorder[k] === "totalAllocation") {
             colorder.splice(k, 1);
             break;
         }
     }
     for (let k = 0; k < colorder.length; k++) {
         if (colorder[k] === "time_budget") {
-            colorder.splice(k + 1, 0, "tallocated");
+            colorder.splice(k + 1, 0, "hsbudget","totalAllocation");
             break;
         }
     }
@@ -127,6 +155,49 @@ function dataReturned(json) {
 }
 
 //------------==========########### FUNCTIONZ ###########==========------------
+
+function preRender(tbl){
+    let tblbody=tbl.tblbody;
+    let rownum=0;
+    let row=null;
+    while(row=tbl.getRow(rownum)){
+        let tot={unspecified:0,lecture:0,seminar:0,supervision:0,preparation:0,development:0,grading:0,examination:0,running:0,other:0};
+        let totKeys=Object.keys(tot);
+        const entries = Object.entries(row)
+        for(const [cell, value] of entries){
+            if(cell.startsWith("teacher_")){
+                let ta=value.allocation;                
+                if(typeof ta === 'object' && ta !== null){
+                    for(const alloctype of totKeys){
+                        tot[alloctype]+=ta[alloctype];       
+                    }
+                }
+    
+            }            
+        }
+        row["totalAllocation"]=tot;               
+        let s=0;
+        if(row["time_budget"]!==null){
+            s=row["time_budget"]["students"];
+        }
+
+        //
+        // Henrik Svensson course budget model 2019
+        //
+        let c=0;
+        if(!isNaN(row["credits"])){
+            c=row["credits"];
+        }
+        if(row["cname"].startsWith("Examensarbete")){
+            row["hsbudget"]=Math.round((s*HOURS_PER_STUDENT_FINAL_YEAR_PROJECT));
+        }else{
+            row["hsbudget"]=Math.round((c*HOURS_PER_HP)+(s*HOURS_PER_STUDENT));
+        }        
+
+        rownum++;
+    }        
+}
+
 
 //--------------------------------------------------------------------------
 // renderColumnFilter
@@ -158,14 +229,18 @@ function renderSortOptions(col, status, colname) {
     str = "";
     if (status == -1) {
 
-        if (col == "ccode" || col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "students" || col == "study_program" || col == "tallocated") {
-            str += "<span onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>" + colname + "</span>";
-        } else if (col == "cname" || col == "comment") {
-            str += "<span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>" + colname + "</span>";
+        if (col == "ccode" || col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "study_program" || col == "tallocated") {
+            str += "<span onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>" + colname + "</span>";
+        } else if ( col == "students") {            
+            str += "<span onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>Actual #<br>" + colname + "</span>";
+        }else if ( col == "hsbudget") {            
+            str += "<span title='Formula\n\nHOURS_PER_CREDIT=17\nHOURS_PER_STUDENT=3\n\nCOURSE_TOT=(CREDITS*HOURS_PER_CREDITS)+(STUDENTS*HOURS_PER_STUDENTS)' class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>" + colname.replace(/\s([^\s]*)$/, "<br>" + "$1") + "</span>";
+        }else if (col == "cname" || col == "comment" || col == "totalAllocation") {
+            str += "<span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>" + colname + "</span>";
         } else if (col == "time_budget") {
-            str += "<span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>Budget</span>";
-            str += "<div><span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>Stud</span>|";
-            str += "<span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>Time</span></div>";
+            str += "<span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>Budget</span>";
+            str += "<div><span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>Stud</span>|";
+            str += "<span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>Time</span></div>";
         } else {
             let sign = colname.substring(colname.lastIndexOf(" "), colname.length);
             let fname = colname.substring(0, colname.indexOf(" "));
@@ -176,13 +251,19 @@ function renderSortOptions(col, status, colname) {
             str += "</div>";
         }
     } else {
-        if (col == "ccode" || col == "cname" || col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "students" || col == "study_program" || col == "tallocated") {
+        if (col == "ccode" || col == "cname" || col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "study_program" || col == "tallocated") {
             if (status == 0) {
                 str += "<div onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>" + colname + "&#x25b4;</div>";
             } else {
                 str += "<div onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>" + colname + "&#x25be;</div>";
             }
-        } else if (col == "cname" || col == "comment") {
+        } else if (col == "students") {
+            if (status == 0) {
+                str += "<div onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>Actual #<br>" + colname + "&#x25b4;</div>";
+            } else {
+                str += "<div onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>Actual #<br>" + colname + "&#x25be;</div>";
+            }
+        }else if (col == "cname" || col == "comment"|| col == "totalAllocation") {
             if (status == 0) {
                 str += "<div class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>" + colname + "&#x25b4;</div>";
             } else {
@@ -198,6 +279,14 @@ function renderSortOptions(col, status, colname) {
                 str += "<div><span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>Stud</span>|";
                 str += "<span class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>Time&#x25be;</span></div>";
             }
+        }else if ( col == "hsbudget") {            
+            if (status == 0) {
+                //str += "<div onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>" + colname + "&#x25b4;</div>";
+                str += "<span title='Formula\n\nHOURS_PER_CREDIT=17\nHOURS_PER_STUDENT=3\n\nCOURSE_TOT=(CREDITS*HOURS_PER_CREDITS)+(STUDENTS*HOURS_PER_STUDENTS)' class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>" + colname.replace(/\s([^\s]*)$/, "<br>" + "$1") + "&#x25b4;</span>";
+                } else {
+                //str += "<div onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>" + colname + "&#x25be;</div>";
+                str += "<span title='Formula\n\nHOURS_PER_CREDIT=17\nHOURS_PER_STUDENT=3\n\nCOURSE_TOT=(CREDITS*HOURS_PER_CREDITS)+(STUDENTS*HOURS_PER_STUDENTS)' class='ellipsis' onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>" + colname.replace(/\s([^\s]*)$/, "<br>" + "$1") + "&#x25be;</span>";
+                }
         } else {
             let sign = colname.substr(colname.lastIndexOf(" "), colname.length);
             let fname = colname.substr(0, colname.indexOf(" "));
@@ -229,8 +318,8 @@ function renderCell(col, celldata, cellid, rowdata, colnames) {
     let t = "";
     if (col == "ccode") {
         t = "<span style='font-family:monospace'>" + celldata + "</span>";
-    } else if (col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "tallocated") {
-        t = celldata;
+    } else if (col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "tallocated"|| col == "hsbudget") {
+        t = "<div style='text-align:center'>"+celldata+"</div>";
     } else if (col == "students") {
         t = "<div class='ellipsis' id='datacell_" + cellid + "' ondblclick='makeEditbox(\"UPDATE_COURSE_INSTANCE\",\"students\",\"" + cellid + "\",\"UNK\"," + celldata.ciid + ",\"UNK\",\"UNK\",\"UNK\",\"UNK\",\"" + celldata.students + "\",\"UNK\",\"UNK\",\"UNK\")' style='text-align:center;' placeholder='Enter comment'>" + celldata + "</div>";
     } else if (col == "lecture_time") {
@@ -306,6 +395,21 @@ function renderCell(col, celldata, cellid, rowdata, colnames) {
             }
             t = "<div id='datacell_" + cellid + "' style='text-align:center' class='" + sclass + "'>" + total + "</div>";
         }
+    }else if (col === "totalAllocation") {
+        if (typeof celldata !== 'undefined' && celldata !== "UNK" && celldata !== null) {
+            let total = celldata.unspecified + celldata.lecture + celldata.seminar + celldata.supervision + celldata.preparation + celldata.development + celldata.grading + celldata.examination + celldata.running + celldata.other;
+            let sclass = "";
+            if (celldata.status == 0) {
+                sclass = "confirmed";
+            } else if (celldata.status == 1) {
+                sclass = "unconfirmed";
+            } else if (celldata.status == 2) {
+                sclass = "mustchange";
+            } else {
+                sclass = "error";
+            }
+            t = "<div id='tacell_" + cellid + "' onmouseover='showTooltip(this,"+JSON.stringify(celldata)+");' onmouseout='hideTooltip();' style='text-align:center;position:relative;' class='" + sclass + "'>" + total + "</div>";
+        }
     } else {
     }
     return t;
@@ -318,18 +422,24 @@ function renderCell(col, celldata, cellid, rowdata, colnames) {
 //--------------------------------------------------------------------------
 var searchterm = "";
 function rowFilter(row) {
+    
+    let ret=false;
     if (searchterm == "") {
-        return true;
+        ret=true;
     } else {
-        for (var property in row) {
-            if (row.hasOwnProperty(property)) {
-                if (row[property] != null && row[property].indexOf != null) {
-                    if (row[property].indexOf(searchterm) != -1) return true;
+        const cols=Object.entries(row);
+        for (const [colname,colval] of cols) {
+            if (colname==="cname" || colname === "study_program"|| colname === "credits"|| colname === "ccode"|| colname === "class") {
+                if (typeof colval !== "undefined") {
+                    if ((""+colval).toLowerCase().indexOf(searchterm.toLowerCase()) != -1) {
+                        ret=true;
+                    }
                 }
             }
         }
     }
-    return false;
+
+    return ret;
 }
 
 //--------------------------------------------------------------------------
@@ -345,20 +455,33 @@ function compare(a, b) {
     let tmp = (sortableTable.currentTable.ascending) ? -1000000 : 1000000;
 
     if (col == "ccode" || col == "cname" || col == "start_period" || col == "end_period" || col == "class" || col == "comment" || col == "study_program" || col == "tallocated") {
-        let tmp = (sortableTable.currentTable.ascending) ? -1 : 1;
-        if (a == "UNK") return -tmp;
-        if (b == "UNK") return tmp;
-        if (a < b) return -1;
-        if (a > b) return 1;
-        return 0;
-    } else if (col == "credits") {
-
+        //let tmp = (sortableTable.currentTable.ascending) ? -1 : 1;    
+        if(kind===0){
+            if (a == "UNK") tmp=-tmp;
+            if (b == "UNK") tmp=tmp;
+            if (a===b) tmp=0;
+            if (a < b) tmp=-1;
+            if (a > b) tmp= 1;    
+        }else{
+            if (a == "UNK") tmp=tmp;
+            if (b == "UNK") tmp=-tmp;
+            if (a===b) tmp=0;
+            if (a < b) tmp=1;
+            if (a > b) tmp=-1;    
+        }    
+        return tmp;        
+    } else if (col == "credits" || col == "hsbudget") {        
         let left = (isNaN(a)) ? tmp : +a;
         let right = (isNaN(b)) ? tmp : +b;
-        return left - right;
+        if(kind===0){
+            return left - right;
+        }else{
+            return right - left;
+        }
+        
     } else if (col == "time_budget") {
         let left;
-        let right;
+        let right;        
         if (a === null || a === "UNK") {
             left = tmp;
         } else {
@@ -371,32 +494,64 @@ function compare(a, b) {
             right = b.unspecified + b.lecture + b.supervision + b.seminar + b.development + b.preparation + (b.students * b.grading) + (b.students * b.examination) + (b.students * b.running) + (b.students * b.other);
         }
 
-        return left - right;
+        if(kind===0){
+            return left - right;
+        }else{
+            return right - left;
+        }
+    } else if (col == "totalAllocation") {
+        let left;
+        let right;        
+        if (a === null || a === "UNK") {
+            left = tmp;
+        } else {
+            left = a.unspecified + a.lecture + a.supervision + a.seminar + a.development + a.preparation + a.grading + a.examination + a.running + a.other;
+        }
+
+        if (b === null || b === "UNK") {
+            right = tmp;
+        } else {
+            right = b.unspecified + b.lecture + b.supervision + b.seminar + b.development + b.preparation + b.grading + b.examination + b.running + b.other;
+        }
+
+        if(kind===0){
+            return left - right;
+        }else{
+            return right - left;
+        }
     } else if (col == "students") {
         // We allways sort none numbers below 
         let tmp = (sortableTable.currentTable.ascending) ? -1000000 : 1000000;
 
         let left = (isNaN(a)) ? tmp : +a;
         let right = (isNaN(b)) ? tmp : +b;
-        return left - right;
+        if(kind===0){
+            return left - right;
+        }else{
+            return right - left;
+        }
     } else {
         // We allways sort none numbers below 
         let tmp = (sortableTable.currentTable.ascending) ? 1000000 : -1000000;
         let left;
         let right;
-        if (a.allocation === null || a.allocation === "UNK") {
+        if (typeof a === "undefined" || a.allocation === null || a.allocation === "UNK") {
             left = tmp;
         } else {
             left = a.allocation.unspecified + a.allocation.lecture + a.allocation.supervision + a.allocation.seminar + a.allocation.development + a.allocation.preparation + a.allocation.other + a.allocation.running + a.allocation.grading + a.allocation.examination;
         }
 
-        if (b.allocation === null || b.allocation === "UNK") {
+        if (typeof b === "undefined" || b.allocation === null || b.allocation === "UNK") {
             right = tmp;
         } else {
             right = b.allocation.unspecified + b.allocation.lecture + b.allocation.supervision + b.allocation.seminar + b.allocation.development + b.allocation.preparation + b.allocation.other + b.allocation.running + b.allocation.grading + b.allocation.examination;
         }
 
-        return left - right;
+        if(kind===0){
+            return left - right;
+        }else{
+            return right - left;
+        }
     }
 }
 
@@ -487,10 +642,10 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
         str += "<div class='editInput'><label>Preparation:</label><input type='text' id='popoveredit_preparation' class='popoveredit' style='flex-grow:1' value='" + celldata.preparation + "' size='" + celldata.preparation.toString().length + "'/></div>";
         str += "<div class='editInput'><label>Development:</label><input type='text' id='popoveredit_development' class='popoveredit' style='flex-grow:1' value='" + celldata.development + "' size='" + celldata.development.toString().length + "'/></div>";
         str += "<div class='editInput'><label>Varying Time</label>&nbsp;</div>";
-        str += "<div class='editInput'><label>Grading:</label><input type='text' id='popoveredit_grading' class='popoveredit' style='flex-grow:1' value='" + celldata.grading + "' size='" + celldata.grading.toString().length + "'/></div>";
-        str += "<div class='editInput'><label>Examination:</label><input type='text' id='popoveredit_examination' class='popoveredit' style='flex-grow:1' value='" + celldata.examination + "' size='" + celldata.examination.toString().length + "'/></div>";
-        str += "<div class='editInput'><label>Running</label><input type='text' id='popoveredit_running' class='popoveredit' style='flex-grow:1' value='" + celldata.running + "' size='" + celldata.running.toString().length + "'/></div>";
-        str += "<div class='editInput'><label>Other:</label><input type='text' id='popoveredit_other' class='popoveredit' style='flex-grow:1' value='" + celldata.other + "' size='" + celldata.other.toString().length + "'/></div>";
+        str += "<div class='editInput'><label>Grading:</label><div style='display:flex;'><input type='text' id='popoveredit_grading' class='popoveredit' style='flex-grow:1' onkeyup='calcSum(this)' value='" + celldata.grading + "' size='" + celldata.grading.toString().length + "'/><span id='popoveredit_grading_sum'>"+celldata.students*celldata.grading+"</span></div></div>";
+        str += "<div class='editInput'><label>Examination:</label><div style='display:flex;'><input type='text' id='popoveredit_examination' onkeyup='calcSum(this)' class='popoveredit' style='flex-grow:1' value='" + celldata.examination + "' size='" + celldata.examination.toString().length + "'/><span id='popoveredit_examination_sum'>"+celldata.students*celldata.examination+"</span></div></div>";
+        str += "<div class='editInput'><label>Running</label><div style='display:flex;'><input type='text' id='popoveredit_running' class='popoveredit' style='flex-grow:1' onkeyup='calcSum(this)' value='" + celldata.running + "' size='" + celldata.running.toString().length + "'/><span id='popoveredit_running_sum'>"+celldata.students*celldata.running+"</span></div></div>";
+        str += "<div class='editInput'><label>Other:</label><div style='display:flex;'><input type='text' id='popoveredit_other' class='popoveredit' style='flex-grow:1' onkeyup='calcSum(this)' value='" + celldata.other + "' size='" + celldata.other.toString().length + "'/><span id='popoveredit_other_sum'>"+celldata.students*celldata.other+"</span></div></div>";
         //str+="<div class='editInput'><label>Total:</label><input type='text' id='popoveredit_total' class='popoveredit' style='flex-grow:1' value='"+celldata.time_budget.total+"' size='"+celldata.time_budget.total.toString().length+"'/></div>";
         str += "</div>";
     } else if (column == "comment") {
@@ -560,7 +715,7 @@ function updateCellCallback(rowno, colno, column, tableid, oldvalue, rowid) {
             return -1;// This must be handled
         } else {
             newvalue = newcelldata;
-            updateDB(tableid, rowid, column, newvalue, "COURSEINSTANCE");
+            updateDB(tableid, rowid, column, newvalue, "UPDATECOURSEINSTANCE_STUDENTS");
             return newvalue;
         }
     } else if (column == "num") {
@@ -606,13 +761,13 @@ function updateCellCallback(rowno, colno, column, tableid, oldvalue, rowid) {
             status: parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value)
         };
         newvalue = obj;
-        updateDB(tableid, rowid, column, newvalue, "COURSEINSTANCE");
+        updateDB(tableid, rowid, column, newvalue, "UPDATECOURSEINSTANCE_TIMEBUDGET");
         return newvalue;
     } else if (column == "comment") {
         var newvalue = "";
         if (oldvalue === "UNK") newvalue = oldvalue;
         newvalue = document.getElementById("popoveredit_comment").value;
-        updateDB(tableid, rowid, column, newvalue, "COURSEINSTANCE");
+        updateDB(tableid, rowid, column, newvalue, "UPDATECOURSEINSTANCE_COMMENT");
         return newvalue;
     } else {
         var newvalue;
@@ -638,7 +793,7 @@ function updateCellCallback(rowno, colno, column, tableid, oldvalue, rowid) {
         newvalue.status = parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value);
         newvalue.hours = 0;
         newvalue.ciid =
-            updateDB(tableid, rowid, column, newvalue, "TEACHING");
+            updateDB(tableid, rowid, column, newvalue, "UPDATETEACHING");
         return newvalue;
     }
 }
@@ -657,13 +812,14 @@ function clearUpdateCell() {
 // ---------------
 // AJAX call to update cell value in database on server
 //--------------------------------------------------------------------------
-function updateDB(tableid, rowno, col, val, dbtbl) {
-    let op;
+function updateDB(tableid, rowno, col, val, op) {
+    //let op;
+    /*
     if (dbtbl == "TEACHING") {
         op = "UPDATETEACHING";
     } else if (dbtbl == "COURSEINSTANCE") {
         op = "UPDATECOURSEINSTANCE";
-    }
+    }*/
     if ($('#year').prop("selectedIndex") === 0) {        
         $("#year").val($("#year option:first").val());    
     }
@@ -680,12 +836,15 @@ function updateDB(tableid, rowno, col, val, dbtbl) {
         sprogram:sprogram
     }
 
+/*function (data) {
+            clearUpdateCellInternal();
+            myTable.renderTable();
+        }
+*/
     $.ajax({
         method: "POST",
         url: "course_service.php",
         data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
     })
-        .done(function (data) {
-            clearUpdateCellInternal();
-        });
+        .done(dataReturned);
 }

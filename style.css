@@ -91,10 +91,10 @@
   overflow: hidden;
 }
 
-tbody tr:nth-child(odd) {
+.sortabletable tbody tr:nth-child(odd) {
     background-color: #ddd;
 }
-tfoot td {
+.sortabletable tfoot td {
     text-align: center;
 }
 .hoPa:hover .hoCh{
@@ -104,29 +104,57 @@ tfoot td {
     z-index:1000;
 }
 
-tbody tr {
+.sortabletable tbody tr {
     /*border:2px solid rgba(255,0,0,0);*/
 }
 
-th,td {
+.sortabletable th,td {
     padding:0 5px;
     white-space: nowrap;            
     background-color: inherit;
 }
-tr:nth-child(odd) {
+.sortabletable tr:nth-child(odd) {
     background-color: #dddddd;
 }
-tr:nth-child(even) {
+.sortabletable tr:nth-child(even) {
     background-color: #ffffff;
 }
 
-tbody tr:nth-child(odd) {
+.sortabletable tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
-tbody tr:nth-child(even) {
+.sortabletable tbody tr:nth-child(even) {
     background-color: #dddddd;
 }
 
+
+.tblcell {
+    padding:5px 20px;
+}
+
+.left {
+    text-align:left;
+}
+
+.center {
+    text-align:center;
+}
+
+.right {
+    text-align:right;
+}
+
+.bottom-line {
+    border-bottom:2px solid #888;
+}
+
+.top-line {
+    border-top:2px solid #888;
+}
+
+.border-collaps {
+    border-collapse: collapse;
+}
 
 .mytable.freeze {
     z-index: 10;
@@ -150,6 +178,7 @@ tbody tr:nth-child(even) {
 }
 
 .icon {
+    display:inline-block;
     width:20px;
     height:20px;
     padding:0px;

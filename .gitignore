@@ -2,3 +2,5 @@
 dbconnect\.php
 
 *.pdf
+
+*.bak

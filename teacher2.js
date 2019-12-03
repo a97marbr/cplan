@@ -76,89 +76,150 @@ function dataReturned(json) {
     s += "</select>";
     document.getElementById("teacherSelect").innerHTML = s;    
     $('#year').val(json.data.year);
-    //console.log(rowsums);
-    myTable = new SortableTable({
-        data: json.data.teaching_table.tbldata,
-        tableElementId: "yearallocation",
-        filterElementId: "columnFilter",
-        //tableCaption:"Teaching allocation for "+sprogram+" courses in year "+year,
-        renderCellCallback: renderCell,
-        renderSortOptionsCallback: renderSortOptions,
-        renderColumnFilterCallback: renderColumnFilter,
-        rowFilterCallback: rowFilter,
-        columnOrder: json.data.teaching_table.columnOrder,
-        columnSumCallback: makeSum,
-        columnSum: ["time_allocation", "unspecified", "lecture", "supervision", "seminar", "development", "preparation", "grading", "examination", "running", "other"],
-        rowHighlightOnCallback: rowHighlightOn,
-        rowHighlightOffCallback: rowHighlightOff,
-        displayCellEditCallback: displayCellEdit,
-        updateCellCallback: updateCellCallback,
-        hasMagicHeadings: true,
-        hasCounterColumn: true
-    });
-    myTable.renderTable();    
-    console.log(json.data.teaching_table.tbldata)
-    for (let jj = 0; jj < json.data.teaching_table.tbldata.tblbody.length; jj++) {
-        //console.log(json.tbldata.tblbody[jj]);
-        var data = json.data.teaching_table.tbldata.tblbody[jj];
-        var courseLength = 0;
-        if (json.data.teaching_table.tbldata.tblbody[jj]['start_period'] > json.data.teaching_table.tbldata.tblbody[jj]['end_period']) {
-
-        } else {
-            courseLength = json.data.teaching_table.tbldata.tblbody[jj]['end_period'] - json.data.teaching_table.tbldata.tblbody[jj]['start_period'] + 1;
-        }
-        //spread time allocation evenly over periods and get total allocation for period
-        let tot = 0;
-        for (d in data) {
-            if (data.hasOwnProperty(d)) {
-                if (d == "time_allocation") {
-                    for (dd in data) {
-                        if (data[d].hasOwnProperty(dd)) {
-                            data[d][dd] = data[d][dd] / courseLength;
-                            tot += data[d][dd];
-                        }
-                    }
-                } else if (d == "unspecified" || d == "lecture" || d == "supervision" || d == "seminar" || d == "development" || d == "preparation" || d == "grading" || d == "examination" || d == "running" || d == "other") {
-                    data[d] = data[d] / courseLength;
-                }
-            }
-        }
-
-        if (tot > 0) {
-            for (let kk = 0; kk < courseLength; kk++) {
-                var p = json.data.teaching_table.tbldata.tblbody[jj]['start_period'] + kk;
-                if (typeof (periods_tables[p]) === 'undefined') {
-                    periods_tables[p] = [];
-                    periods_tables[p]['tblhead'] = json.data.teaching_table.tbldata.tblhead;
-                    periods_tables[p]['tblfoot'] = json.data.teaching_table.tbldata.tblfoot;
-                    periods_tables[p]['tblbody'] = []
-                }
-                periods_tables[p]['tblbody'].push(data);
-            }
-        }
-    }
-    var tables = [];
-    for (p in periods_tables) {
-        //console.log(periods_tables[p])
-        tables[p] = new SortableTable({
-            data: periods_tables[p],
-            tableElementId: "lp" + p + "_allocation",
+    if(json.data.teaching_table.tbldata.tblbody.length>0){
+        myTable = new SortableTable({
+            data: json.data.teaching_table.tbldata,
+            tableElementId: "yearallocation",
+            filterElementId: "columnFilter",
             //tableCaption:"Teaching allocation for "+sprogram+" courses in year "+year,
             renderCellCallback: renderCell,
             renderSortOptionsCallback: renderSortOptions,
+            renderColumnFilterCallback: renderColumnFilter,
             rowFilterCallback: rowFilter,
             columnOrder: json.data.teaching_table.columnOrder,
             columnSumCallback: makeSum,
             columnSum: ["time_allocation", "unspecified", "lecture", "supervision", "seminar", "development", "preparation", "grading", "examination", "running", "other"],
             rowHighlightOnCallback: rowHighlightOn,
             rowHighlightOffCallback: rowHighlightOff,
+            displayCellEditCallback: displayCellEdit,
+            updateCellCallback: updateCellCallback,
             hasMagicHeadings: true,
             hasCounterColumn: true
         });
-        tables[p].renderTable();
+        myTable.renderTable();    
+        console.log(json.data.teaching_table.tbldata)
+        periods_tables=[];
+        for (let jj = 0; jj < json.data.teaching_table.tbldata.tblbody.length; jj++) {
+            //console.log(json.tbldata.tblbody[jj]);
+            var data = json.data.teaching_table.tbldata.tblbody[jj];
+            var courseLength = 0;
+            if (json.data.teaching_table.tbldata.tblbody[jj]['start_period'] > json.data.teaching_table.tbldata.tblbody[jj]['end_period']) {
+    
+            } else {
+                courseLength = json.data.teaching_table.tbldata.tblbody[jj]['end_period'] - json.data.teaching_table.tbldata.tblbody[jj]['start_period'] + 1;
+            }
+            //spread time allocation evenly over periods and get total allocation for period
+            let tot = 0;
+            for (d in data) {
+                if (data.hasOwnProperty(d)) {
+                    if (d == "time_allocation") {
+                        for (dd in data) {
+                            if (data[d].hasOwnProperty(dd)) {
+                                data[d][dd] = data[d][dd] / courseLength;
+                                tot += data[d][dd];
+                            }
+                        }
+                    } else if (d == "unspecified" || d == "lecture" || d == "supervision" || d == "seminar" || d == "development" || d == "preparation" || d == "grading" || d == "examination" || d == "running" || d == "other") {
+                        data[d] = data[d] / courseLength;
+                    }
+                }
+            }
+    
+            if (tot > 0) {
+                for (let kk = 0; kk < courseLength; kk++) {
+                    var p = json.data.teaching_table.tbldata.tblbody[jj]['start_period'] + kk;
+                    if (typeof (periods_tables[p]) === 'undefined') {
+                        periods_tables[p] = [];
+                        periods_tables[p]['tblhead'] = json.data.teaching_table.tbldata.tblhead;
+                        periods_tables[p]['tblfoot'] = json.data.teaching_table.tbldata.tblfoot;
+                        periods_tables[p]['tblbody'] = []
+                    }
+                    periods_tables[p]['tblbody'].push(data);
+                }
+            }
+        }
+        var tables = [];
+        $(".period-tbl").html("");
+        for (p in periods_tables) {
+            //console.log(periods_tables[p])
+            tables[p] = new SortableTable({
+                data: periods_tables[p],
+                tableElementId: "lp" + p + "_allocation",
+                //tableCaption:"Teaching allocation for "+sprogram+" courses in year "+year,
+                renderCellCallback: renderCell,
+                renderSortOptionsCallback: renderSortOptions,
+                rowFilterCallback: rowFilter,
+                columnOrder: json.data.teaching_table.columnOrder,
+                columnSumCallback: makeSum,
+                columnSum: ["time_allocation", "unspecified", "lecture", "supervision", "seminar", "development", "preparation", "grading", "examination", "running", "other"],
+                rowHighlightOnCallback: rowHighlightOn,
+                rowHighlightOffCallback: rowHighlightOff,
+                hasMagicHeadings: true,
+                hasCounterColumn: true
+            });
+            tables[p].renderTable();
+        }
+        myTable.renderTable();
+        console.log(periods_tables);        
+    }else{
+        $("#teaching-allocation-container").html("No teaching has been allocated for this year!");
     }
-    myTable.renderTable();
-    console.log(periods_tables);    
+
+    let planstr="No planned duties has been added for selected year!";
+    if(json.data.teacher_plans.length>0){
+        // prepare plan data
+        let teacherplan=[];
+        let sumarr=["Sum",0,0,0,0,0];
+        
+        for(let i=0;i<json.data.teacher_plans.length;i++){
+            let plan=json.data.teacher_plans[i];
+            if(typeof teacherplan[plan.wtype] === "undefined"){
+                teacherplan[plan.wtype]=[plan.wtype_letter,0,0,0,0,0];
+            }
+            teacherplan[plan.wtype][plan.period]=plan.whours;
+            sumarr[plan.period]+=plan.whours;
+        }
+        console.log(teacherplan);
+        planstr="<table class='border-collaps'>";
+        planstr+="<thead>";
+        planstr+="<tr>";
+        planstr+="<th><div class='tblcell left'>Task</div></th>";
+        planstr+="<th><div class='tblcell center'>lp1</div></th>";
+        planstr+="<th><div class='tblcell center'>lp2</div></th>";
+        planstr+="<th><div class='tblcell center'>lp3</div></th>";
+        planstr+="<th><div class='tblcell center'>lp4</div></th>";
+        planstr+="<th><div class='tblcell center'>lp5</div></th>";
+        planstr+="<th><div class='tblcell center'>tot</div></th>";
+        planstr+="</tr>";
+        planstr+="</thead>";
+        planstr+="<tbody class='top-line bottom-line'>";
+        const plans=Object.entries(teacherplan);
+        for(const [wtype,whours] of plans){
+            planstr+="<tr>";
+            planstr+="<td><div class='tblcell left'>"+wtype+"</div></td>";
+            planstr+="<td><div class='tblcell center'>"+whours[1]+"</div></td>";
+            planstr+="<td><div class='tblcell center'>"+whours[2]+"</div></td>";
+            planstr+="<td><div class='tblcell center'>"+whours[3]+"</div></td>";
+            planstr+="<td><div class='tblcell center'>"+whours[4]+"</div></td>";
+            planstr+="<td><div class='tblcell center'>"+whours[5]+"</div></td>";
+            planstr+="<td><div class='tblcell center'>"+(whours[1]+whours[2]+whours[3]+whours[4]+whours[5])+"</div></td>";
+            planstr+="</tr>";
+        } 
+        planstr+="</tbody>";
+        planstr+="<tfoot>";
+        planstr+="<tr>";
+        planstr+="<th><div class='tblcell left'>"+sumarr[0]+"</div></th>";
+        planstr+="<th><div class='tblcell center'>"+sumarr[1]+"</div></th>";
+        planstr+="<th><div class='tblcell center'>"+sumarr[2]+"</div></th>";
+        planstr+="<th><div class='tblcell center'>"+sumarr[3]+"</div></th>";
+        planstr+="<th><div class='tblcell center'>"+sumarr[4]+"</div></th>";
+        planstr+="<th><div class='tblcell center'>"+sumarr[5]+"</div></th>";
+        planstr+="<th><div class='tblcell center'>"+(sumarr[1]+sumarr[2]+sumarr[3]+sumarr[4]+sumarr[5])+"</div></th>";
+        planstr+="</tr>";
+        planstr+="</tfoot>";
+        planstr+="</table>";
+    }
+    $("#teacher_plan").html(planstr);
 }
 
 //------------==========########### FUNCTIONZ ###########==========------------
@@ -325,6 +386,7 @@ function compare(a, b) {
     // Find out which column and part of column are we sorting on from currentTable
     let col = sortableTable.currentTable.getSortcolumn();
     let kind = sortableTable.currentTable.getSortkind();
+    if(col==="UNK")return 0;
     // We allways sort none numbers below 
     let tmp = (sortableTable.currentTable.ascending) ? -1000000 : 1000000;
 

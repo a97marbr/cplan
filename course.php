@@ -39,12 +39,13 @@ if (!isset($_SESSION["teacherid"])) {
     <button onclick="getData()">Get Data</button>
 </div> 
 <hr>
-<h4 onclick='$("#columnFilter").toggle( "slow" );'>Column filter for Course Table</h4>
+<h4 onclick='$("#columnFilter").toggle( "slow" );'>Column filter for Course Table &#9658;</h4>
 <div id="columnFilter" style="display:none"></div>
 <hr>
 <div style="margin-bottom:0px;"><span>Search:</span><input type="text" id="lookingGlass" placeholder="write your query" onkeyup="searchterm=document.getElementById('lookingGlass').value;myTable.renderTable();"/></div>
-<div id="c"></div>
+<div id="c" style="width:100%;overflow:scroll;"></div>
 <div id="editpopover" style="display:none;z-index:5000;"></div>
+<div id="tooltip" style="display:none;z-index:4000;position:absolute;"></div>
 <?php
 
     ?>

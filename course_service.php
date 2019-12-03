@@ -13,160 +13,25 @@ $op = getOP("op", "UNK", "string");
 $params = getOP("params", "UNK", "json");
 
 $year = new DateTime();
-$year=$year->format('Y');
+$year = $year->format('Y');
 if (!empty($params->year)) {
     $year = $params->year;
 }
 $sprogram = "";
 if (!empty($params->sprogram)) {
-    $sprogram = '%'.$params->sprogram.'%';
+    $sprogram = '%' . $params->sprogram . '%';
 }
-/*
-if (isset($_POST['year'])) {
-    $year = $_POST['year'];
-} else {
-    $year = "2018";
-}
-if (isset($_POST['sprogram'])) {
-    if ($_POST['sprogram'] != "ALL") {
-        $sprogram = '%' . $_POST['sprogram'] . '%';
-    } else {
-        $sprogram = "ALL";
-    }
-} else {
-    $sprogram = "ALL";
+$update = "UNK";
+if (isset($params->update)) {
+    $update = $params->update;
 }
 
-if (isset($_POST['command'])) {
-    $op = $_POST['command'];
-} else {
-    $op = "UNK";
-}
-*/
-$updaterow = "UNK";
-if(!empty($params->update->updaterow)){
-    $updaterow = $params->update->updaterow;
-}
-$updatecol = "UNK";
-if(!empty($params->update->updatecol)){
-    $updatecol = $params->update->updatecol;
-}
-$updatevalue = "UNK";
-if(!empty($params->update->updatevalue)){
-    $updatevalue = $params->update->updatevalue;
-}
-$ciid = "UNK";
-if(!empty($params->update->ciid)){
-    $ciid = $params->update->ciid;
-}
-$tid = "UNK";
-if(!empty($params->update->tid)){
-    $tid = $params->update->tid;
-}
-$comment = "UNK";
-if(!empty($params->update->comment)){
-    $comment = $params->update->comment;
-}
-$students = "UNK";
-if(!empty($params->update->students)){
-    $students = $params->update->students;
-}
-$lectureTime = "UNK";
-if(!empty($params->update->lectureTime)){
-    $lectureTime = $params->update->lectureTime;
-}
-$superviseTime = "UNK";
-if(!empty($params->update->superviseTime)){
-    $superviseTime = $params->update->superviseTime;
-}
-$studentTime = "UNK";
-if(!empty($params->update->studentTime)){
-    $studentTime = $params->update->studentTime;
-}
-/*
-if (isset($_POST['updaterow'])) {
-    $updaterow = intval($_POST['updaterow']);
-} else {
-    $updaterow = "UNK";
-}
-
-if (isset($_POST['updatecol'])) {
-    $updatecol = $_POST['updatecol'];
-} else {
-    $updatecol = "UNK";
-}
-
-if (isset($_POST['updatevalue'])) {
-    $updatevalue = json_decode($_POST['updatevalue'], true);
-} else {
-    $updatevalue = "UNK";
-}
-if (isset($_POST['status'])) {
-    $status = intval($_POST['status']);
-} else {
-    $status = "UNK";
-}
-if (isset($_POST['ciid'])) {
-    $ciid = intval($_POST['ciid']);
-} else {
-    $ciid = "UNK";
-}
-if (isset($_POST['tid'])) {
-    $tid = intval($_POST['tid']);
-} else {
-    $tid = "UNK";
-}
-if (isset($_POST['comment'])) {
-    if ($_POST['comment'] !== "UNK") {
-        $comment = $_POST['comment'];
-    } else {
-        $comment = "UNK";
-    }
-} else {
-    $comment = "UNK";
-}
-if (isset($_POST['students'])) {
-    if ($_POST['students'] !== "UNK") {
-        $students = intval($_POST['students']);
-    } else {
-        $students = "UNK";
-    }
-} else {
-    $students = "UNK";
-}
-if (isset($_POST['lectureTime'])) {
-    if ($_POST['lectureTime'] !== "UNK") {
-        $lectureTime = intval($_POST['lectureTime']);
-    } else {
-        $lectureTime = "UNK";
-    }
-} else {
-    $lectureTime = "UNK";
-}
-if (isset($_POST['superviseTime'])) {
-    if ($_POST['superviseTime'] !== "UNK") {
-        $superviseTime = intval($_POST['superviseTime']);
-    } else {
-        $superviseTime = "UNK";
-    }
-} else {
-    $superviseTime = "UNK";
-}
-if (isset($_POST['studentTime'])) {
-    if ($_POST['studentTime'] !== "UNK") {
-        $studentTime = intval($_POST['studentTime']);
-    } else {
-        $studentTime = "UNK";
-    }
-} else {
-    $studentTime = "UNK";
-}
-*/
 $error = "UNK";
 $courses = array();
 $teachers = array();
 $max_teachers = 0;
-if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
+if (strcmp($op, "UPDATETEACHING") === 0 && is_object($update) && $isUnlocked) {
+    $updatevalue=$update->updatevalue;
     $timeAllocation = json_encode($updatevalue->allocation);
     $status = intval($updatevalue->status);
     $teid = $updatevalue->teid;
@@ -196,46 +61,64 @@ if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
             $error = $stmt->errorInfo();
         }
     }
-} else if ($op == "UPDATECOURSEINSTANCE" && $updatevalue !== "UNK" && $isUnlocked) {
-    $timebudget = "UNK";
+} else if (strcmp($op, "UPDATECOURSEINSTANCE_STUDENTS") === 0 && is_object($update) && $isUnlocked) {
     $students = "UNK";
-    $comment = "UNK";
-    if ($updaterow !== "UNK") {
-        $ciid = $updaterow;
+    if (isset($update->updatevalue)) {
+        $students = $update->updatevalue;
     }
-    if ($updatecol == "students") {
-        $students = intval($updatevalue);
-    } else if ($updatecol == "comment") {
-        $comment = $updatevalue;
-    } else if ($updatecol == "time_budget") {
-        $timebudget = json_encode($updatevalue);
+    $ciid = "UNK";
+    if (isset($update->updaterow)) {
+        $ciid = $update->updaterow;
     }
-    if ($ciid !== "UNK") {
-        $sql = 'UPDATE course_instance SET ';
-        if ($comment !== "UNK") {
-            $sql .= 'comment=:comment,';
-        }
-        if ($students !== "UNK") {
-            $sql .= 'students=:students,';
-        }
-        if ($timebudget !== "UNK") {
-            $sql .= 'time_budget=:time_budget,';
-        }
-        $sql .= 'changed_ts=NOW() WHERE ciid=:ciid;';
-        $error = $timebudget;
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':ciid', $ciid);
-        if ($comment !== "UNK") {
-            $stmt->bindParam(':comment', $comment);
-        }
-        if ($students !== "UNK") {
+    if ($students !== "UNK" && $ciid !== "UNK") {
+        try {
+            $sql = 'UPDATE course_instance SET students=:students,changed_ts=NOW() WHERE ciid=:ciid;';
+            $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':students', $students);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            $error = "Database error: Could not update # students\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
-        if ($timebudget !== "UNK") {
+    }
+} else if (strcmp($op, "UPDATECOURSEINSTANCE_TIMEBUDGET") === 0 && is_object($update) && $isUnlocked) {
+    $sql = 'UPDATE course_instance SET time_budget=:time_budget,changed_ts=NOW() WHERE ciid=:ciid;';
+    $timebudget = "UNK";
+    if (isset($update->updatevalue)) {
+        $timebudget = json_encode($update->updatevalue);
+    }
+    $ciid = "UNK";
+    if (isset($update->updaterow)) {
+        $ciid = $update->updaterow;
+    }
+    if ($timebudget !== "UNK" && $ciid !== "UNK") {
+        try {
+            $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':time_budget', $timebudget);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            $error = "Database error: Could not update time budget\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
+    }
+} else if (strcmp($op, "UPDATECOURSEINSTANCE_COMMENT") === 0 && is_object($update) && $isUnlocked) {
+    $sql = 'UPDATE course_instance SET comment=:comment,changed_ts=NOW() WHERE ciid=:ciid;';
+    $comment = "UNK";
+    if (isset($update->updatevalue)) {
+        $comment = $update->updatevalue;
+    }
+    $ciid = "UNK";
+    if (isset($update->updaterow)) {
+        $ciid = $update->updaterow;
+    }
+    if ($comment !== "UNK" && $ciid !== "UNK") {
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':comment', $comment);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            $error = "Database error: Could not update comment\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
     }
 }
@@ -268,7 +151,9 @@ $tblhead = array(
     'lecture_time' => 'Lecture Time',
     'supervise_time' => 'Supervise Time',
     'student_time' => 'Student Time',
-    'time_budget' => 'Budget'
+    'time_budget' => 'Budget',
+    'totalAllocation' => 'Total allocation',
+    'hsbudget' => 'Henrik S Budget'
 );
 
 $columnOrder = array('ccode', 'cname', 'class', 'credits', 'start_period', 'end_period', 'study_program', 'students', 'time_budget');
@@ -303,39 +188,21 @@ $hasHeading = false;
 $hasFooter = false;
 foreach ($cstmt as $ckey => $crow) {
     $course = array();
-    //$courses[]=array('ccode'=>$row['ccode'],'cname'=>$row['cname'],'class'=>$row['class'],'credits'=>$row['credits'],'start_period'=>$row['start_period'],'end_period'=>$row['end_period'], 'students'=>$row['students'],'study_program'=>$row['study_program'], 'teachers'=>array());    
-    //$course = array('ccode'=>$row['ccode'],'cname'=>$row['cname'],'class'=>$row['class'],'credits'=>$row['credits'],'start_period'=>$row['start_period'],'end_period'=>$row['end_period'], 'students'=>$row['students'],'study_program'=>$row['study_program'], 'teachers'=>array());
-    /*
-        array_push($course,$crow['ccode']);
-        array_push($course,$crow['cname']);
-        array_push($course,$crow['class']);
-        array_push($course,$crow['credits']);
-        array_push($course,$crow['start_period']);
-        array_push($course,$crow['end_period']);
-        */
     $course['ciid'] = $crow['ciid'];
     $course['ccode'] = $crow['ccode'];
     $course['cname'] = $crow['cname'];
     $course['class'] = $crow['class'];
-    $course['credits'] = $crow['credits'];
+    $cred = 0;
+    if (isset($crow['credits'])) {
+        $course['credits'] = floatval($crow['credits']);
+    }
     $course['start_period'] = $crow['start_period'];
     $course['end_period'] = $crow['end_period'];
 
-    if ($crow['study_program']) {
-        //array_push($course,$crow['study_program']);
+    $course['study_program'] = "UNK";
+    if (!empty($crow['study_program'])) {
         $course['study_program'] = $crow['study_program'];
-    } else {
-        $course['study_program'] = "UNK";
-        //array_push($course,"UNK");
     }
-
-    /*
-        array_push($course,array('ciid'=>$crow['ciid'],'students'=>$crow['students']));
-        array_push($course,array('ciid'=>$crow['ciid'],'lectureTime'=>$crow['lecture_time']));
-        array_push($course,array('ciid'=>$crow['ciid'],'superviseTime'=>$crow['supervise_time']));
-        array_push($course,array('ciid'=>$crow['ciid'],'studentTime'=>$crow['student_time']));
-        array_push($course,array('ciid'=>$crow['ciid'],'time_budget'=>json_decode($crow['time_budget'])));
-        */
     $course['students'] = $crow['students'];
     $course['lecture_time'] = $crow['lecture_time'];
     $course['supervise_time'] = $crow['supervise_time'];
@@ -394,14 +261,14 @@ $data = array(
 echo json_encode($data);
 */
 $data = array(
-    "courses_table"=>array("tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot), "columnOrder" => $columnOrder),
-    "year"=>$year,    
+    "courses_table" => array("tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot), "columnOrder" => $columnOrder),
+    "year" => $year,
 );
 
 $ret_data = array(
-    "op"=>$op,
-    "params"=>$params,
-    "data"=>$data,
+    "op" => $op,
+    "params" => $params,
+    "data" => $data,
     "error" => $error
 );
 header('Content-type: application/json');
