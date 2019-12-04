@@ -61,7 +61,7 @@ if (session_status() == PHP_SESSION_NONE) {
 <body>
     <div style="height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column;">
         <div style="display:flex;justify-content:center;align-items:center;flex-direction:column;border:4px solid #0000FF; padding:10px; border-radius:15px;position:relative;">
-            <div style='max-width:350px;margin:auto;'><img style="width:100%;" src="gtid_logo.png"></div>
+            <div style='max-width:350px;margin:auto;'><img style="width:100%;" src="logo_cplan.png"></div>
             <div id="logindialog">
                 <div>Username</div>
                 <input id="login" type="text" style="border:none;border-bottom:2px solid #cbcbcb;">
