@@ -24,14 +24,14 @@ body {
 
 .user {
     display: flex;
-    background-color: #606;
     justify-content: flex-start;
+    align-items: center;
 }
 
 .admin {
     display: flex;
     justify-content: flex-end;
-    background-color: #606;
+    align-items: center;
 }
 
 .login {
@@ -41,8 +41,10 @@ body {
     align-items: center;
 }
 
-.menu-item {
+.menu-item {    
+    background-color: #606;
     padding: 10px;
+    margin: 0 6px;
 }
 
 .menu a, .menu a:visited, .menu a:hover, .menu a:link {
