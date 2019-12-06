@@ -21,9 +21,19 @@
         $cstmt = $pdo->prepare($csql);
         $cstmt->bindParam(':sign', $username);
         $cstmt->execute();    
-
-        foreach($cstmt as $key => $row){            
-            if(password_verify($pwd, $row['pwd'])||strtolower($row["sign"])===$pwd){
+        foreach($cstmt as $key => $row){  
+            $error=$row["pwd"];
+            if(empty($row['pwd'])){
+                $dbpwd=password_hash(strtolower($row["sign"]), PASSWORD_DEFAULT);
+                $csql = 'UPDATE teacher SET pwd=:pwd WHERE tid=:tid;';
+                $cstmt = $pdo->prepare($csql);
+                $cstmt->bindParam(':tid', $row["tid"]);
+                $cstmt->bindParam(':pwd', $dbpwd);
+                $cstmt->execute();                    
+            }else{
+                $dbpwd=$row["pwd"];
+            }
+            if(password_verify($pwd, $dbpwd)){
                 $teacher=intval($row["tid"]);
                 $tname=$row["fname"]." ".$row["lname"];
 
