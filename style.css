@@ -1,3 +1,19 @@
+
+.btn-primary{
+    background-color:#660066;
+    border-color: #660066;
+}
+
+.btn-primary:hover{
+    background-color:#560056;
+    border-color: #460046;
+}
+.btn-primary:not(:disabled):not(.disabled).active, .btn-primary:not(:disabled):not(.disabled):active, .show>.btn-primary.dropdown-toggle{
+    background-color:#600060;
+    border-color: #600060;
+
+}
+
 body {
     font-family: 'Roboto', sans-serif;
 }
@@ -144,20 +160,50 @@ body {
     white-space: nowrap;            
 }
 
-.sortabletable tr:nth-child(odd) {
-    background-color: #dddddd;
-}
-.sortabletable tr:nth-child(even) {
+.sortabletable thead tr:nth-child(odd),
+.sortabletable tbody tr:nth-child(odd),
+.sortabletable tfoot tr:nth-child(even) {
     background-color: #ffffff;
 }
 
-.sortabletable tbody tr:nth-child(odd) {
-    background-color: #ffffff;
-}
-.sortabletable tbody tr:nth-child(even) {
+.sortabletable thead tr:nth-child(even),
+.sortabletable tbody tr:nth-child(even),
+.sortabletable tfoot tr:nth-child(odd) {
     background-color: #dddddd;
 }
 
+#teacher-list-container .sortabletable tbody tr {
+    /*border:2px solid rgba(255,0,0,0);*/
+}
+
+#teacher-list-container .sortabletable th, .sortabletable td {
+    padding:4px 4px;
+    white-space: nowrap;            
+    /*background-color: inherit;*/
+}
+
+#teacher-list-container .sortabletable th > div, .sortabletable td > div {
+    /*padding:2px 4px;*/
+    margin:3px;
+    white-space: nowrap;            
+}
+
+#teacher-list-container .sortabletable tbody {
+    border-top: 2px solid #888;
+    border-bottom: 2px solid #888;
+}
+
+#teacher-list-container .sortabletable thead tr:nth-child(odd),
+#teacher-list-container .sortabletable tbody tr:nth-child(odd),
+#teacher-list-container .sortabletable tfoot tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+#teacher-list-container .sortabletable thead tr:nth-child(even),
+#teacher-list-container .sortabletable tbody tr:nth-child(even),
+#teacher-list-container .sortabletable tfoot tr:nth-child(even) {
+    background-color: #ffffff;
+}
 
 .tblcell {
     padding:5px 20px;
