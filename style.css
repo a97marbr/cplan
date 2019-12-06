@@ -109,6 +109,7 @@ body {
     z-index:1000;
 }
 
+
 .highrowSortable {
     background-image:linear-gradient(to top,RGBA(97, 72, 117,1) 2px,RGBA(0,0,0,0.0) 3px, RGBA(0,0,0,0.0) calc(100% - 3px), RGBA(97, 72, 117,1) calc(100% - 3px));
 }
@@ -134,11 +135,12 @@ body {
 .sortabletable th, .sortabletable td {
     padding:0px 4px;
     white-space: nowrap;            
-    background-color: inherit;
+    /*background-color: inherit;*/
 }
 
 .sortabletable th > div, .sortabletable td > div {
-    padding:2px 4px;
+    /*padding:2px 4px;*/
+    margin:3px;
     white-space: nowrap;            
 }
 
