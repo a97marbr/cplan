@@ -1,4 +1,4 @@
-    <?php
+<?php
 if (session_status() == PHP_SESSION_NONE) {
     // Set cookie life length and start session
     //ini_set('session.gc_maxlifetime', 18000);
