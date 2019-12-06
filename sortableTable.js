@@ -30,7 +30,7 @@ function keypressHandler(event) {
     if (event.keyCode == 13) updateCellInternal();
     if (event.keyCode == 27) clearUpdateCellInternal();
 }
-window.addEventListener("keyup",keypressHandler,0);
+window.addEventListener("keyup", keypressHandler, 0);
 
 function defaultRowFilter() {
     return true;
@@ -186,13 +186,25 @@ function defaultRowHighlightOn(rowid, rowno, colclass, centerel) {
 }
 
 function defaultRowHighlightOff(rowid, rowno, colclass, centerel) {
+
+    // Row
     rowid = rowid.replace(DELIMITER + "mhv", "");
     document.getElementById(rowid).classList.remove("highrowSortable");
     if (this.hasMagicHeadings) {
         document.getElementById(rowid + DELIMITER + "mhv").classList.remove("highrowSortable");
     }
 
+    // Column
+    let colElements = document.querySelectorAll(".highcolSortable, .highcolSortableHead");
+    for (let i = 0; i < colElements.length; i++) {
+        colElements[i].classList.remove("highcolSortable");
+        colElements[i].classList.remove("highcolSortableHead");
+    }
+
+    /*
+
     colElements = document.getElementsByClassName(colclass);
+    
     for (var i = 0; i < colElements.length; i++) {
         colElements[i].classList.remove("highcolSortable");
     }
@@ -201,7 +213,8 @@ function defaultRowHighlightOff(rowid, rowno, colclass, centerel) {
     for (var i = 0; i < colElements.length; i++) {
         colElements[i].classList.remove("highcolSortableHead");
     }
-
+*/
+    // Cell
     centerel.classList.remove("highcellSortable");
 }
 
@@ -427,16 +440,16 @@ function SortableTable(param) {
                             for (let j = 0; j < rowsumList.length; j++) {
                                 if (columnOrder[columnOrderIdx].indexOf(rowsumList[j][0]['id']) > -1) {
                                     tbl.tblbody[i][columnOrder[columnOrderIdx]] = 0;
-                                    for (let k = 1; k < rowsumList[j].length; k++) {                                        
+                                    for (let k = 1; k < rowsumList[j].length; k++) {
                                         let adding;
                                         if (typeof (tbl.tblbody[i][rowsumList[j][k].substring(0, rowsumList[j][k].indexOf('.'))]) === 'object') {
                                             //tbl.tblbody[i][columnOrder[columnOrderIdx]] += parseFloat(byString(tbl.tblbody[i][rowsumList[j][k].substring(0, rowsumList[j][k].indexOf('.'))], rowsumList[j][k]));
-                                            adding=parseFloat(byString(tbl.tblbody[i][rowsumList[j][k].substring(0, rowsumList[j][k].indexOf('.'))], rowsumList[j][k]));
+                                            adding = parseFloat(byString(tbl.tblbody[i][rowsumList[j][k].substring(0, rowsumList[j][k].indexOf('.'))], rowsumList[j][k]));
                                         } else {
                                             //tbl.tblbody[i][columnOrder[columnOrderIdx]] += parseFloat(tbl.tblbody[i][rowsumList[j][k]]);
-                                            adding=parseFloat(tbl.tblbody[i][rowsumList[j][k]]);
+                                            adding = parseFloat(tbl.tblbody[i][rowsumList[j][k]]);
                                         }
-                                        if(!isNaN(adding)){
+                                        if (!isNaN(adding)) {
                                             tbl.tblbody[i][columnOrder[columnOrderIdx]] += adding;
                                         }
 
@@ -460,7 +473,7 @@ function SortableTable(param) {
                     str += "</tr>";
                     mhvstr += "</tr>";
                 }
-            }            
+            }
         }
 
         // Must be directly after the filtering!
@@ -576,11 +589,11 @@ function SortableTable(param) {
             document.getElementById(this.tableid + DELIMITER + "tblhead_mhv").style.height = Math.round(document.getElementById(this.tableid + DELIMITER + "tblhead").getBoundingClientRect().height) + "px";
             document.getElementById(this.tableid + DELIMITER + "tblhead_mhf").style.height = Math.round(document.getElementById(this.tableid + DELIMITER + "tblhead").getBoundingClientRect().height) + "px";
             */
-            let thh=Math.round(document.getElementById(this.tableid + DELIMITER + "tblhead").getBoundingClientRect().height) + "px";
-            let headers = document.querySelectorAll("#"+this.tableid + DELIMITER + "tblhead_mh"+" > tr > th,"+"#"+this.tableid + DELIMITER + "tblhead_mhv"+" > tr > th,"+"#"+this.tableid + DELIMITER + "tblhead_mhf"+" > tr > th");
-            for (let i=0;i<headers.length;i++){
-                let h=headers[i];
-                h.style.height=thh;
+            let thh = Math.round(document.getElementById(this.tableid + DELIMITER + "tblhead").getBoundingClientRect().height) + "px";
+            let headers = document.querySelectorAll("#" + this.tableid + DELIMITER + "tblhead_mh" + " > tr > th," + "#" + this.tableid + DELIMITER + "tblhead_mhv" + " > tr > th," + "#" + this.tableid + DELIMITER + "tblhead_mhf" + " > tr > th");
+            for (let i = 0; i < headers.length; i++) {
+                let h = headers[i];
+                h.style.height = thh;
             }
         } else {
             document.getElementById(this.tableid).innerHTML = str;
