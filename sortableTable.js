@@ -570,9 +570,18 @@ function SortableTable(param) {
                 document.getElementById(children[i].id.slice(0, -1) + "f").style.width = children[i].getBoundingClientRect().width + "px";
                 document.getElementById(children[i].id.slice(0, -1) + "f").style.boxSizing = "border-box";
             }
+            /*
+            // CHROME does not support setting height on thead which results in broken magic heading if the heading have multiple lines
             document.getElementById(this.tableid + DELIMITER + "tblhead_mh").style.height = Math.round(document.getElementById(this.tableid + DELIMITER + "tblhead").getBoundingClientRect().height) + "px";
             document.getElementById(this.tableid + DELIMITER + "tblhead_mhv").style.height = Math.round(document.getElementById(this.tableid + DELIMITER + "tblhead").getBoundingClientRect().height) + "px";
             document.getElementById(this.tableid + DELIMITER + "tblhead_mhf").style.height = Math.round(document.getElementById(this.tableid + DELIMITER + "tblhead").getBoundingClientRect().height) + "px";
+            */
+            let thh=Math.round(document.getElementById(this.tableid + DELIMITER + "tblhead").getBoundingClientRect().height) + "px";
+            let headers = document.querySelectorAll("#"+this.tableid + DELIMITER + "tblhead_mh"+" > tr > th,"+"#"+this.tableid + DELIMITER + "tblhead_mhv"+" > tr > th,"+"#"+this.tableid + DELIMITER + "tblhead_mhf"+" > tr > th");
+            for (let i=0;i<headers.length;i++){
+                let h=headers[i];
+                h.style.height=thh;
+            }
         } else {
             document.getElementById(this.tableid).innerHTML = str;
         }
