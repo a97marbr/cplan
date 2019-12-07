@@ -5,7 +5,8 @@ CREATE TABLE course
     ccode VARCHAR(45) DEFAULT NULL,
     credits DECIMAL(3,1) DEFAULT NULL,
     class VARCHAR(45) DEFAULT NULL,
-    program_year INT DEFAULT NULL,
+    program_year INT DEFAULT NULL, /* NOT USED */
+    active INT DEFAULT 1,
     PRIMARY KEY (cid)
 );
 

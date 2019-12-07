@@ -205,6 +205,44 @@ body {
     background-color: #ffffff;
 }
 
+/*******
+
+
+********/
+#course-list-table .sortabletable tbody tr {
+    /*border:2px solid rgba(255,0,0,0);*/
+}
+
+#course-list-table .sortabletable th, .sortabletable td {
+    padding:4px 4px;
+    white-space: nowrap;            
+    /*background-color: inherit;*/
+}
+
+#course-list-table .sortabletable th > div, .sortabletable td > div {
+    /*padding:2px 4px;*/
+    margin:3px;
+    white-space: nowrap;            
+}
+
+#course-list-table .sortabletable tbody {
+    border-top: 2px solid #888;
+    border-bottom: 2px solid #888;
+}
+
+#course-list-table .sortabletable thead tr:nth-child(odd),
+#course-list-table .sortabletable tbody tr:nth-child(odd),
+#course-list-table .sortabletable tfoot tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+#course-list-table .sortabletable thead tr:nth-child(even),
+#course-list-table .sortabletable tbody tr:nth-child(even),
+#course-list-table .sortabletable tfoot tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+
 .tblcell {
     padding:5px 20px;
 }

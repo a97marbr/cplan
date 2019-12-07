@@ -34,3 +34,5 @@ ALTER TABLE teaching ADD FOREIGN KEY (status) REFERENCES cstatus(id);
 
 ALTER TABLE course_instance ADD FOREIGN KEY (cid) REFERENCES course(cid);
 ALTER TABLE course_instance ADD FOREIGN KEY (planner) REFERENCES teacher(tid);
+
+ALTER TABLE course ADD COLUMN active INT DEFAULT 1;
