@@ -20,28 +20,17 @@ function getData() {
         });
 }
 
+function updateRowFilter(tbl)
+{
+    // Store the updated row-filter in localstorage
+    $("#teacher-list-container-filter input[type=checkbox].row-filter").each(function(){
+        console.log("Found input",this.id)
+    });
+    //tbl.render();
+    myTable.renderTable();
+}
+
 function returned_data(json) {
-    /*
-
-		var tabledata = {
-      tblhead:{
-        firstlast:"First/Last",
-        pnr:"Pnr",
-        num:"Num",
-        foo:"Foo",
-        holk:"Holk",
-        trumma:"Trumma"
-      },
-      tblbody:[],
-      tblfoot:{
-        pnr:"Pnr",
-        num:"Num",
-        trumma:"Trumma",
-        pnrid:"Pnr+Num+Trumma.xk"
-      }
-    }
-
-    */
 
     let tdata = {
         tblhead: { name: "Name", sign: "SIGN", active: "Active", access: "Role", del: "" },

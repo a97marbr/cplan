@@ -37,13 +37,13 @@ require '../dbconnect.php';
         <span class="btn btn-primary" onclick="addTeacher();">Add Teacher</span>
     </div>
     <h3>List of teachers</h3>
-    <div class="btn btn-primary btn-sm" onclick="$('#tableFilter').toggle( 'slow' );">Show/hide table filter</div>
-    <div id="tableFilter">
+    <div class="btn btn-primary btn-sm" onclick="$('#teacher-list-container-filter').toggle( 'slow' );">Show/hide table filter</div>
+    <div style="display:none" id="teacher-list-container-filter">
         <div id="columnFilter"></div>
         <div id="rowFilter">
-            <input type="checkbox" id="hide-inactive" onchange="myTable.renderTable()"><label for="hide-inactive">Hide Inactive teachers</label><br>
-            <input type="checkbox" id="hide-admins" onchange="myTable.renderTable()"><label for="hide-admins">Hide Administrator teachers</label><br>
-            <input type="checkbox" id="hide-users" onchange="myTable.renderTable()"><label for="hide-users">Hide Regular teachers</label>
+            <input type="checkbox" id="hide-inactive" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-inactive">Hide Inactive teachers</label><br>
+            <input type="checkbox" id="hide-admins" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-admins">Hide Administrator teachers</label><br>
+            <input type="checkbox" id="hide-users" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-users">Hide Regular teachers</label>
         </div>
     </div>
     <div id="teacher-list-container"></div>
