@@ -36,3 +36,13 @@ ALTER TABLE course_instance ADD FOREIGN KEY (cid) REFERENCES course(cid);
 ALTER TABLE course_instance ADD FOREIGN KEY (planner) REFERENCES teacher(tid);
 
 ALTER TABLE course ADD COLUMN active INT DEFAULT 1;
+ALTER TABLE course ADD UNIQUE (ccode);
+
+ALTER TABLE course_instance ADD COLUMN create_usr INT DEFAULT NULL;
+ALTER TABLE course_instance ADD COLUMN change_usr INT DEFAULT NULL;
+ALTER TABLE course_instance ADD COLUMN alt_usr INT DEFAULT NULL;
+ALTER TABLE course_instance ADD FOREIGN KEY (create_usr) REFERENCES teacher(tid);
+ALTER TABLE course_instance ADD FOREIGN KEY (change_usr) REFERENCES teacher(tid);
+ALTER TABLE course_instance ADD FOREIGN KEY (alt_usr) REFERENCES teacher(tid);
+
+GRANT ALL PRIVILEGES ON TABLE course_instance_examiner TO cplanadmin;

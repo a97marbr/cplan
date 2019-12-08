@@ -2,7 +2,7 @@ CREATE TABLE course
 (
     cid SERIAL NOT NULL,
     cname VARCHAR(100) DEFAULT NULL,
-    ccode VARCHAR(45) DEFAULT NULL,
+    ccode VARCHAR(45) DEFAULT NULL UNIQUE,
     credits DECIMAL(3,1) DEFAULT NULL,
     class VARCHAR(45) DEFAULT NULL,
     program_year INT DEFAULT NULL, /* NOT USED */
