@@ -14,8 +14,30 @@ $params = getOP("params", "UNK", "json");
 $error = "UNK";
 
 if ($_SESSION["access"] > 0) {
-    if (strcmp($op, "CHANGE_TEACHER_ACTIVE") === 0) {
-
+    if (strcmp($op, "UPDATE_TEACHER_ACTIVE") === 0) {
+        try {
+            if (isset($params->tid)) {
+                $tid = $params->tid;
+            } else {
+                $tid = "UNK";
+            }
+    
+            if (isset($params->active)) {
+                $active = $params->active;
+            } else {
+                $active = "UNK";
+            }
+    
+            if ($tid !== "UNK" && $active !== "UNK") {
+                $sql = 'UPDATE teacher SET active=:active WHERE tid=:tid;';
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':tid', $tid);
+                $stmt->bindParam(':active', $active);
+                $stmt->execute();
+            }
+        } catch (PDOException $e) {
+            $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
+        }
     }else if(strcmp($op, "ADD_TEACHER") === 0){
 
         if (isset($params->update->fname)) {

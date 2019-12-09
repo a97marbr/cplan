@@ -29,25 +29,26 @@ require '../dbconnect.php';
     require 'menu.php';
     ?>
     <div class="container-fluid">
-    <h3>Add teacher</h3>
-    <div>
-        <label for="fname">Förnamn:</label><input type="text" id="fname" placeholder='Marcus'>
-        <label for="lname">Efternamn:</label><input type="text" id="lname" placeholder="Brohede">
-        <label for="sign">Signatur:</label><input type="text" id="sign" placeholder="BROM">
-        <span class="btn btn-primary" onclick="addTeacher();">Add Teacher</span>
-    </div>
-    <h3>List of teachers</h3>
-    <div class="btn btn-primary btn-sm" onclick="$('#teacher-list-container-filter').toggle( 'slow' );">Show/hide table filter</div>
-    <div style="display:none" id="teacher-list-container-filter">
-        <div id="columnFilter"></div>
-        <div id="rowFilter">
-            <input type="checkbox" id="hide-inactive" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-inactive">Hide Inactive teachers</label><br>
-            <input type="checkbox" id="hide-admins" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-admins">Hide Administrator teachers</label><br>
-            <input type="checkbox" id="hide-users" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-users">Hide Regular teachers</label>
+        <h3>Add teacher</h3>
+        <div>
+            <label for="fname">Förnamn:</label><input type="text" id="fname" placeholder='Marcus'>
+            <label for="lname">Efternamn:</label><input type="text" id="lname" placeholder="Brohede">
+            <label for="sign">Signatur:</label><input type="text" id="sign" placeholder="BROM">
+            <span class="btn btn-primary" onclick="addTeacher();">Add Teacher</span>
         </div>
+        <h3>List of teachers</h3>
+        <div class="btn btn-primary btn-sm" onclick="$('#teacher-list-container-filter').toggle( 'slow' );">Show/hide table filter</div>
+        <div style="display:none" id="teacher-list-container-filter">
+            <div id="columnFilter"></div>
+            <div id="rowFilter">
+                <input type="checkbox" id="hide-inactive" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-inactive">Hide Inactive teachers</label><br>
+                <input type="checkbox" id="hide-admins" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-admins">Hide Administrator teachers</label><br>
+                <input type="checkbox" id="hide-users" class="teacher-list-container-row-filter" onchange="updateRowFilter()"><label for="hide-users">Hide Regular teachers</label>
+            </div>
+        </div>
+        <div id="teacher-list-container"></div>
     </div>
-    <div id="teacher-list-container"></div>
-</div>
+    <div id="editpopover" style="display:none;z-index:5000;"></div>
 </body>
 
 </html>

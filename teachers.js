@@ -43,7 +43,7 @@ function returned_data(json) {
         for (let i = 0; i < json.data.teachers.length; i++) {
             let t = json.data.teachers[i];
             console.log(t)
-            tdata.tblbody.push({ name: t.fname + " " + t.lname, sign: t.sign, active: t.active, access: t.access, del: t.tid });
+            tdata.tblbody.push({ name: t.fname + " " + t.lname, sign: t.sign, active: t.active, access: t.access, del: t.tid, tid:t.tid });
         }
         console.log(tdata);
 
@@ -56,8 +56,8 @@ function returned_data(json) {
             renderColumnFilterCallback: renderColumnFilter,
             rowFilterCallback: rowFilter,
             columnOrder: colOrder,
-            // displayCellEditCallback: displayCellEdit,
-            // updateCellCallback: updateCellCallback,
+            displayCellEditCallback: displayCellEdit,
+            updateCellCallback: updateCellCallback,
             // preRenderCallback:preRender,
             freezePaneIndex: 1,
             hasRowHighlight: true,
@@ -155,45 +155,21 @@ function updateTeaching(param) {
         });
 }
 
-function updateStatus(param, newstatus) {
-    if ($('#year').val()) {
-        year = $('#year').val();
-    } else {
-        year = 2018;
-    }
-    if ($('#sign').val()) {
-        sign = $('#sign').val();
-    } else {
-        sign = 'BROM';
+function updateTeacherActive(tid, active) {
+    let op = "UPDATE_TEACHER_ACTIVE"
+    let params = {
+        tid: tid,
+        active: active
     }
 
-    let teid = param;
-    let hours = $("#teid_" + param).val();
-    $("#teid_" + param).removeClass("confirmed unconfirmed mustchange error");
-    $("#teid_" + param).addClass(newstatus);
-    let status = newstatus;
-    if (status == 0) {
-        $("#teid_" + param.id).addClass("confirmed")
-    } else if (status == 1) {
-        $("#teid_" + param.id).addClass("unconfirmed")
-    } else if (status == 2) {
-        $("#teid_" + param.id).addClass("mustchange")
-    } else {
-        $("#teid_" + param.id).addClass("error");
-    }
-
-    //alert(teid + " " + hours + " " + status);
+    //alert(year + " " + sign);
 
     var jqxhr = $.ajax({
         type: 'POST',
-        url: 'teacher_service.php',
-        data: 'year=' + year + '&sign=' + sign + '&op=UPDATE&teid=' + teid + '&hours=' + hours + '&status=' + status
+        url: 'teachers_service.php',
+        data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
     })
-        .done(function (data) {
-            //alert( "success"+data );
-            var json = JSON.parse(data);
-            render(json);
-        })
+        .done(returned_data)
         .fail(function () {
             alert("error");
         })
@@ -346,4 +322,81 @@ function compare(a, b) {
             return b - a;
         }
     }
+}
+
+//--------------------------------------------------------------------------
+// updateCellCallback
+// ---------------
+//  Callback function for updating a cell value after editing a cell
+//--------------------------------------------------------------------------
+function updateCellCallback(rowno, colno, column, tableid, oldvalue, rowid) {
+    oldvalue = sortableTable.edit_celldata;
+    isLocked = false;
+    // Make AJAX call and return 
+    if (column == "active") {
+        let newvalue = oldvalue;
+        let tid=parseInt(document.getElementById("popoveredit_tid").value);
+        let new_active = parseInt(document.getElementById("popoveredit_active").value);
+        let newcelldata = new_active;        
+        updateTeacherActive(tid,new_active);
+        return newcelldata;
+    } else if (column == "access") {
+        let newvalue = oldvalue;
+        let tid=parseInt(document.getElementById("popoveredit_tid").value);
+        let new_access = parseInt(document.getElementById("popoveredit_access").value);
+        let newcelldata = new_access;        
+        updateTeacherActive(tid,new_access);
+        return newcelldata;
+    } 
+}
+
+//--------------------------------------------------------------------------
+// editCell
+// ---------------
+//  Callback function for showing a cell editing interface
+//  We must define the identifying parameter for the row, i.e., the primary key 
+//  for the edited cell.
+//  *must* define sortableTable.edit_rowid for each column
+//--------------------------------------------------------------------------
+function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid) {
+    isLocked = true;
+    let str = "";
+    if (column === "active") {
+        console.log(rowdata)
+        let spstr = "";
+        if(typeof celldata !== "undefined"){
+            spstr=celldata;
+        }
+        let tidstr = "";
+        if(typeof rowdata.tid !== "undefined"){
+            tidstr=rowdata.tid;
+        }
+        str +="<input type='hidden' id='popoveredit_tid' class='popoveredit' value='" + tidstr + "' />";
+        str +="<select id='popoveredit_active'>"
+        let optArr=["No longer teaching","Active"];
+        for(let i=0;i<optArr.length;i++){
+            let o=optArr[i];
+            if(i===celldata){
+                str+="<option selected value='"+i+"'>"+o+"</option>";
+            }else{
+                str+="<option value='"+i+"'>"+o+"</option>";
+            }
+        }
+        str +="</select>"
+    } else if (column === "access") {
+        let examinatorsstr = "";
+        if(typeof celldata !== "undefined"){
+            examinatorsstr=celldata;
+        }
+        let ciidstr = "";
+        if(typeof rowdata.ciid !== "undefined"){
+            ciidstr=rowdata.ciid;
+        }
+        str += "<input type='hidden' id='popoveredit_ciid' class='popoveredit' value='" + ciidstr + "' />";
+        str += "<div class='editInput'><label>Examinators:</label><input type='text' id='popoveredit_examinators' class='popoveredit' style='flex-grow:1' value='" + examinatorsstr + "' size=" + examinatorsstr.toString().length + "/></div>";   
+    } else {
+        console.log(celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid)
+        str=false;
+    }
+    return str;
 }
