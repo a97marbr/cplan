@@ -47,9 +47,6 @@ if (!isset($_SESSION["teacherid"])) {
 <div id="c" style="width:100%;overflow:scroll;"></div>
 <div id="editpopover" style="display:none;z-index:5000;"></div>
 <div id="tooltip" style="display:none;z-index:4000;position:absolute;"></div>
-<?php
-
-    ?>
 </body>
 
 </html>
