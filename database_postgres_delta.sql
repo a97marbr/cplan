@@ -44,5 +44,8 @@ ALTER TABLE course_instance ADD COLUMN alt_usr INT DEFAULT NULL;
 ALTER TABLE course_instance ADD FOREIGN KEY (create_usr) REFERENCES teacher(tid);
 ALTER TABLE course_instance ADD FOREIGN KEY (change_usr) REFERENCES teacher(tid);
 ALTER TABLE course_instance ADD FOREIGN KEY (alt_usr) REFERENCES teacher(tid);
+ALTER TABLE course_instance RENAME changed_ts TO change_ts;
+ALTER TABLE course_instance ALTER column examiner DROP NOT NULL;
+ALTER TABLE course_instance ADD COLUMN examinators VARCHAR(100) DEFAULT '';
 
 GRANT ALL PRIVILEGES ON TABLE course_instance_examiner TO cplanadmin;
