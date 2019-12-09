@@ -155,7 +155,7 @@ $tblhead = array(
     'totalAllocation' => 'Total allocation',
     'hsbudget' => 'Henrik S Budget',
     'coordinator' => 'Coordinator',
-    'examinators' => 'Examinators',
+    'examinators' => 'Examinator(s)',
 );
 
 $columnOrder = array('ccode', 'cname', 'class', 'credits', 'coordinator','examinators','start_period', 'end_period', 'study_program', 'students', 'time_budget');

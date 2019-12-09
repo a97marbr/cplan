@@ -519,7 +519,7 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
             ciidstr=rowdata.ciid;
         }
         str += "<input type='hidden' id='popoveredit_ciid' class='popoveredit' value='" + ciidstr + "' />";
-        str += "<div class='editInput'><label>Study Program:</label><input type='text' id='popoveredit_study_program' class='popoveredit' style='flex-grow:1' value='" + spstr + "' size=" + spstr.toString().length + "/></div>";        console.log("==>", celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid)
+        str += "<div class='editInput'><label>Study Program:</label><input type='text' id='popoveredit_study_program' class='popoveredit' style='flex-grow:1' value='" + spstr + "' size=" + spstr.toString().length + "/></div>";     
     } else if (column === "examinators") {
         let examinatorsstr = "";
         if(typeof celldata !== "undefined"){
@@ -530,9 +530,10 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
             ciidstr=rowdata.ciid;
         }
         str += "<input type='hidden' id='popoveredit_ciid' class='popoveredit' value='" + ciidstr + "' />";
-        str += "<div class='editInput'><label>Examinators:</label><input type='text' id='popoveredit_examinators' class='popoveredit' style='flex-grow:1' value='" + examinatorsstr + "' size=" + examinatorsstr.toString().length + "/></div>";        console.log("==>", celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid)
+        str += "<div class='editInput'><label>Examinators:</label><input type='text' id='popoveredit_examinators' class='popoveredit' style='flex-grow:1' value='" + examinatorsstr + "' size=" + examinatorsstr.toString().length + "/></div>";   
     } else {
         console.log(celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid)
+        str=false;
     }
     return str;
 }
