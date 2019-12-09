@@ -12,57 +12,157 @@ require 'basic.php';
 
 $op = getOP("op", "UNK", "string");
 $params = getOP("params", "UNK", "json");
-
-$year = new DateTime('Y');
-if (!empty($params['year'])) {
-    $year = $params['year'];
-}
-$sign = "UNK";
-if (!empty($params['sign'])) {
-    $sign = $params['sign'];
-}
-
-$updatevalue = "UNK";
-if (!empty($params['updatevalue'])) {
-    $updatevalue = $params['updatevalue'];
-}
+$error = "UNK";
 
 $isUnlocked = false;
 if ($_SESSION["access"] > 0) {
     $isUnlocked = true;
 }
 
-$error = "UNK";
 $max_teachers = 0;
-if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
-    $timeAllocation = json_encode($updatevalue["allocation"]);
-    $status = intval($updatevalue['status']);
-    $teid = $updatevalue['teid'];
-    $hours = intval($updatevalue["hours"]);
-    $ciid = intval($updatevalue['ciid']);
-    $tid = intval($updatevalue['tid']);
-    if ($teid !== "UNK" && $timeAllocation !== "UNK") {
-        $sql = 'UPDATE teaching SET allocation=:allocation,status=:status,changed_ts=NOW() WHERE teid=:teid;';
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':teid', $teid);
-        $stmt->bindParam(':allocation', $timeAllocation);
-        $stmt->bindParam(':status', $status);
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
-        }
+/*
+    if (isset($_POST['cid'])) {
+        $cid = $_POST['cid'];
     } else {
-        $sql = 'INSERT INTO teaching (hours,status,ciid,teacher,create_ts,allocation) VALUES(:hours,:status,:ciid,:tid,NOW(),:allocation);';
-        $error = $sql;
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':hours', $hours);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':ciid', $ciid);
-        $stmt->bindParam(':tid', $tid);
-        $stmt->bindParam(':allocation', $timeAllocation);
+        $cid = "UNK";
+    }
 
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
+    if (isset($_POST['coordinator'])) {
+        $coordinator = $_POST['coordinator'];
+    } else {
+        $coordinator = "UNK";
+    }
+
+    if (isset($_POST['examiner'])) {
+        $examiner = $_POST['examiner'];
+    } else {
+        $examiner = "UNK";
+    }
+
+    if (isset($_POST['start_period'])) {
+        $start_period = $_POST['start_period'];
+    } else {
+        $start_period = "UNK";
+    }
+
+    if (isset($_POST['end_period'])) {
+        $end_period = $_POST['end_period'];
+    } else {
+        $end_period = "UNK";
+    }
+
+    if (isset($_POST['year'])) {
+        $year = $_POST['year'];
+    } else {
+        $year = "UNK";
+    }
+
+    if (isset($_POST['students'])) {
+        $students = intval($_POST['students']);
+    } else {
+        $students = 0;
+    }
+
+    if (isset($_POST['study_program'])) {
+        $study_program = $_POST['study_program'];
+    } else {
+        $study_program = "UNK";
+    }
+    if ($cid != "UNK" && $coordinator != "UNK" && $examiner != "UNK" && $start_period != "UNK" && $end_period != "UNK" && $year != "UNK") {
+        $sql = 'INSERT INTO course_instance (cid,coordinator,examiner,start_period,end_period,year,students,study_program) values(:cid,:coordinator,:examiner,:start_period,:end_period,:year,:students,:study_program)';
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':cid', $cid);
+        $stmt->bindParam(':coordinator', $coordinator);
+        $stmt->bindParam(':examiner', $examiner);
+        $stmt->bindParam(':start_period', $start_period);
+        $stmt->bindParam(':end_period', $end_period);
+        $stmt->bindParam(':year', $year);
+        $stmt->bindParam(':students', $students);
+        $stmt->bindParam(':study_program', $study_program);
+        $stmt->execute();
+    }
+
+*/
+if ($op == "ADD_COURSEINSTANCE" && isset($params->courseinstance) && $isUnlocked) {
+    if (isset($params->courseinstance->cid)) {
+        $cid = $params->courseinstance->cid;
+    } else {
+        $cid = "UNK";
+    }
+
+    if (isset($params->courseinstance->coordinator)) {
+        $coordinator = $params->courseinstance->coordinator;
+    } else {
+        $coordinator = "UNK";
+    }
+
+    if (isset($params->courseinstance->examinators)) {
+        $examinators = $params->courseinstance->examinators;
+    } else {
+        $examinators = "UNK";
+    }
+
+    if (isset($params->courseinstance->start_period)) {
+        $start_period = $params->courseinstance->start_period;
+    } else {
+        $start_period = "UNK";
+    }
+
+    if (isset($params->courseinstance->end_period)) {
+        $end_period = $params->courseinstance->end_period;
+    } else {
+        $end_period = "UNK";
+    }
+
+    if (isset($params->courseinstance->year)) {
+        $year = $params->courseinstance->year;
+    } else {
+        $year = "UNK";
+    }
+
+    if (isset($params->courseinstance->students)) {
+        $students = intval($params->courseinstance->students);
+    } else {
+        $students = 0;
+    }
+
+    if (isset($params->courseinstance->study_program)) {
+        $study_program = $params->courseinstance->study_program;
+    } else {
+        $study_program = "UNK";
+    }
+
+    if ($cid != "UNK" && $coordinator != "UNK" && $examinators != "UNK" && $start_period != "UNK" && $end_period != "UNK" && $year != "UNK") {
+        $sql = 'INSERT INTO course_instance (cid,coordinator,start_period,end_period,year,students,study_program,examinators) values(:cid,:coordinator,:start_period,:end_period,:year,:students,:study_program,:examinators)';
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':cid', $cid);
+        $stmt->bindParam(':coordinator', $coordinator);
+        $stmt->bindParam(':examinators', $examinators);
+        $stmt->bindParam(':start_period', $start_period);
+        $stmt->bindParam(':end_period', $end_period);
+        $stmt->bindParam(':year', $year);
+        $stmt->bindParam(':students', $students);
+        $stmt->bindParam(':study_program', $study_program);
+        $stmt->execute();
+    }
+} else if ($op == "DELETE_COURSE_INSTANCE" && $isUnlocked) {
+    try {
+        if (isset($params->ciid)) {
+            $ciid = $params->ciid;
+        } else {
+            $ciid = "UNK";
         }
+
+        if ($ciid !== "UNK") {
+            $sql = 'DELETE FROM course_instance WHERE ciid=:ciid;';
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->execute();
+        }
+    } catch (PDOException $e) {
+        $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
     }
 } else if ($op == "UPDATECOURSEINSTANCE" && $updatevalue !== "UNK" && $isUnlocked) {
     $timebudget = "UNK";
@@ -144,6 +244,7 @@ try {
             "ciid" => intval($row["ciid"]),
             "cid" => intval($row["cid"]),
             "coordinator" => intval($row["coordinator"]),
+            "examinators" => $row["examinators"],
             "start_period" => intval($row["start_period"]),
             "end_period" => intval($row["end_period"]),
             "students" => intval($row["students"]),
@@ -154,11 +255,11 @@ try {
             "comment" => $row["comment"],
             "create_usr" => intval($row["create_usr"]),
             "create_ts" => $row["create_ts"],
-            "changed_usr" => intval($row["changed_usr"]),
-            "changed_ts" => $row["changed_ts"],
+            "change_usr" => intval($row["change_usr"]),
+            "change_ts" => $row["change_ts"],
             "alt_usr" => intval($row["alt_usr"]),
             "alt_ts" => $row["alt_ts"],
-            "timebudget" => $row["timebudget"]
+            "time_budget" => $row["time_budget"]
 
         );
         array_push($courseinstances, $courseinstance);
@@ -186,41 +287,40 @@ try {
     $teachers = array();
     foreach ($stmt as $key => $row) {
         $teacher = array(
-            "tid"=>intval($row["tid"]),
-            "fname"=>$row["fname"],
-            "lname"=>$row["lname"],
-            "sign"=>$row["sign"],
+            "tid" => intval($row["tid"]),
+            "fname" => $row["fname"],
+            "lname" => $row["lname"],
+            "sign" => $row["sign"],
             "access" => intval($row["access"]),
             "active" => intval($row["active"])
         );
-        array_push($teachers,$teacher);
+        array_push($teachers, $teacher);
     }
 
     $sql = 'SELECT * FROM year_period ORDER BY id;';
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
-    $teachers = array();
+    $year_periods = array();
     foreach ($stmt as $key => $row) {
-        $teacher = array(
-            "id"=>intval($row["id"]),
-            "short_desc"=>$row["short_desc"],
-            "long_desc"=>$row["long_desc"],
+        $year_period = array(
+            "id" => intval($row["id"]),
+            "short_desc" => $row["short_desc"],
+            "long_desc" => $row["long_desc"],
         );
-        array_push($teachers,$teacher);
+        array_push($year_periods, $year_period);
     }
 
     $sql = 'SELECT * FROM course_instance_examiner ORDER BY ciid;';
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
-    $examiners = array();
+    $examinators = array();
     foreach ($stmt as $key => $row) {
         $examiner = array(
-            "tid"=>intval($row["tid"]),
-            "ciid"=>intval($row["ciid"]),
+            "tid" => intval($row["tid"]),
+            "ciid" => intval($row["ciid"]),
         );
-        array_push($examiners,$examiner);
+        array_push($examinators, $examiner);
     }
-
 } catch (PDOException $e) {
     $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
 }
@@ -247,13 +347,14 @@ $data = array(
     "courseinstances" => $courseinstances,
     "courses" => $courses,
     "teachers" => $teachers,
-    "examiners" => $examiners,
+    "examinators" => $examinators,
+    "year_periods" => $year_periods,
 );
 
 $ret_data = array(
-    "op"=>$op,
-    "params"=>$params,
-    "data"=>$data,
+    "op" => $op,
+    "params" => $params,
+    "data" => $data,
     "error" => $error
 );
 header('Content-type: application/json');

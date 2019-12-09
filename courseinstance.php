@@ -24,7 +24,7 @@ require '../dbconnect.php';
     <script src="courseinstance.js"></script>
 </head>
 
-<body onload="">
+<body onload="getData();">
     <?php
     require 'menu.php';
     ?>
@@ -39,19 +39,24 @@ require '../dbconnect.php';
             -->
             <label for="cid">Kurs</label><select size='1' id='cid'></select>
             <label for="coordinator">Kursansvarig</label><select size='1' id='coordinator'></select>
-            <label for="examinators">Examinator</label><select class="selectpicker" multiple data-live-search="true">
+            <label for="examinators">Examinatorer</label>
+            <select size='1' id='examinators'></select>
+            <!--<input type="text" id="examinators" placeholder="BROM,GUSH">-->
+            <!--
+            <select>
                 <option disabled>Select examinors</option>
             </select>
+            -->
             <label for="year">År</label><input type="text" id="year" placeholder="2018">
             <label for="start_period">Start</label><select size='1' id='start_period'></select>
             <label for="end_period">Slut</label><select size='1' id='end_period'></select>
             <label for="study_program">ProgramÅr:</label><input type="text" id="study_program" placeholder='WEBUG1'>
-            <span>Add Course Instance</span>
+            <span class="btn btn-primary" onclick="addCourseInstance();">Add Course Instance</span>
 
         </div>
-        <h3>List of teachers</h3>
-        <div class="btn btn-primary btn-sm" onclick="$('#teacher-list-container-filter').toggle( 'slow' );">Show/hide table filter</div>
-        <div style="display:none" id="teacher-list-container-filter">
+        <h3>List of Course Instances</h3>
+        <div class="btn btn-primary btn-sm" onclick="$('#courseinstance-list-table-filter').toggle( 'slow' );">Show/hide table filter</div>
+        <div style="display:none" id="courseinstance-list-table-filter">
             <div id="columnFilter"></div>
             <div id="rowFilter">
                 <!--
@@ -61,7 +66,7 @@ require '../dbconnect.php';
                 -->
             </div>
         </div>
-        <div id="teacher-list-container"></div>
+        <div style="width:100%;overflow:scroll;" id="courseinstance-list-table"></div>
     </div>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
