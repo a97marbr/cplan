@@ -45,7 +45,6 @@ if (!isset($_SESSION["teacherid"])) {
 <hr>
 <div style="margin-bottom:0px;"><span>Search:</span><input type="text" id="lookingGlass" placeholder="write your query" onkeyup="searchterm=document.getElementById('lookingGlass').value;myTable.renderTable();"/></div>
 <div id="c" style="width:100%;overflow:scroll;"></div>
-<div id="c2" style="display:none;"></div><!--WORKAROUND-->
 <div id="editpopover" style="display:none;z-index:5000;"></div>
 <div id="tooltip" style="display:none;z-index:4000;position:absolute;"></div>
 <?php

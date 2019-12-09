@@ -8,6 +8,7 @@ const HOURS_PER_STUDENT=3;
 const HOURS_PER_STUDENT_FINAL_YEAR_PROJECT=30;
 const FINANCIAL_CONSTANT=1.0763;
 
+var serviceData=null;
 var isLocked = false;
 var sprogram;
 var myTable;
@@ -110,7 +111,7 @@ function getData() {
 function dataReturned(json) {
     //alert( "success"+data );
     //let json = JSON.parse(data);
-
+    serviceData=json;
     $("#title-year").html(json.params.year);
     $('#year').val(json.params.year);
     $('#sprogram').val(json.params.sprogram);
@@ -119,26 +120,6 @@ function dataReturned(json) {
     myTable = new SortableTable({
         data: json.data.courses_table.tbldata,
         tableElementId: "c",
-        filterElementId: "columnFilter",
-        renderCellCallback: renderCell,
-        renderSortOptionsCallback: renderSortOptions,
-        renderColumnFilterCallback: renderColumnFilter,
-        rowFilterCallback: rowFilter,
-        columnOrder: json.data.courses_table.columnOrder,
-        columnSumCallback: makeSum,
-        columnSum: colsums,
-        displayCellEditCallback: displayCellEdit,
-        updateCellCallback: updateCellCallback,
-        preRenderCallback:preRender,
-        freezePaneIndex: 2,
-        hasRowHighlight: true,
-        hasMagicHeadings: true,
-        hasCounterColumn: true
-    });
-
-    myTable2 = new SortableTable({
-        data: json.data.courses_table.tbldata,
-        tableElementId: "c2",
         filterElementId: "columnFilter",
         renderCellCallback: renderCell,
         renderSortOptionsCallback: renderSortOptions,
@@ -249,7 +230,7 @@ function renderSortOptions(col, status, colname) {
     str = "";
     if (status == -1) {
 
-        if (col == "ccode" || col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "study_program" || col == "tallocated") {
+        if (col == "ccode" || col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "study_program" || col == "tallocated"|| col == "examinators"|| col == "coordinator") {
             str += "<span onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>" + colname + "</span>";
         } else if ( col == "students") {            
             str += "<span onclick='myTable.toggleSortStatus(\"" + col + "\",0)'>Actual #<br>" + colname + "</span>";
@@ -271,7 +252,7 @@ function renderSortOptions(col, status, colname) {
             str += "</div>";
         }
     } else {
-        if (col == "ccode" || col == "cname" || col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "study_program" || col == "tallocated") {
+        if (col == "ccode" || col == "cname" || col == "class" || col == "credits" || col == "start_period" || col == "end_period" || col == "study_program" || col == "tallocated"|| col == "examinators"|| col == "coordinator") {
             if (status == 0) {
                 str += "<div onclick='myTable.toggleSortStatus(\"" + col + "\",1)'>" + colname + "&#x25b4;</div>";
             } else {
@@ -430,6 +411,17 @@ function renderCell(col, celldata, cellid, rowdata, colnames) {
             }
             t = "<div id='tacell_" + cellid + "' onmouseover='showTooltip(this,"+JSON.stringify(celldata)+");' onmouseout='hideTooltip();' style='text-align:center;position:relative;' class='" + sclass + "'>" + total + "</div>";
         }
+    } else if (col == "coordinator") {
+        console.log("coordinator",celldata)
+        teacherstr="Saknas";
+        if(typeof serviceData.data.teachers[celldata] !== "undefined"){
+            teacher=serviceData.data.teachers[celldata];
+            teacherstr=teacher.sign;
+        }
+        t = "<span>" + teacherstr + "</span>";
+    } else if (col == "examinators") {
+        console.log("examinators",celldata)
+        t = "<span>" + celldata + "</span>";
     } else {
     }
     return t;
@@ -474,7 +466,7 @@ function compare(a, b) {
     // We allways sort none numbers below 
     let tmp = (sortableTable.currentTable.ascending) ? -1000000 : 1000000;
 
-    if (col == "ccode" || col == "cname" || col == "start_period" || col == "end_period" || col == "class" || col == "comment" || col == "study_program" || col == "tallocated") {
+    if (col == "ccode" || col == "cname" || col == "start_period" || col == "end_period" || col == "class" || col == "comment" || col == "study_program" || col == "tallocated"|| col == "examinators"|| col == "coordinator") {
         //let tmp = (sortableTable.currentTable.ascending) ? -1 : 1;    
         if(kind===0){
             if (a == "UNK") tmp=-tmp;

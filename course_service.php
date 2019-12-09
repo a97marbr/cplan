@@ -153,10 +153,12 @@ $tblhead = array(
     'student_time' => 'Student Time',
     'time_budget' => 'Budget',
     'totalAllocation' => 'Total allocation',
-    'hsbudget' => 'Henrik S Budget'
+    'hsbudget' => 'Henrik S Budget',
+    'coordinator' => 'Coordinator',
+    'examinators' => 'Examinators',
 );
 
-$columnOrder = array('ccode', 'cname', 'class', 'credits', 'start_period', 'end_period', 'study_program', 'students', 'time_budget');
+$columnOrder = array('ccode', 'cname', 'class', 'credits', 'coordinator','examinators','start_period', 'end_period', 'study_program', 'students', 'time_budget');
 $sumColumns = array();
 $sql2 = 'SELECT fname,lname,sign FROM teacher ORDER BY lname ASC;';
 $stmt2 = $pdo->prepare($sql2);
@@ -192,6 +194,8 @@ foreach ($cstmt as $ckey => $crow) {
     $course['ccode'] = $crow['ccode'];
     $course['cname'] = $crow['cname'];
     $course['class'] = $crow['class'];
+    $course['coordinator'] = $crow['coordinator'];
+    $course['examinators'] = $crow['examinators'];
     $cred = 0;
     if (isset($crow['credits'])) {
         $course['credits'] = floatval($crow['credits']);
@@ -252,6 +256,27 @@ $columnOrder[$columnOrderIdx++] = 'comment';
 
 array_push($tblfoot, '');
 
+$teachers = array();
+try {
+    $sql = 'SELECT * FROM teacher WHERE active=1 ORDER BY tid;';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $teachers = array();
+    foreach ($stmt as $key => $row) {
+        $teacher = array(
+            "tid"=>intval($row["tid"]),
+            "fname"=>$row["fname"],
+            "lname"=>$row["lname"],
+            "sign"=>$row["sign"],
+            "access" => intval($row["access"]),
+            "active" => intval($row["active"])
+        );
+        $teachers[$teacher["tid"]]=$teacher;
+    }
+} catch (PDOException $e) {
+    $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
+}
+
 /*
 $data = array(
     "tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot),
@@ -262,6 +287,7 @@ echo json_encode($data);
 */
 $data = array(
     "courses_table" => array("tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot), "columnOrder" => $columnOrder),
+    "teachers"=>$teachers,
     "year" => $year,
 );
 
