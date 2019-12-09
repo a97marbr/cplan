@@ -160,7 +160,7 @@ $tblhead = array(
 
 $columnOrder = array('ccode', 'cname', 'class', 'credits', 'coordinator','examinators','start_period', 'end_period', 'study_program', 'students', 'time_budget');
 $sumColumns = array();
-$sql2 = 'SELECT fname,lname,sign FROM teacher ORDER BY lname ASC;';
+$sql2 = 'SELECT fname,lname,sign FROM teacher WHERE active=1 ORDER BY lname ASC;';
 $stmt2 = $pdo->prepare($sql2);
 $stmt2->execute();
 $resColumn = $stmt2->fetchAll(PDO::FETCH_ASSOC);
