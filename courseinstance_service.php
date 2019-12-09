@@ -164,47 +164,53 @@ if ($op == "ADD_COURSEINSTANCE" && isset($params->courseinstance) && $isUnlocked
     } catch (PDOException $e) {
         $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
     }
-} else if ($op == "UPDATECOURSEINSTANCE" && $updatevalue !== "UNK" && $isUnlocked) {
-    $timebudget = "UNK";
-    $students = "UNK";
-    $comment = "UNK";
-    if ($updaterow !== "UNK") {
-        $ciid = $updaterow;
+} else if ($op == "UPDATE_COURSE_INSTANCE_SPROGRAM" && $isUnlocked) {
+    try {
+        if (isset($params->ciid)) {
+            $ciid = $params->ciid;
+        } else {
+            $ciid = "UNK";
+        }
+
+        if (isset($params->study_program)) {
+            $sp = $params->study_program;
+        } else {
+            $sp = "UNK";
+        }
+
+        if ($ciid !== "UNK" && $sp !== "UNK") {
+            $sql = 'UPDATE course_instance SET study_program=:sp WHERE ciid=:ciid;';
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->bindParam(':sp', $sp);
+            $stmt->execute();
+        }
+    } catch (PDOException $e) {
+        $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
     }
-    if ($updatecol == "students") {
-        $students = intval($updatevalue);
-    } else if ($updatecol == "comment") {
-        $comment = $updatevalue;
-    } else if ($updatecol == "time_budget") {
-        $timebudget = json_encode($updatevalue);
-    }
-    if ($ciid !== "UNK") {
-        $sql = 'UPDATE course_instance SET ';
-        if ($comment !== "UNK") {
-            $sql .= 'comment=:comment,';
+} else if ($op == "UPDATE_COURSE_INSTANCE_EXAMINATORS" && $isUnlocked) {
+    try {
+        if (isset($params->ciid)) {
+            $ciid = $params->ciid;
+        } else {
+            $ciid = "UNK";
         }
-        if ($students !== "UNK") {
-            $sql .= 'students=:students,';
+
+        if (isset($params->examinators)) {
+            $examinators = $params->examinators;
+        } else {
+            $examinators = "UNK";
         }
-        if ($timebudget !== "UNK") {
-            $sql .= 'time_budget=:time_budget,';
+
+        if ($ciid !== "UNK" && $examinators !== "UNK") {
+            $sql = 'UPDATE course_instance SET examinators=:examinators WHERE ciid=:ciid;';
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->bindParam(':examinators', $examinators);
+            $stmt->execute();
         }
-        $sql .= 'changed_ts=NOW() WHERE ciid=:ciid;';
-        $error = $timebudget;
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':ciid', $ciid);
-        if ($comment !== "UNK") {
-            $stmt->bindParam(':comment', $comment);
-        }
-        if ($students !== "UNK") {
-            $stmt->bindParam(':students', $students);
-        }
-        if ($timebudget !== "UNK") {
-            $stmt->bindParam(':time_budget', $timebudget);
-        }
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
-        }
+    } catch (PDOException $e) {
+        $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
     }
 }
 

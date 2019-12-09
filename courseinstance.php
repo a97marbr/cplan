@@ -68,6 +68,7 @@ require '../dbconnect.php';
         </div>
         <div style="width:100%;overflow:scroll;" id="courseinstance-list-table"></div>
     </div>
+    <div id="editpopover" style="display:none;z-index:5000;"></div>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 

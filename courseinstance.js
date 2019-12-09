@@ -1,4 +1,4 @@
-var serviceData=null;
+var serviceData = null;
 var isLocked = false;
 var sprogram;
 var myTable;
@@ -60,9 +60,9 @@ function addCourseInstance() {
             start_period: start_period,
             end_period: end_period,
             coordinator: coordinator,
-            examinators:examinators,
-            year:year,
-            study_program:study_program
+            examinators: examinators,
+            year: year,
+            study_program: study_program
         }
     }
 
@@ -81,8 +81,8 @@ function addCourseInstance() {
 }
 
 function returned_data(json) {
-    serviceData=json;
-    if(json.error!=="UNK"){
+    serviceData = json;
+    if (json.error !== "UNK") {
         alert(json.error);
     }
     /*
@@ -121,14 +121,14 @@ function returned_data(json) {
     let tstr = "<option disabled>Ange Kursansvarig</option>";
     for (let i = 0; i < json.data.teachers.length; i++) {
         let t = json.data.teachers[i];
-        tstr += "<option value='" + t.tid + "'>" + t.sign + " (" + t.fname + " "+ t.lname+ ")</option>";
+        tstr += "<option value='" + t.tid + "'>" + t.sign + " (" + t.fname + " " + t.lname + ")</option>";
     }
     $("#coordinator").html(tstr);
 
     let estr = "<option disabled>Ange Examinator</option>";
     for (let i = 0; i < json.data.teachers.length; i++) {
         let t = json.data.teachers[i];
-        estr += "<option value='" + t.sign + "'>" + t.sign + " (" + t.fname + " "+ t.lname+ ")</option>";
+        estr += "<option value='" + t.sign + "'>" + t.sign + " (" + t.fname + " " + t.lname + ")</option>";
     }
     $("#examinators").html(estr);
 
@@ -141,20 +141,18 @@ function returned_data(json) {
     $("#end_period").html(pstr);
 
     let tdata = {
-        tblhead: { year:" År", ciid: "ciid", cid: "Kurskod/namn", coordinator: "Kursansvarig", examinators: "Examinatorer", start_period: "Start", end_period: "Slut", study_program:"Program", time_budget:"Budget", comment:"Kommentar", del: "" },
+        tblhead: { year: " År", ciid: "ciid", cid: "Kurskod/namn", coordinator: "Kursansvarig", examinators: "Examinatorer", start_period: "Start", end_period: "Slut", study_program: "Program", time_budget: "Budget", comment: "Kommentar", del: "" },
         tblbody: [],
         tblfoot: {}
     }
-    let colOrder = ["year", "start_period", "end_period", "cid",  "coordinator","examinators","study_program", "del"];
+    let colOrder = ["year", "start_period", "end_period", "cid", "coordinator", "examinators", "study_program", "del"];
 
     if (json.data.courseinstances.length > 0) {
-        
+
         for (let i = 0; i < json.data.courseinstances.length; i++) {
             let ci = json.data.courseinstances[i];
-            console.log(ci)
-            tdata.tblbody.push({ year: ci.year, cid: ci.cid, coordinator: ci.coordinator, examinators: ci.examinators, del: ci.ciid, ciid:ci.ciid,start_period:ci.start_period,end_period:ci.end_period,comment:ci.comment,study_program:ci.study_program });
+            tdata.tblbody.push({ year: ci.year, cid: ci.cid, coordinator: ci.coordinator, examinators: ci.examinators, del: ci.ciid, ciid: ci.ciid, start_period: ci.start_period, end_period: ci.end_period, comment: ci.comment, study_program: ci.study_program });
         }
-        console.log(tdata);
 
         myTable = new SortableTable({
             data: tdata,
@@ -165,8 +163,8 @@ function returned_data(json) {
             renderColumnFilterCallback: renderColumnFilter,
             rowFilterCallback: rowFilter,
             columnOrder: colOrder,
-            // displayCellEditCallback: displayCellEdit,
-            // updateCellCallback: updateCellCallback,
+            displayCellEditCallback: displayCellEdit,
+            updateCellCallback: updateCellCallback,
             // preRenderCallback:preRender,
             freezePaneIndex: 1,
             hasRowHighlight: true,
@@ -175,7 +173,7 @@ function returned_data(json) {
         });
 
         myTable.renderTable();
-        
+
     } else {
         $("#courseinstance-list-table").html("There are currently no courseinstances in DB. Use the above form to add courseinstances to the DB.");
     }
@@ -185,7 +183,53 @@ function returned_data(json) {
 function deleteCourseInstance(ciid) {
     let op = "DELETE_COURSE_INSTANCE"
     let params = {
-        ciid:ciid
+        ciid: ciid
+    }
+
+    //alert(year + " " + sign);
+
+    var jqxhr = $.ajax({
+        type: 'POST',
+        url: 'courseinstance_service.php',
+        data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
+    })
+        .done(returned_data)
+        .fail(function () {
+            alert("error");
+        })
+        .always(function () {
+            //alert( "complete" );
+        });
+}
+
+function updateStudyProgram(ciid, study_program) {
+    let op = "UPDATE_COURSE_INSTANCE_SPROGRAM"
+    let params = {
+        ciid: ciid,
+        study_program: study_program
+    }
+
+    //alert(year + " " + sign);
+
+    var jqxhr = $.ajax({
+        type: 'POST',
+        url: 'courseinstance_service.php',
+        data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
+    })
+        .done(returned_data)
+        .fail(function () {
+            alert("error");
+        })
+        .always(function () {
+            //alert( "complete" );
+        });
+}
+
+function updateExaminators(ciid, examinators) {
+    let op = "UPDATE_COURSE_INSTANCE_EXAMINATORS"
+    let params = {
+        ciid: ciid,
+        examinators: examinators
     }
 
     //alert(year + " " + sign);
@@ -214,12 +258,12 @@ function deleteCourseInstance(ciid) {
 
 function renderColumnFilter(col, status, colname) {
     str = "";
-    if(colname!==""){
+    if (colname !== "") {
         if (status) {
             str = "<div><label>" + colname + "</label>:<input type='checkbox' checked onclick='myTable.toggleColumn(\"" + col + "\")'></div>";
         } else {
             str = "<div><label>" + colname + "</label>:<input type='checkbox' onclick='myTable.toggleColumn(\"" + col + "\")'></div>";
-        }    
+        }
     }
 
     return str;
@@ -276,26 +320,26 @@ function renderCell(col, celldata, cellid, rowdata, colnames) {
     if (col == "del") {
         t = "<span class='btn btn-primary btn-sm' onclick='deleteCourseInstance(" + celldata + ")'>Delete</span>";
     } else if (col == "cid") {
-        cname="Saknas";
-        for (let i=0;i<serviceData.data.courses.length;i++){
-            let c=serviceData.data.courses[i];
-            if(c.cid===celldata){
-                cname="<span style='font-family:monospace;font-weight:bold;'>"+c.ccode+"</span>"+":"+c.cname;
+        cname = "Saknas";
+        for (let i = 0; i < serviceData.data.courses.length; i++) {
+            let c = serviceData.data.courses[i];
+            if (c.cid === celldata) {
+                cname = "<span style='font-family:monospace;font-weight:bold;'>" + c.ccode + "</span>" + ":" + c.cname;
                 break;
             }
         }
         t = "<div>" + cname + "</div>";
-    }else if (col == "coordinator") {
-        coordinator="Saknas";
-        for (let i=0;i<serviceData.data.teachers.length;i++){
-            let t=serviceData.data.teachers[i];
-            if(t.tid===celldata){
-                coordinator=t.sign;
+    } else if (col == "coordinator") {
+        coordinator = "Saknas";
+        for (let i = 0; i < serviceData.data.teachers.length; i++) {
+            let t = serviceData.data.teachers[i];
+            if (t.tid === celldata) {
+                coordinator = t.sign;
                 break;
             }
         }
         t = "<div>" + coordinator + "</div>";
-    }else if (col == "examinators") {
+    } else if (col == "examinators") {
         /*
         estr="Saknas";
         for (let i=0;i<serviceData.data.examinators.length;i++){
@@ -310,12 +354,12 @@ function renderCell(col, celldata, cellid, rowdata, colnames) {
         */
         t = "<div>" + celldata + "</div>";
     } else {
-        if(celldata===null){
-            t+="";
+        if (celldata === null) {
+            t += "";
             console.log(col, "null")
-        }else{
+        } else {
             t += celldata;
-        }        
+        }
     }
     return t;
 }
@@ -365,7 +409,7 @@ function compare(a, b) {
     let col = sortableTable.currentTable.getSortcolumn();
     let kind = sortableTable.currentTable.getSortkind();
 
-    if (col === "ccode" || col === "cname"|| col === "class") {
+    if (col === "ccode" || col === "cname" || col === "class") {
         let ret = 0;
         if (kind === 0) {
             if (typeof a === "undefined") {
@@ -465,6 +509,28 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
         str += "<div class='editInput'><label>Other:</label><input type='text' id='popoveredit_other' class='popoveredit' style='flex-grow:1' value='" + ta.other + "' size=" + ta.other.toString().length + "/></div>";
         str += "</div>";
         str += "</div>";
+    } else if (column === "study_program") {
+        let spstr = "";
+        if(typeof celldata !== "undefined"){
+            spstr=celldata;
+        }
+        let ciidstr = "";
+        if(typeof rowdata.ciid !== "undefined"){
+            ciidstr=rowdata.ciid;
+        }
+        str += "<input type='hidden' id='popoveredit_ciid' class='popoveredit' value='" + ciidstr + "' />";
+        str += "<div class='editInput'><label>Study Program:</label><input type='text' id='popoveredit_study_program' class='popoveredit' style='flex-grow:1' value='" + spstr + "' size=" + spstr.toString().length + "/></div>";        console.log("==>", celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid)
+    } else if (column === "examinators") {
+        let examinatorsstr = "";
+        if(typeof celldata !== "undefined"){
+            examinatorsstr=celldata;
+        }
+        let ciidstr = "";
+        if(typeof rowdata.ciid !== "undefined"){
+            ciidstr=rowdata.ciid;
+        }
+        str += "<input type='hidden' id='popoveredit_ciid' class='popoveredit' value='" + ciidstr + "' />";
+        str += "<div class='editInput'><label>Examinators:</label><input type='text' id='popoveredit_examinators' class='popoveredit' style='flex-grow:1' value='" + examinatorsstr + "' size=" + examinatorsstr.toString().length + "/></div>";        console.log("==>", celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid)
     } else {
         console.log(celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid)
     }
@@ -480,96 +546,21 @@ function updateCellCallback(rowno, colno, column, tableid, oldvalue, rowid) {
     oldvalue = sortableTable.edit_celldata;
     isLocked = false;
     // Make AJAX call and return 
-    if (column == "students") {
-        var newvalue = oldvalue;
-        var newcelldata = parseInt(document.getElementById("popoveredit_students").value);
-        if (isNaN(newcelldata)) {
-            return -1;// This must be handled
-        } else {
-            newvalue = newcelldata;
-            updateDB(tableid, rowid, column, newvalue, "COURSEINSTANCE");
-            return newvalue;
-        }
-    } else if (column == "unspecified") {
-        console.log(rowno, colno, column, tableid, oldvalue, rowid)
-        var newcelldata = parseInt(document.getElementById("popoveredit0").value);
-        if (isNaN(newcelldata)) {
-            return -1;// This must be handled
-        } else {
-            updateDB(tableid, rowno, column, newcelldata, rowid);
-            return newcelldata;
-        }
-    } else if (column == "time_budget") {
-        //console.log(rowno,colno,column,tableid,oldvalue);
-        if (oldvalue === null) {
-            oldvalue = {
-                students: 0,
-                unspecified: 0,
-                lecture: 0,
-                seminar: 0,
-                supervision: 0,
-                preparation: 0,
-                development: 0,
-                grading: 0,
-                examination: 0,
-                running: 0,
-                other: 0,
-                status: 0
-            }
-        }
-        var newvalue = oldvalue;
-        newvalue.students = parseInt(document.getElementById("popoveredit_students").value);
-        var obj = {
-            students: parseInt(document.getElementById("popoveredit_students").value),
-            unspecified: parseInt(document.getElementById("popoveredit_unspecified").value),
-            lecture: parseInt(document.getElementById("popoveredit_lecture").value),
-            seminar: parseInt(document.getElementById("popoveredit_seminar").value),
-            supervision: parseInt(document.getElementById("popoveredit_supervision").value),
-            preparation: parseInt(document.getElementById("popoveredit_preparation").value),
-            development: parseInt(document.getElementById("popoveredit_development").value),
-            grading: parseFloat(document.getElementById("popoveredit_grading").value.replace(",", ".")),
-            examination: parseFloat(document.getElementById("popoveredit_examination").value.replace(",", ".")),
-            running: parseFloat(document.getElementById("popoveredit_running").value.replace(",", ".")),
-            other: parseFloat(document.getElementById("popoveredit_other").value.replace(",", ".")),
-            //total:parseInt(document.getElementById("popoveredit_total").value),
-            status: parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value)
-        };
-        newvalue = obj;
-        //newvalue.status=parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value);
-        //newvalue.hours=0;
-        updateDB(tableid, rowid, column, newvalue, "COURSEINSTANCE");
-        return newvalue;
-    } else if (column == "comment") {
-        //console.log(rowno,colno,column,tableid,oldvalue);
-        var newvalue = oldvalue;
-        newvalue.comment = document.getElementById("popoveredit_comment").value;
-        updateDB(tableid, rowid, column, newvalue, "COURSEINSTANCE");
-        return newvalue;
-    } else if (column == "time_allocation") {
-        console.log(rowno, colno, column, tableid, oldvalue, rowid)
-        var newvalue;
-        if (oldvalue !== null) {
-            newvalue = oldvalue;
-        } else {
-            newvalue = { allocation: "UNK", hours: "UNK", status: "UNK", teid: "UNK", tid: "UNK", ciid: "UNK" };
-        }
-        var obj = {
-            unspecified: parseInt(document.getElementById("popoveredit_unspecified").value),
-            lecture: parseInt(document.getElementById("popoveredit_lecture").value),
-            seminar: parseInt(document.getElementById("popoveredit_seminar").value),
-            supervision: parseInt(document.getElementById("popoveredit_supervision").value),
-            preparation: parseInt(document.getElementById("popoveredit_preparation").value),
-            development: parseInt(document.getElementById("popoveredit_development").value),
-            grading: parseFloat(document.getElementById("popoveredit_grading").value.replace(",", ".")),
-            examination: parseFloat(document.getElementById("popoveredit_examination").value.replace(",", ".")),
-            running: parseFloat(document.getElementById("popoveredit_running").value.replace(",", ".")),
-            other: parseFloat(document.getElementById("popoveredit_other").value.replace(",", ".")),
-            status: parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value)
-        };
-        newvalue.allocation = obj;
-        newvalue.status = parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value);
-        console.log(newvalue)
-        updateDB(tableid, rowid, column, newvalue, "TEACHING");
-        return newvalue;
-    }
+    if (column == "study_program") {
+        let newvalue = oldvalue;
+        let ciid=parseInt(document.getElementById("popoveredit_ciid").value);
+        let new_study_program = document.getElementById("popoveredit_study_program").value;
+        let newcelldata = new_study_program;        
+        updateStudyProgram(ciid,new_study_program);
+        return newcelldata;
+
+    } else if (column == "examinators") {
+        let newvalue = oldvalue;
+        let ciid=parseInt(document.getElementById("popoveredit_ciid").value);
+        let new_examinators = document.getElementById("popoveredit_examinators").value;
+        let newcelldata = new_examinators;
+        updateExaminators(ciid,new_examinators);
+        return newcelldata;
+
+    } 
 }
