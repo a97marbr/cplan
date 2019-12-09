@@ -11,6 +11,7 @@ require 'basic.php';
 
 $op = getOP("op", "UNK", "string");
 $params = getOP("params", "UNK", "json");
+$error = "UNK";
 
 if ($_SESSION["access"] > 0) {
     if (strcmp($op, "UDATE_COURSE_ACTIVE") === 0) {
