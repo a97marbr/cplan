@@ -2,6 +2,8 @@ ALTER TABLE teacher ADD COLUMN pwd VARCHAR(128);
 ALTER TABLE teacher ADD COLUMN access INTEGER DEFAULT 0;
 ALTER TABLE teacher ADD COLUMN active INTEGER DEFAULT 1;
 
+
+
 CREATE TABLE cstatus
 (
     id INT,
@@ -27,6 +29,12 @@ INSERT INTO cstatus
     (id,letter,short_desc,long_desc)
 VALUES
     (3, 'E', 'Error', 'Error');
+
+ALTER TABLE teaching_log ADD COLUMN allocation JSONB;
+
+ALTER TABLE teaching ADD COLUMN create_id INT;
+ALTER TABLE teaching ADD COLUMN changed_id INT;
+ALTER TABLE teaching ADD COLUMN alt_id INT;
 
 ALTER TABLE teaching ADD FOREIGN KEY (teacher) REFERENCES teacher(tid);
 ALTER TABLE teaching ADD FOREIGN KEY (ciid) REFERENCES course_instance(ciid);

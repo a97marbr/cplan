@@ -24,4 +24,17 @@ function getOP($name,$default="UNK",$type="string")
     } 
     return $ret;
 }
+
+function getUserIpAddr(){
+    if(!empty($_SERVER['HTTPS_CLIENT_IP'])){
+        //ip from share internet
+        $ip = $_SERVER['HTTPS_CLIENT_IP'];
+    }elseif(!empty($_SERVER['HTTPS_X_FORWARDED_FOR'])){
+        //ip pass from proxy
+        $ip = $_SERVER['HTTPS_X_FORWARDED_FOR'];
+    }else{
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+}
 ?>

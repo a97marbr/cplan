@@ -725,6 +725,7 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
     } else if (column == "tallocated") {
         return null;
     } else {
+        console.log(rowdata);
         var ta;
         if (celldata.allocation == "UNK" || celldata.allocation === null) {
             ta = { "unspecified": 0, "lecture": 0, "seminar": 0, "supervision": 0, "preparation": 0, "development": 0, "grading": 0, "examination": 0, "running": 0, "other": 0, "total": 0, "status": 0 };
@@ -748,6 +749,7 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
         if (celldata.status == 3) { str += "selected"; }
         str += " value='3'>error</option>";
         str += "</select>";
+        str += "<input type='hidden' id='popoveredit_ciid' class='popoveredit'  value='" + rowdata.ciid + "' />";
         str += "<div class='editInput'><label>Unspecified:</label><input type='text' id='popoveredit_unspecified' class='popoveredit' style='flex-grow:1' value='" + ta.unspecified + "' size=" + ta.unspecified.toString().length + "/></div>";
         str += "<div class='editInput'><label>Lecture:</label><input type='text' id='popoveredit_lecture' class='popoveredit' style='flex-grow:1' value='" + ta.lecture + "' size=" + ta.lecture.toString().length + "/></div>";
         str += "<div class='editInput'><label>Seminar:</label><input type='text' id='popoveredit_seminar' class='popoveredit' style='flex-grow:1' value='" + ta.seminar + "' size=" + ta.seminar.toString().length + "/></div>";
@@ -770,6 +772,7 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
 //  Callback function for updating a cell value after editing a cell
 //--------------------------------------------------------------------------
 function updateCellCallback(rowno, colno, column, tableid, oldvalue, rowid) {
+    console.log(rowno, colno, column, tableid, oldvalue, rowid);
     oldvalue = sortableTable.edit_celldata;
     isLocked = false;
     // Make AJAX call and return 
@@ -857,8 +860,8 @@ function updateCellCallback(rowno, colno, column, tableid, oldvalue, rowid) {
         newvalue.allocation = obj;
         newvalue.status = parseInt(document.getElementById("popoveredit_status").options[document.getElementById("popoveredit_status").selectedIndex].value);
         newvalue.hours = 0;
-        newvalue.ciid =
-            updateDB(tableid, rowid, column, newvalue, "UPDATETEACHING");
+        newvalue.ciid = parseInt(document.getElementById("popoveredit_ciid").value);
+        updateDB(tableid, rowid, column, newvalue, "UPDATETEACHING");
         return newvalue;
     }
 }
@@ -878,6 +881,7 @@ function clearUpdateCell() {
 // AJAX call to update cell value in database on server
 //--------------------------------------------------------------------------
 function updateDB(tableid, rowno, col, val, op) {
+    console.log(tableid, rowno, col, val, op)
     //let op;
     /*
     if (dbtbl == "TEACHING") {

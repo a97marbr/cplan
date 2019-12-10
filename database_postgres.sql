@@ -155,7 +155,65 @@ CREATE TABLE teaching_log
     alt_id INT,
     PRIMARY KEY (log_id)
 );
+-- in_user INT,in_hours INT,in_status INT,in_ciid INT,in_teacher INT,in_allocation JSONB
+CREATE OR REPLACE PROCEDURE insert_teaching(in_user INT,in_hours INT,in_status INT,in_ciid INT,in_teacher INT,in_allocation JSONB)
+ LANGUAGE plpgsql AS
+$$
+DECLARE
+   ts TIMESTAMP;
+   in_teid INT;
+BEGIN
+    SELECT NOW() INTO ts;
+    INSERT INTO teaching (hours,status,ciid,teacher,create_ts,allocation,create_id) VALUES(in_hours,in_status,in_ciid,in_teacher,ts,in_allocation,in_user);
+    SELECT LASTVAL() INTO in_teid;
+    INSERT INTO teaching_log (log_ts,log_tid,log_op,teid,hours,status,ciid,teacher,create_ts,create_id,allocation) VALUES(ts,in_user,'INS',in_teid,in_hours,in_status,in_ciid,in_teacher,ts,in_user,in_allocation);
+END
+$$;
 
+CREATE OR REPLACE PROCEDURE update_teaching(in_user INT,in_teid INT,in_hours INT,in_status INT,in_allocation JSONB)
+ LANGUAGE plpgsql AS
+$$
+DECLARE
+   ts TIMESTAMP;
+   in_create_ts TIMESTAMP;
+   in_create_id INT;
+   in_ciid INT;
+   in_teacher INT;
+   in_alt_ts TIMESTAMP;
+   in_alt_id INT;
+
+BEGIN
+    SELECT NOW() INTO ts;
+    SELECT ciid,teacher,create_ts,create_id,alt_ts,alt_id INTO in_ciid,in_teacher,in_create_ts,in_create_id,in_alt_ts,in_alt_id FROM teaching WHERE teid=in_teid;
+    UPDATE teaching SET status=in_status,hours=in_hours,allocation=in_allocation,changed_ts=ts,changed_id=in_user WHERE teid=in_teid;
+    INSERT INTO teaching_log (log_ts,log_tid,log_op,teid,hours,status,ciid,teacher,create_ts,create_id,changed_ts,changed_id,allocation,alt_ts,alt_id) VALUES(ts,in_user,'UPD',in_teid,in_hours,in_status,in_ciid,in_teacher,in_create_ts,in_create_id,ts,in_user,in_allocation,in_alt_ts,in_alt_id);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE delete_teaching(in_user INT,in_teid INT)
+ LANGUAGE plpgsql AS
+$$
+DECLARE
+   ts TIMESTAMP;
+   in_create_ts TIMESTAMP;
+   in_create_id INT;
+   in_ciid INT;
+   in_teacher INT;
+   in_hours INT;
+   in_status INT;
+   in_allocation JSONB;
+   in_changed_ts TIMESTAMP;
+   in_changed_id INT;
+   in_alt_ts TIMESTAMP;
+   in_alt_id INT;
+
+BEGIN
+    SELECT NOW() INTO ts;
+    SELECT ciid,teacher,create_ts,create_id,teacher,hours,status,allocation,changed_ts,changed_id,alt_ts,alt_id INTO in_ciid,in_teacher,in_create_ts,in_create_id,in_teacher,in_hours,in_status,in_allocation,in_changed_ts,in_changed_id,in_alt_ts,in_alt_id FROM teaching WHERE teid=in_teid;
+    INSERT INTO teaching_log (log_ts,log_tid,log_op,teid,hours,status,ciid,teacher,create_ts,create_id,changed_ts,changed_id,allocation,alt_ts,alt_id) VALUES(ts,in_user,'DEL',in_teid,in_hours,in_status,in_ciid,in_teacher,in_create_ts,in_create_id,ts,in_user,in_allocation,in_alt_ts,in_alt_id);
+    DELETE FROM teaching WHERE teid=in_teid;
+END
+$$;
 
 CREATE TABLE worktype
 (
@@ -188,6 +246,19 @@ CREATE TABLE teacher_year_budget
     PRIMARY KEY(year,tid,yperiod,wtype),
     FOREIGN KEY(tid) REFERENCES teacher(tid),
     FOREIGN KEY(wtype) REFERENCES worktype(id)
+);
+
+CREATE TABLE access_log
+(
+    log_id INT GENERATED ALWAYS AS IDENTITY,
+    log_ts TIMESTAMP DEFAULT NOW(),
+    log_user INT,
+    log_op VARCHAR(32),
+    browserstr VARCHAR(512),
+    ip VARCHAR(32),
+    reqstr VARCHAR(1024),
+    username VARCHAR(64),
+    PRIMARY KEY (log_id)
 );
 
 INSERT INTO worktype

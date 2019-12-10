@@ -69,11 +69,14 @@ function clearUpdateCellInternal() {
     sortableTable.edit_tableid = null;
     sortableTable.edit_celldata = null;
     document.getElementById('editpopover').style.display = "none";
+    document.getElementById('editpopover').innerHTML="";
 }
 
 function updateCellInternal() {
+    console.log(sortableTable.sortableTables)
     for (var i = 0; i < sortableTable.sortableTables.length; i++) {
         if (sortableTable.sortableTables[i].tableid == sortableTable.edit_tableid) {
+            console.log("UPDATE "+ i)
             sortableTable.sortableTables[i].updateCell();
         }
     }
@@ -133,7 +136,7 @@ function clickedInternal(event, clickdobj) {
             popoverelement.style.left = Math.round(lmnt.left + xscroll) + "px";
             popoverelement.style.top = Math.round(lmnt.top + yscroll) + "px";
             popoverelement.style.minHeight = (Math.round(lmnt.height) - 5) + "px";
-            popoverelement.style.maxWidth = "fit-content";
+            //popoverelement.style.maxWidth = "fit-content";
             popoverelement.style.display = "flex";
         }
     }
@@ -284,7 +287,21 @@ function SortableTable(param) {
     // Local variables that contain html code for main table and local variable that contains magic headings table
     var str = "", mhstr = "", mhvstr = "", mhfstr = "";
 
-    sortableTable.sortableTables.push(this);
+    // Check if we already have this tableid if so ... splice (replace) else push (add)
+    let isNewTable=true;
+    for(let i=0;i<sortableTable.sortableTables.length;i++){
+        let tmptbl=sortableTable.sortableTables[i];
+        if(tmptbl.tableid === this.tableid){
+            isNewTable=false;
+            sortableTable.sortableTables.splice(i,1,this);
+            break;
+        }
+
+    }
+    if(isNewTable){
+        sortableTable.sortableTables.push(this);
+    }
+    
 
     this.getRow = function (rowno) {
         return tbl.tblbody[rowno];

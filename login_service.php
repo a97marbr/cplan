@@ -9,6 +9,8 @@
     require 'basic.php';
 
     $op=getOP("op");
+    $browserstr=$_SERVER['HTTP_USER_AGENT'];
+    $clientip=getUserIpAddr();
 
     $login=0;
     $error="UNK";
@@ -22,7 +24,7 @@
         $cstmt->bindParam(':sign', $username);
         $cstmt->execute();    
         foreach($cstmt as $key => $row){  
-            $error=$row["pwd"];
+
             if(empty($row['pwd'])){
                 $dbpwd=password_hash(strtolower($row["sign"]), PASSWORD_DEFAULT);
                 $csql = 'UPDATE teacher SET pwd=:pwd WHERE tid=:tid;';
@@ -43,10 +45,44 @@
                 $_SESSION["pwd"]=$row['pwd'];      
                 $_SESSION["access"]=intval($row['access']);   
                 $login=1;     
+                // Log Success
+                $csql = "INSERT INTO access_log (log_user,log_op,browserstr,ip,username) VALUES (:log_user,'LOGIN',:browserstr,:ip,:username);";
+                $cstmt = $pdo->prepare($csql);
+                $cstmt->bindParam(':log_user', $_SESSION["teacherid"]);
+                $cstmt->bindParam(':browserstr', $browserstr);
+                $cstmt->bindParam(':ip', $clientip);
+                $cstmt->bindParam(':username', $username);
+                $cstmt->execute();            
+
+            } else {
+                $csql = "INSERT INTO access_log (log_user,log_op,browserstr,ip,username) VALUES (:log_user,'FAILED LOGIN',:browserstr,:ip,:username);";
+                $cstmt = $pdo->prepare($csql);
+                $cstmt->bindParam(':log_user', $row["tid"]);
+                $cstmt->bindParam(':browserstr', $browserstr);
+                $cstmt->bindParam(':ip', $clientip);
+                $cstmt->bindParam(':username', $username);
+                $cstmt->execute();            
             }            
+        }
+        
+        if($cstmt->rowCount()===0){
+            $csql = "INSERT INTO access_log (log_user,log_op,browserstr,ip,username) VALUES (null,'UNKOWN USER',:browserstr,:ip,:username);";
+            $cstmt = $pdo->prepare($csql);
+            $cstmt->bindParam(':browserstr', $browserstr);
+            $cstmt->bindParam(':ip', $clientip);
+            $cstmt->bindParam(':username', $username);
+            $cstmt->execute();            
         }  
         
     }else{
+        $csql = 'INSERT INTO access_log (log_user,log_op,browserstr,ip,username) VALUES (:log_user,"LOGOUT",:browserstr,:ip,:username);';
+        $cstmt = $pdo->prepare($csql);
+        $cstmt->bindParam(':log_user', $_SESSION["teacherid"]);
+        $cstmt->bindParam(':browserstr', $browserstr);
+        $cstmt->bindParam(':ip', $clientip);
+        $cstmt->bindParam(':username', $_SESSION["username"]);
+        $cstmt->execute();            
+
         $_SESSION = array();
         session_unset();
         session_destroy();

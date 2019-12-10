@@ -31,35 +31,40 @@ $courses = array();
 $teachers = array();
 $max_teachers = 0;
 if (strcmp($op, "UPDATETEACHING") === 0 && is_object($update) && $isUnlocked) {
-    $updatevalue=$update->updatevalue;
-    $timeAllocation = json_encode($updatevalue->allocation);
-    $status = intval($updatevalue->status);
-    $teid = $updatevalue->teid;
-    $hours = intval($updatevalue->hours);
-    $ciid = intval($updatevalue->ciid);
-    $tid = intval($updatevalue->tid);
-    if ($teid !== "UNK" && $timeAllocation !== "UNK") {
-        $sql = 'UPDATE teaching SET allocation=:allocation,status=:status,changed_ts=NOW() WHERE teid=:teid;';
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':teid', $teid);
-        $stmt->bindParam(':allocation', $timeAllocation);
-        $stmt->bindParam(':status', $status);
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
-        }
-    } else {
-        $sql = 'INSERT INTO teaching (hours,status,ciid,teacher,create_ts,allocation) VALUES(:hours,:status,:ciid,:tid,NOW(),:allocation);';
-        $error = $sql;
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':hours', $hours);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':ciid', $ciid);
-        $stmt->bindParam(':tid', $tid);
-        $stmt->bindParam(':allocation', $timeAllocation);
+    try {
+        $updatevalue = $update->updatevalue;
+        $timeAllocation = json_encode($updatevalue->allocation);
+        $status = intval($updatevalue->status);
+        $teid = $updatevalue->teid;
+        $hours = intval($updatevalue->hours);
+        $ciid = intval($updatevalue->ciid);
+        $tid = intval($updatevalue->tid);
+        if ($teid !== "UNK" && $timeAllocation !== "UNK") {
+            $sql = 'CALL update_teaching(:usrid,:teid,:hours,:status,:allocation)';
+            //$sql = 'UPDATE teaching SET allocation=:allocation,status=:status,changed_ts=NOW() WHERE teid=:teid;';
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':usrid', $_SESSION["teacherid"]);
+            $stmt->bindParam(':teid', $teid);
+            $stmt->bindParam(':hours', $hours);
+            $stmt->bindParam(':status', $status);
+            $stmt->bindParam(':allocation', $timeAllocation);
+            $stmt->execute();
+        } else {
+            $sql = 'CALL insert_teaching (:usrid,:hours,:status,:ciid,:tid,:allocation);';
+            //$sql = 'INSERT INTO teaching (hours,status,ciid,teacher,create_ts,allocation) VALUES(:hours,:status,:ciid,:tid,NOW(),:allocation);';
+            $error = $sql;
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':hours', $hours);
+            $stmt->bindParam(':status', $status);
+            $stmt->bindParam(':ciid', $ciid);
+            $stmt->bindParam(':tid', $tid);
+            $stmt->bindParam(':allocation', $timeAllocation);
+            $stmt->bindParam(':usrid', $_SESSION["teacherid"]);
 
-        if (!$stmt->execute()) {
-            $error = $stmt->errorInfo();
+            $stmt->execute();
         }
+    } catch (PDOException $e) {
+        $error = "Database error: Could not update # students\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
     }
 } else if (strcmp($op, "UPDATECOURSEINSTANCE_STUDENTS") === 0 && is_object($update) && $isUnlocked) {
     $students = "UNK";
@@ -158,7 +163,7 @@ $tblhead = array(
     'examinators' => 'Examinator(s)',
 );
 
-$columnOrder = array('ccode', 'cname', 'class', 'credits', 'coordinator','examinators','start_period', 'end_period', 'study_program', 'students', 'time_budget');
+$columnOrder = array('ccode', 'cname', 'class', 'credits', 'coordinator', 'examinators', 'start_period', 'end_period', 'study_program', 'students', 'time_budget');
 $sumColumns = array();
 $sql2 = 'SELECT fname,lname,sign FROM teacher WHERE active=1 ORDER BY lname ASC;';
 $stmt2 = $pdo->prepare($sql2);
@@ -264,14 +269,14 @@ try {
     $teachers = array();
     foreach ($stmt as $key => $row) {
         $teacher = array(
-            "tid"=>intval($row["tid"]),
-            "fname"=>$row["fname"],
-            "lname"=>$row["lname"],
-            "sign"=>$row["sign"],
+            "tid" => intval($row["tid"]),
+            "fname" => $row["fname"],
+            "lname" => $row["lname"],
+            "sign" => $row["sign"],
             "access" => intval($row["access"]),
             "active" => intval($row["active"])
         );
-        $teachers[$teacher["tid"]]=$teacher;
+        $teachers[$teacher["tid"]] = $teacher;
     }
 } catch (PDOException $e) {
     $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
@@ -287,7 +292,7 @@ echo json_encode($data);
 */
 $data = array(
     "courses_table" => array("tbldata" => array("tblhead" => $tblhead, "tblbody" => $tblbody, "tblfoot" => $tblfoot), "columnOrder" => $columnOrder),
-    "teachers"=>$teachers,
+    "teachers" => $teachers,
     "year" => $year,
 );
 
