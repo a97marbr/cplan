@@ -174,7 +174,7 @@ if ($op == "UPDATETEACHING" && $updatevalue !== "UNK" && $isUnlocked) {
 
 // Get teacher id for selected sign
 try {
-    $sql = 'SELECT tid FROM teacher WHERE sign=:sign;';
+    $sql = 'SELECT tid FROM teacher WHERE active=1 AND sign=:sign;';
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':sign', $sign);
     $stmt->execute();
@@ -209,7 +209,7 @@ try {
             array_push($teacher_plans, $plan);
         }
     }
-    $sql = 'SELECT * FROM teacher,teaching,course_instance,course WHERE teacher.tid=teaching.teacher and teacher.sign=:sign and teaching.ciid=course_instance.ciid and course.cid=course_instance.cid and course_instance.year=:year order by course_instance.start_period;';
+    $sql = 'SELECT * FROM teacher,teaching,course_instance,course WHERE teacher.active=1 AND teacher.tid=teaching.teacher and teacher.sign=:sign and teaching.ciid=course_instance.ciid and course.cid=course_instance.cid and course_instance.year=:year order by course_instance.start_period;';
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':sign', $sign);
     $stmt->bindParam(':year', $year);
@@ -234,7 +234,7 @@ try {
         array_push($tblbody, $item);
     }
 
-    $sql = 'SELECT * FROM teacher ORDER BY lname';
+    $sql = 'SELECT * FROM teacher WHERE active=1 ORDER BY lname';
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
     $teachers = array();
