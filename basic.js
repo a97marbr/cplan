@@ -15,7 +15,7 @@ function logout() {
         data: 'op=logout'
     })
         .done(function (){
-            location.reload();
+            location.href="login.php";
         })
         .fail(function () {
             alert("error!!");

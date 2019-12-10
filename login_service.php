@@ -64,7 +64,7 @@
                 $cstmt->execute();            
             }            
         }
-        
+
         if($cstmt->rowCount()===0){
             $csql = "INSERT INTO access_log (log_user,log_op,browserstr,ip,username) VALUES (null,'UNKOWN USER',:browserstr,:ip,:username);";
             $cstmt = $pdo->prepare($csql);
@@ -75,7 +75,7 @@
         }  
         
     }else{
-        $csql = 'INSERT INTO access_log (log_user,log_op,browserstr,ip,username) VALUES (:log_user,"LOGOUT",:browserstr,:ip,:username);';
+        $csql = "INSERT INTO access_log (log_user,log_op,browserstr,ip,username) VALUES (:log_user,'LOGOUT',:browserstr,:ip,:username);";
         $cstmt = $pdo->prepare($csql);
         $cstmt->bindParam(':log_user', $_SESSION["teacherid"]);
         $cstmt->bindParam(':browserstr', $browserstr);
@@ -90,7 +90,7 @@
         // Remove the cookies.
         setcookie('username', '', 0, '/');
         setcookie('password', '', 0, '/');
-        header("Refresh:0; url=showsched.php");
+        header("Refresh:0; url=login.php");
     }
 
     $data=array(
