@@ -42,10 +42,8 @@ function returned_data(json) {
     if (json.data.teachers.length > 0) {
         for (let i = 0; i < json.data.teachers.length; i++) {
             let t = json.data.teachers[i];
-            console.log(t)
             tdata.tblbody.push({ name: t.fname + " " + t.lname, sign: t.sign, active: t.active, access: t.access, del: t.tid, tid:t.tid });
         }
-        console.log(tdata);
 
         myTable = new SortableTable({
             data: tdata,
@@ -178,6 +176,29 @@ function updateTeacherActive(tid, active) {
         });
 }
 
+function updateTeacherAccess(tid, access) {
+    let op = "UPDATE_TEACHER_ACCESS"
+    let params = {
+        tid: tid,
+        access: access
+    }
+
+    //alert(year + " " + sign);
+
+    var jqxhr = $.ajax({
+        type: 'POST',
+        url: 'teachers_service.php',
+        data: 'op=' + op + '&params=' + encodeURIComponent(JSON.stringify(params))
+    })
+        .done(returned_data)
+        .fail(function () {
+            alert("error");
+        })
+        .always(function () {
+            //alert( "complete" );
+        });
+}
+
 //--------------------------------------------------------------------------
 // renderColumnFilter
 // ---------------
@@ -242,6 +263,26 @@ function renderCell(col, celldata, cellid, rowdata, colnames) {
     let t = "";
     if (col == "del") {
         t = "<span class='btn btn-primary btn-sm' onclick='deleteTeacher(" + celldata + ")'>Delete</span>";
+    } else if (col == "active") {
+        let activestr="";
+        if(celldata===0){
+            activestr="No longer teaching";
+        }else if(celldata===1){
+            activestr="Active";
+        }else{
+            activestr="Unknown activity status";
+        }
+        t = "<span>" + activestr + "</span>";
+    } else if (col == "access") {
+        let astr="";
+        if(celldata===0){
+            astr="Cplan user";
+        }else if(celldata===1){
+            astr="CPlan Administrator";
+        }else{
+            astr="Unknown Cplan role!";
+        }
+        t = "<span>" + astr + "</span>";
     } else {
         t += celldata;
     }
@@ -345,7 +386,7 @@ function updateCellCallback(rowno, colno, column, tableid, oldvalue, rowid) {
         let tid=parseInt(document.getElementById("popoveredit_tid").value);
         let new_access = parseInt(document.getElementById("popoveredit_access").value);
         let newcelldata = new_access;        
-        updateTeacherActive(tid,new_access);
+        updateTeacherAccess(tid,new_access);
         return newcelldata;
     } 
 }
@@ -362,7 +403,6 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
     isLocked = true;
     let str = "";
     if (column === "active") {
-        console.log(rowdata)
         let spstr = "";
         if(typeof celldata !== "undefined"){
             spstr=celldata;
@@ -388,12 +428,23 @@ function displayCellEdit(celldata, rowno, rowelement, cellelement, column, colno
         if(typeof celldata !== "undefined"){
             examinatorsstr=celldata;
         }
-        let ciidstr = "";
-        if(typeof rowdata.ciid !== "undefined"){
-            ciidstr=rowdata.ciid;
+        let tidstr = "";
+        if(typeof rowdata.tid !== "undefined"){
+            tidstr=rowdata.tid;
         }
-        str += "<input type='hidden' id='popoveredit_ciid' class='popoveredit' value='" + ciidstr + "' />";
-        str += "<div class='editInput'><label>Examinators:</label><input type='text' id='popoveredit_examinators' class='popoveredit' style='flex-grow:1' value='" + examinatorsstr + "' size=" + examinatorsstr.toString().length + "/></div>";   
+        str += "<input type='hidden' id='popoveredit_tid' class='popoveredit' value='" + tidstr + "' />";
+        str +="<select id='popoveredit_access'>"
+        let optArr=["CPlan User","CPlan Administrator"];
+        for(let i=0;i<optArr.length;i++){
+            let o=optArr[i];
+            if(i===celldata){
+                str+="<option selected value='"+i+"'>"+o+"</option>";
+            }else{
+                str+="<option value='"+i+"'>"+o+"</option>";
+            }
+        }
+        str +="</select>"
+        //str += "<div class='editInput'><label>Examinators:</label><input type='text' id='popoveredit_examinators' class='popoveredit' style='flex-grow:1' value='" + examinatorsstr + "' size=" + examinatorsstr.toString().length + "/></div>";   
     } else {
         console.log(celldata, rowno, rowelement, cellelement, column, colno, rowdata, coldata, tableid)
         str=false;

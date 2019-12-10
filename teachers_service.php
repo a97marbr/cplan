@@ -21,13 +21,13 @@ if ($_SESSION["access"] > 0) {
             } else {
                 $tid = "UNK";
             }
-    
+
             if (isset($params->active)) {
                 $active = $params->active;
             } else {
                 $active = "UNK";
             }
-    
+
             if ($tid !== "UNK" && $active !== "UNK") {
                 $sql = 'UPDATE teacher SET active=:active WHERE tid=:tid;';
                 $stmt = $pdo->prepare($sql);
@@ -38,20 +38,44 @@ if ($_SESSION["access"] > 0) {
         } catch (PDOException $e) {
             $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
-    }else if(strcmp($op, "ADD_TEACHER") === 0){
+    } else if (strcmp($op, "UPDATE_TEACHER_ACCESS") === 0) {
+        try {
+            if (isset($params->tid)) {
+                $tid = $params->tid;
+            } else {
+                $tid = "UNK";
+            }
+
+            if (isset($params->access)) {
+                $access = $params->access;
+            } else {
+                $access = "UNK";
+            }
+
+            if ($tid !== "UNK" && $access !== "UNK") {
+                $sql = 'UPDATE teacher SET access=:access WHERE tid=:tid;';
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':tid', $tid);
+                $stmt->bindParam(':access', $access);
+                $stmt->execute();
+            }
+        } catch (PDOException $e) {
+            $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
+        }
+    } else if (strcmp($op, "ADD_TEACHER") === 0) {
 
         if (isset($params->update->fname)) {
             $fname = $params->update->fname;
         } else {
             $fname = "UNK";
         }
-        
+
         if (isset($params->update->lname)) {
             $lname = $params->update->lname;
         } else {
             $lname = "UNK";
         }
-        
+
         if (isset($params->update->sign)) {
             $sign = $params->update->fname;
         } else {
@@ -60,17 +84,14 @@ if ($_SESSION["access"] > 0) {
 
         if ($fname != "UNK" && $lname != "UNK" && $sign != "UNK") {
             $sql = "INSERT INTO teacher (fname,lname,sign) VALUES(:fname,:lname,:sign);";
-        
+
             $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':fname', $fname, PDO::PARAM_STR, 100);
             $stmt->bindParam(':lname', $lname, PDO::PARAM_STR, 100);
             $stmt->bindParam(':sign', $sign, PDO::PARAM_STR, 5);
             $stmt->execute();
-        }    
-        
+        }
     }
-
-    
 }
 
 try {
@@ -80,14 +101,14 @@ try {
     $teachers = array();
     foreach ($stmt as $key => $row) {
         $teacher = array(
-            "tid"=>intval($row["tid"]),
-            "fname"=>$row["fname"],
-            "lname"=>$row["lname"],
-            "sign"=>$row["sign"],
+            "tid" => intval($row["tid"]),
+            "fname" => $row["fname"],
+            "lname" => $row["lname"],
+            "sign" => $row["sign"],
             "access" => intval($row["access"]),
             "active" => intval($row["active"])
         );
-        array_push($teachers,$teacher);
+        array_push($teachers, $teacher);
     }
 } catch (PDOException $e) {
     $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
@@ -106,5 +127,3 @@ $ret_data = array(
 header('Content-type: application/json');
 
 echo json_encode($ret_data);
-
-
