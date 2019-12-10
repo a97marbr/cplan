@@ -17,7 +17,7 @@
         $username=getOP("username");
         $pwd=getOP("pwd");        
 
-        $csql = 'SELECT pwd,fname,lname,tid,sign,access FROM teacher WHERE LOWER(sign)=LOWER(:sign);';
+        $csql = 'SELECT pwd,fname,lname,tid,sign,access FROM teacher WHERE active=1 AND LOWER(sign)=LOWER(:sign);';
         $cstmt = $pdo->prepare($csql);
         $cstmt->bindParam(':sign', $username);
         $cstmt->execute();    
