@@ -77,7 +77,7 @@ if ($_SESSION["access"] > 0) {
         }
 
         if (isset($params->update->sign)) {
-            $sign = $params->update->fname;
+            $sign = $params->update->sign;
         } else {
             $sign = "UNK";
         }
