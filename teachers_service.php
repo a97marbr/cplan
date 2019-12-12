@@ -63,33 +63,36 @@ if ($_SESSION["access"] > 0) {
             $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
     } else if (strcmp($op, "ADD_TEACHER") === 0) {
+        try {
+            if (isset($params->update->fname)) {
+                $fname = $params->update->fname;
+            } else {
+                $fname = "UNK";
+            }
 
-        if (isset($params->update->fname)) {
-            $fname = $params->update->fname;
-        } else {
-            $fname = "UNK";
-        }
+            if (isset($params->update->lname)) {
+                $lname = $params->update->lname;
+            } else {
+                $lname = "UNK";
+            }
 
-        if (isset($params->update->lname)) {
-            $lname = $params->update->lname;
-        } else {
-            $lname = "UNK";
-        }
+            if (isset($params->update->sign)) {
+                $sign = $params->update->sign;
+            } else {
+                $sign = "UNK";
+            }
 
-        if (isset($params->update->sign)) {
-            $sign = $params->update->sign;
-        } else {
-            $sign = "UNK";
-        }
+            if ($fname != "UNK" && $lname != "UNK" && $sign != "UNK") {
+                $sql = "INSERT INTO teacher (fname,lname,sign) VALUES(:fname,:lname,:sign);";
 
-        if ($fname != "UNK" && $lname != "UNK" && $sign != "UNK") {
-            $sql = "INSERT INTO teacher (fname,lname,sign) VALUES(:fname,:lname,:sign);";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':fname', $fname, PDO::PARAM_STR, 100);
-            $stmt->bindParam(':lname', $lname, PDO::PARAM_STR, 100);
-            $stmt->bindParam(':sign', $sign, PDO::PARAM_STR, 5);
-            $stmt->execute();
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':fname', $fname, PDO::PARAM_STR, 100);
+                $stmt->bindParam(':lname', $lname, PDO::PARAM_STR, 100);
+                $stmt->bindParam(':sign', $sign, PDO::PARAM_STR, 5);
+                $stmt->execute();
+            }
+        } catch (PDOException $e) {
+            $error = "Database error!\n\n" . $e->getMessage() . "\n\nError Code:" . $e->getCode();
         }
     }
 }
