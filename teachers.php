@@ -12,6 +12,13 @@ require '../dbconnect.php';
 <html lang="en">
 
 <head>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#ffee77">
+    <meta name="theme-color" content="#ffee77">
     <meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE=11">
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -30,6 +37,7 @@ require '../dbconnect.php';
     ?>
     <div class="container-fluid">
         <h3>Add teacher</h3>
+        <div id="toast" style="display:none;"></div>
         <div>
             <label for="fname">Förnamn:</label><input type="text" id="fname" placeholder='Marcus'>
             <label for="lname">Efternamn:</label><input type="text" id="lname" placeholder="Brohede">
@@ -49,6 +57,7 @@ require '../dbconnect.php';
         <div id="teacher-list-container"></div>
     </div>
     <div id="editpopover" style="display:none;z-index:5000;"></div>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 
 </html>
