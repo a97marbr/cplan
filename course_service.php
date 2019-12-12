@@ -77,7 +77,7 @@ if (strcmp($op, "UPDATETEACHING") === 0 && is_object($update) && $isUnlocked) {
     }
     if ($students !== "UNK" && $ciid !== "UNK") {
         try {
-            $sql = 'UPDATE course_instance SET students=:students,changed_ts=NOW() WHERE ciid=:ciid;';
+            $sql = 'UPDATE course_instance SET students=:students,change_ts=NOW() WHERE ciid=:ciid;';
             $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':students', $students);
             $stmt->bindParam(':ciid', $ciid);
@@ -87,7 +87,7 @@ if (strcmp($op, "UPDATETEACHING") === 0 && is_object($update) && $isUnlocked) {
         }
     }
 } else if (strcmp($op, "UPDATECOURSEINSTANCE_TIMEBUDGET") === 0 && is_object($update) && $isUnlocked) {
-    $sql = 'UPDATE course_instance SET time_budget=:time_budget,changed_ts=NOW() WHERE ciid=:ciid;';
+    $sql = 'UPDATE course_instance SET time_budget=:time_budget,change_ts=NOW() WHERE ciid=:ciid;';
     $timebudget = "UNK";
     if (isset($update->updatevalue)) {
         $timebudget = json_encode($update->updatevalue);
@@ -107,7 +107,7 @@ if (strcmp($op, "UPDATETEACHING") === 0 && is_object($update) && $isUnlocked) {
         }
     }
 } else if (strcmp($op, "UPDATECOURSEINSTANCE_COMMENT") === 0 && is_object($update) && $isUnlocked) {
-    $sql = 'UPDATE course_instance SET comment=:comment,changed_ts=NOW() WHERE ciid=:ciid;';
+    $sql = 'UPDATE course_instance SET comment=:comment,change_ts=NOW() WHERE ciid=:ciid;';
     $comment = "UNK";
     if (isset($update->updatevalue)) {
         $comment = $update->updatevalue;
