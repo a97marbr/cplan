@@ -143,8 +143,8 @@ function dataReturned(json) {
         myTable.renderTable();    
         periods_tables=[];
         for (let jj = 0; jj < json.data.teaching_table.tbldata.tblbody.length; jj++) {
-            //console.log(json.tbldata.tblbody[jj]);
-            var data = json.data.teaching_table.tbldata.tblbody[jj];
+            //Get a copy of the year total object
+            var data = JSON.parse(JSON.stringify(json.data.teaching_table.tbldata.tblbody[jj]));
             var courseLength = 0;
             if (json.data.teaching_table.tbldata.tblbody[jj]['start_period'] > json.data.teaching_table.tbldata.tblbody[jj]['end_period']) {
     
