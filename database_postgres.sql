@@ -232,6 +232,43 @@ CREATE TABLE year_period
     PRIMARY KEY (id)
 );
 
+CREATE TABLE tperiod
+(
+    tyear INTEGER NOT NULL,
+    tperiod INTEGER NOT NULL,
+    sdate DATE,
+    edate DATE,
+    sweek INT,
+    eweek INT,
+    PRIMARY KEY (tyear,tperiod),
+    FOREIGN KEY (tperiod) REFERENCES year_period(id)
+);
+
+-- 2020
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2020,1,'2020-01-20','2020-03-29',4,13);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2020,2,'2020-03-30','2020-06-07',14,23);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2020,3,'2020-06-08','2020-08-30',24,35);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2020,4,'2020-08-31','2020-11-01',36,44);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2020,5,'2020-11-02','2021-01-17',45,02);
+-- 2019
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2019,1,'2019-01-21','2019-03-31',4,13);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2019,2,'2019-04-01','2019-06-09',14,23);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2019,3,'2019-06-10','2019-09-01',24,35);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2019,4,'2019-09-02','2019-11-03',36,44);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2019,5,'2019-11-04','2020-01-19',45,03);
+-- 2018
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2018,1,'2018-01-15','2018-03-25',3,12);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2018,2,'2018-03-26','2018-06-03',13,22);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2018,3,'2018-06-04','2018-09-02',23,35);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2018,4,'2018-09-03','2018-11-11',36,45);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2018,5,'2018-11-12','2019-01-20',45,03);
+-- 2017
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2017,1,'2017-01-16','2017-03-26',3,12);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2017,2,'2017-03-27','2017-06-04',13,22);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2017,3,'2017-06-05','2017-08-27',24,34);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2017,4,'2017-08-28','2017-10-29',35,43);
+INSERT INTO tperiod (tyear,tperiod,sdate,edate,sweek,eweek) VALUES(2017,5,'2017-10-30','2018-01-14',44,02);
+
 CREATE TABLE teacher_year_budget
 (
     year INTEGER NOT NULL,
