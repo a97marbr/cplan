@@ -145,12 +145,25 @@ function dataReturned(json) {
         for (let jj = 0; jj < json.data.teaching_table.tbldata.tblbody.length; jj++) {
             //Get a copy of the year total object
             var data = JSON.parse(JSON.stringify(json.data.teaching_table.tbldata.tblbody[jj]));
-            var courseLength = 0;
+            var courseLength = 1;
+
+            // The teaching year is divide into a cycle with 5 periods. 1 -> 2 -> 3 -> 4 -> 5- > 1
+            let period = data.start_period;
+            while (period != data.end_period){
+                courseLength++;
+                period++;
+                if(period>5){
+                    period=1;
+                }
+            } 
+            /*
             if (json.data.teaching_table.tbldata.tblbody[jj]['start_period'] > json.data.teaching_table.tbldata.tblbody[jj]['end_period']) {
     
             } else {
                 courseLength = json.data.teaching_table.tbldata.tblbody[jj]['end_period'] - json.data.teaching_table.tbldata.tblbody[jj]['start_period'] + 1;
             }
+            */
+           
             //spread time allocation evenly over periods and get total allocation for period
             let tot = 0;
             for (d in data) {
